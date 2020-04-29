@@ -5,9 +5,11 @@ dofile(minetest.get_modpath("mighty_morphin") .. "/crafts.lua")
 dofile(minetest.get_modpath("mighty_morphin") .. "/rangers.lua")
 dofile(minetest.get_modpath("mighty_morphin") .. "/functions.lua")
 dofile(minetest.get_modpath("mighty_morphin") .. "/morphing.lua")
+dofile(minetest.get_modpath("mighty_morphin") .. "/privs.lua")
 dofile(minetest.get_modpath("mighty_morphin") .. "/commands.lua")
 dofile(minetest.get_modpath("mighty_morphin") .. "/command_center_materials.lua")
+dofile(minetest.get_modpath("mighty_morphin") .. "/abms.lua")
 
-minetest.register_on_joinplayer(function(player)
+minetest.register_on_dignode(function(digger)
 	
 end)
