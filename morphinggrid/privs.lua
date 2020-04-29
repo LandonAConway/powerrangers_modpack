@@ -1,4 +1,4 @@
-minetest.register_privilege("powercoin_maker", {
-	description = "Allows users to create power coins.",
+minetest.register_privilege("power_rangers", {
+	description = "Allows users to access the Morphing Grid.",
 	give_to_singleplayer = false,
 })

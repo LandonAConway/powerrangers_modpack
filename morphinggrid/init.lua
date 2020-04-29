@@ -1,15 +1,15 @@
-dofile(minetest.get_modpath("mighty_morphin") .. "/api.lua")
-dofile(minetest.get_modpath("mighty_morphin") .. "/arsenal.lua")
-dofile(minetest.get_modpath("mighty_morphin") .. "/craftitems.lua")
-dofile(minetest.get_modpath("mighty_morphin") .. "/crafts.lua")
-dofile(minetest.get_modpath("mighty_morphin") .. "/rangers.lua")
-dofile(minetest.get_modpath("mighty_morphin") .. "/functions.lua")
-dofile(minetest.get_modpath("mighty_morphin") .. "/morphing.lua")
-dofile(minetest.get_modpath("mighty_morphin") .. "/privs.lua")
-dofile(minetest.get_modpath("mighty_morphin") .. "/commands.lua")
-dofile(minetest.get_modpath("mighty_morphin") .. "/command_center_materials.lua")
-dofile(minetest.get_modpath("mighty_morphin") .. "/abms.lua")
+local modname = minetest.get_current_modname()
+local modpath = minetest.get_modpath(modname)
 
-minetest.register_on_dignode(function(digger)
-	
-end)
+-- support for i18n
+armor_i18n = { }
+armor_i18n.gettext, armor_i18n.ngettext = dofile(modpath.."/intllib.lua")
+
+morphinggrid = {}
+
+dofile(minetest.get_modpath("morphinggrid") .. "/craftitems.lua")
+dofile(minetest.get_modpath("morphinggrid") .. "/energy_port.lua")
+dofile(minetest.get_modpath("morphinggrid") .. "/functions.lua")
+dofile(minetest.get_modpath("morphinggrid") .. "/morphing.lua")
+dofile(minetest.get_modpath("morphinggrid") .. "/privs.lua")
+dofile(minetest.get_modpath("morphinggrid") .. "/commands.lua")
