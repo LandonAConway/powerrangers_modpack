@@ -50,6 +50,7 @@ function mighty_morphin.set_ranger_meta(player, ranger)
 	end
 end
 
+--Dragon Shield
 function mighty_morphin.give_dragon_shield(from_player, to_player)
 	local from_ranger = mighty_morphin.get_current_ranger(from_player)
 	local to_ranger = mighty_morphin.get_current_ranger(to_player)
@@ -184,6 +185,40 @@ function mighty_morphin.get_dg_meta(player, value)
 	return meta:get_string('mighty_morphin_dragon_shield_given')
 end
 
+--Power Coin Detector
+function mighty_morphin.scan_for_players_with_power_coin(pos)
+	for _, obj in pairs(minetest.get_objects_inside_radius(pos, 7)) do
+		local isplayer = obj:get_player_name()
+		if isplayer ~= "" then
+			if mighty_morphin.search_for_powercoin(obj) == true then
+				return true
+			end
+		end
+	end
+	return false
+end
+
+function mighty_morphin.search_for_powercoin(player)
+	if mighty_morphin.player_has_item(player, "mighty_morphin:mastodon_powercoin") or
+	mighty_morphin.player_has_item(player, "mighty_morphin:mastodon_morpher") or
+	mighty_morphin.player_has_item(player, "mighty_morphin:pterodactyl_powercoin") or
+	mighty_morphin.player_has_item(player, "mighty_morphin:pterodactyl_morpher") or
+	mighty_morphin.player_has_item(player, "mighty_morphin:triceratops_powercoin") or
+	mighty_morphin.player_has_item(player, "mighty_morphin:triceratops_morpher") or
+	mighty_morphin.player_has_item(player, "mighty_morphin:saber_toothed_tiger_powercoin") or
+	mighty_morphin.player_has_item(player, "mighty_morphin:saber_toothed_tiger_morpher") or
+	mighty_morphin.player_has_item(player, "mighty_morphin:tyrannosaurus_powercoin") or
+	mighty_morphin.player_has_item(player, "mighty_morphin:tyrannosaurus_morpher") or
+	mighty_morphin.player_has_item(player, "mighty_morphin:dragonzord_powercoin") or
+	mighty_morphin.player_has_item(player, "mighty_morphin:dragonzord_morpher") or
+	mighty_morphin.player_has_item(player, "mighty_morphin:tigerzord_powercoin") or
+	mighty_morphin.player_has_item(player, "mighty_morphin:tigerzord_morpher") then
+		return true
+	end
+	return false
+end
+
+--Other Useful Functions
 function mighty_morphin.get_current_ranger(player)
 	local meta = player:get_meta()
 	local ranger = meta:get_string('mighty_morphin_morph_status')
@@ -200,7 +235,16 @@ function mighty_morphin.player_has_item(player, item)
 	return result
 end
 
-function mighty_morphin.split_string (inputstr, sep)
+function mighty_morphin.player_has_item_and_is_morphed(player, item)
+	if not string.find(mighty_morphin.get_current_ranger(player), "none") then
+		if mighty_morphin.player_has_item(player, item) then
+			return true
+		end
+	end
+	return false
+end
+
+function mighty_morphin.split_string(inputstr, sep)
 	if sep == nil then
 		sep = "%s"
 	end

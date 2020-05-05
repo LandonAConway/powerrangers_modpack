@@ -13,7 +13,8 @@ minetest.register_chatcommand("power_axe", {
 		
 		local meta = player:get_meta()
 		local morph_status = meta:get_string('mighty_morphin_morph_status')
-		if morph_status == "black" or morph_status == "black_shield" then
+		if morph_status == "black" or morph_status == "black_shield" or
+		mighty_morphin.player_has_item_and_is_morphed(player, "mighty_morphin:mastodon_powercoin") == true then
 			local inv = player:get_inventory()
 			local stack = ItemStack("mighty_morphin:power_axe 1")
 			local leftover = inv:add_item("main", stack)
@@ -43,7 +44,8 @@ minetest.register_chatcommand("power_bow", {
 		
 		local meta = player:get_meta()
 		local morph_status = meta:get_string('mighty_morphin_morph_status')
-		if morph_status == "pink" or morph_status == "pink_shield" then
+		if morph_status == "pink" or morph_status == "pink_shield" or
+		mighty_morphin.player_has_item_and_is_morphed(player, "mighty_morphin:pterodactyl_powercoin") == true then
 			local inv = player:get_inventory()
 			local stack = ItemStack("mighty_morphin:power_bow 1")
 			local leftover = inv:add_item("main", stack)
@@ -73,7 +75,8 @@ minetest.register_chatcommand("power_lance", {
 		
 		local meta = player:get_meta()
 		local morph_status = meta:get_string('mighty_morphin_morph_status')
-		if morph_status == "blue" or morph_status == "blue_shield" then
+		if morph_status == "blue" or morph_status == "blue_shield" or
+		mighty_morphin.player_has_item_and_is_morphed(player, "mighty_morphin:triceratops_powercoin") == true then
 			local inv = player:get_inventory()
 			local stack = ItemStack("mighty_morphin:power_lance 1")
 			local leftover = inv:add_item("main", stack)
@@ -103,7 +106,8 @@ minetest.register_chatcommand("power_daggers", {
 		
 		local meta = player:get_meta()
 		local morph_status = meta:get_string('mighty_morphin_morph_status')
-		if morph_status == "yellow" or morph_status == "yellow_shield" then
+		if morph_status == "yellow" or morph_status == "yellow_shield" or
+		mighty_morphin.player_has_item_and_is_morphed(player, "mighty_morphin:saber_toothed_tiger_powercoin") == true then
 			local inv = player:get_inventory()
 			local stack = ItemStack("mighty_morphin:power_daggers 1")
 			local leftover = inv:add_item("main", stack)
@@ -133,7 +137,9 @@ minetest.register_chatcommand("power_sword", {
 		
 		local meta = player:get_meta()
 		local morph_status = meta:get_string('mighty_morphin_morph_status')
-		if morph_status == "red" or morph_status or "red_shield" then
+		
+		if morph_status == "red" or morph_status == "red_shield" or
+		mighty_morphin.player_has_item_and_is_morphed(player, "mighty_morphin:tyrannosaurus_powercoin") == true then
 			local inv = player:get_inventory()
 			local stack = ItemStack("mighty_morphin:power_sword 1")
 			local leftover = inv:add_item("main", stack)
@@ -141,6 +147,7 @@ minetest.register_chatcommand("power_sword", {
 				minetest.chat_send_player(player_name, "Could not summon Power Sword becuase inventory is full")
 			end
 			
+			minetest.chat_send_all(morph_status)
 			minetest.chat_send_player(player_name, "You summoned the Power Sword")
 		else
 			minetest.chat_send_player(player_name, "You must be morphed into the Mighty Morphin red ranger to summon this weapon.")
@@ -163,7 +170,7 @@ minetest.register_chatcommand("dragon_dagger", {
 		
 		local meta = player:get_meta()
 		local morph_status = meta:get_string('mighty_morphin_morph_status')
-		if morph_status == "green" or mighty_morphin.player_has_item(player, "mighty_morphin:dragonzord_powercoin") == true then
+		if morph_status == "green" or mighty_morphin.player_has_item_and_is_morphed(player, "mighty_morphin:dragonzord_powercoin") == true then
 			local inv = player:get_inventory()
 			local stack = ItemStack("mighty_morphin:dragon_dagger 1")
 			local leftover = inv:add_item("main", stack)
@@ -195,7 +202,8 @@ minetest.register_chatcommand("saba", {
 		
 		local meta = player:get_meta()
 		local morph_status = meta:get_string('mighty_morphin_morph_status')
-		if morph_status == "white" then
+		if morph_status == "white" or
+		mighty_morphin.player_has_item_and_is_morphed(player, "mighty_morphin:tigerzord_powercoin") == true then
 			local inv = player:get_inventory()
 			local stack = ItemStack("mighty_morphin:saba 1")
 			local leftover = inv:add_item("main", stack)
@@ -251,5 +259,39 @@ minetest.register_chatcommand("dragon_shield", {
 	func = function(name, param)
 		local player = minetest.get_player_by_name(name)
 		mighty_morphin.summon_dragon_shield(player)
+	end,
+})
+
+minetest.register_chatcommand("make_powercoin", {
+	params = "<coin_name> Itemstring of coin without the mods name.",
+	description = "Gets the wanted power coin.",
+	
+	privs = {
+		interact = true,
+		power_rangers = true,
+		powercoin_maker = true,
+	},
+	
+	func = function(name, text)
+		if text == "mastodon_powercoin" or
+		text == "pterodactyl_powercoin" or
+		text == "triceratops_powercoin" or
+		text == "saber_toothed_tiger_powercoin" or
+		text == "tyrannosaurus_powercoin" or
+		text == "dragonzord_powercoin" or
+		text == "tigerzord_powercoin" then
+			local powercoinname = "mighty_morphin:"..text
+			local player = minetest.get_player_by_name(name)
+			
+			local inv = player:get_inventory()
+			local stack = ItemStack(powercoinname.." 1")
+			local leftover = inv:add_item("main", stack)
+			if leftover:get_count() > 0 then
+				return false, "Could not make power coin becuase inventory is full"
+			else
+				return true, "Power coin is in inventory."
+			end
+		end
+		return false, "'"..text.."' is not a power coin."
 	end,
 })

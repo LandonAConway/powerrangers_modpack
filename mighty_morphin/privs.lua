@@ -1,4 +1,9 @@
+minetest.register_privilege("communicator", {
+	description = "Allows players to use communicator chat commands.",
+	give_to_singleplayer = false,
+})
+
 minetest.register_privilege("powercoin_maker", {
-	description = "Allows users to create power coins.",
+	description = "Allows players to create power coins.",
 	give_to_singleplayer = false,
 })
