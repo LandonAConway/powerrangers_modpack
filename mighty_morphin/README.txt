@@ -1,4 +1,4 @@
-Mighty Morphin Power Rangers v1.0
+Mighty Morphin Power Rangers (BETA) v0.1
 
 
 DESCRIPTION

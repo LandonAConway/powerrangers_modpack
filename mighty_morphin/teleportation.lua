@@ -14,13 +14,53 @@ minetest.register_chatcommand("cmc_teleport_pos", {
 		local player = minetest.get_player_by_name(name)
 		local pos = player:get_pos()
 		local meta = player:get_meta()
-		meta:set_string("cmc_last_pos", minetest.pos_to_string(pos))
 		
 		local to_pos = minetest.string_to_pos(text)
 		
 		if to_pos ~= nil then
+			meta:set_string("cmc_last_pos", minetest.pos_to_string(pos))
+			
 			teleportation.teleport(player, to_pos)
 			return true, "Teleported to: "..minetest.pos_to_string(to_pos)
+		else
+			return false, "Position is not a valid."
+		end
+	end,
+})
+
+minetest.register_chatcommand("cmc_safe_teleport_pos", {
+	params = "<pos> (x,y,z)",
+	description = "Safely teleports player near specified position. If the position is in a dangorous spot (i.e. in free fall) you will be teleported to a safe position near it.",
+	
+	privs = {
+		interact = true,
+		power_rangers = true,
+		communicator = true,
+	},
+	
+	func = function(name, text)
+		local player = minetest.get_player_by_name(name)
+		local pos = player:get_pos()
+		local meta = player:get_meta()
+		
+		local to_pos = minetest.string_to_pos(text)
+		
+		if to_pos ~= nil then
+			local best_pos_a = teleportation.find_best_pos(to_pos, 2)
+			local best_pos_b = teleportation.find_best_pos(to_pos, 7)
+			if best_pos_a ~= nil then
+				meta:set_string("cmc_last_pos", minetest.pos_to_string(pos))
+				
+				player:set_pos(best_pos_a)
+				return true, "Teleported to: "..minetest.pos_to_string(best_pos_a)
+			elseif best_pos_b ~= nil then
+				meta:set_string("cmc_last_pos", minetest.pos_to_string(pos))
+				
+				player:set_pos(best_pos_b)
+				return true, "Teleported to: "..minetest.pos_to_string(best_pos_b)
+			else
+				return false, "There is not enough space for teleportation."
+			end
 		else
 			return false, "Position is not a valid."
 		end
@@ -41,11 +81,12 @@ minetest.register_chatcommand("cmc_teleport", {
 		local player = minetest.get_player_by_name(name)
 		local pos = player:get_pos()
 		local meta = player:get_meta()
-		meta:set_string("cmc_last_pos", minetest.pos_to_string(pos))
 		
 		local to_pos = teleportation.locations_get_pos(player, text)
 		
 		if text ~= nil and teleportation.locations_exists(player, text) then
+			meta:set_string("cmc_last_pos", minetest.pos_to_string(pos))
+			
 			teleportation.teleport(player, to_pos)
 			return true, "Teleported to: "..minetest.pos_to_string(to_pos)
 		else
@@ -73,12 +114,19 @@ minetest.register_chatcommand("cmc_teleport_to_player", {
 			for _, plr in ipairs(minetest.get_connected_players()) do
 				if text == plr:get_player_name() then
 					local to_pos = plr:get_pos()
-					meta:set_string("cmc_last_pos", minetest.pos_to_string(pos))
 					
-					local best_pos = teleportation.find_best_pos(to_pos, 7)
-					if best_pos ~= nil then
-						player:set_pos(best_pos)
-						return true, "Teleported to: "..minetest.pos_to_string(best_pos)
+					local best_pos_a = teleportation.find_best_pos(to_pos, 2)
+					local best_pos_b = teleportation.find_best_pos(to_pos, 7)
+					if best_pos_a ~= nil then
+						meta:set_string("cmc_last_pos", minetest.pos_to_string(pos))
+						
+						player:set_pos(best_pos_a)
+						return true, "Teleported to: "..minetest.pos_to_string(best_pos_a)
+					elseif best_pos_b ~= nil then
+						meta:set_string("cmc_last_pos", minetest.pos_to_string(pos))
+						
+						player:set_pos(best_pos_b)
+						return true, "Teleported to: "..minetest.pos_to_string(best_pos_b)
 					else
 						return false, "There is not enough space for teleportation."
 					end
@@ -110,6 +158,7 @@ minetest.register_chatcommand("cmc_teleportback", {
 		
 		if pos ~= nil then
 			meta:set_string("cmc_last_pos", minetest.pos_to_string(player:get_pos()))
+			
 			teleportation.teleport(player, pos)
 			return true, "Teleported to: "..minetest.pos_to_string(pos)
 		else
@@ -186,11 +235,38 @@ minetest.register_chatcommand("cmc_teleportation_remove_pos", {
 		local meta = player:get_meta()
 		
 		if text ~= nil and text ~= "" then
-			if not string.find(text, "|") and not string.find(text, "=") then
+			if teleportation.locations_get_pos(player, text) ~= nil then
 				teleportation.locations_remove_pos(player, text)
 				return true, "'"..text.."' removed. "
 			else
-				return false, "Key cannot contain these characters: '|='."
+				return false, "Key does not exist."
+			end
+		else
+			return false, "Enter a key."
+		end
+	end,
+})
+
+minetest.register_chatcommand("cmc_teleportation_get_pos", {
+	params = "<key>",
+	description = "Shows location by specified key.",
+	
+	privs = {
+		interact = true,
+		power_rangers = true,
+		communicator = true,
+	},
+	
+	func = function(name, text)
+		local player = minetest.get_player_by_name(name)
+		local pos = player:get_pos()
+		local meta = player:get_meta()
+		
+		if text ~= nil and text ~= "" then
+			if teleportation.locations_get_pos(player, text) ~= nil then
+				return true, "Position of '"..text.."' is: "..minetest.pos_to_string(teleportation.locations_get_pos(player, text))
+			else
+				return false, "Key does not exist."
 			end
 		else
 			return false, "Enter a key."
@@ -315,10 +391,10 @@ end
 
 function teleportation.find_best_pos(pos, radius)
 	local positions = teleportation.get_node_positions_inside_area(pos, radius)
-	for _, pos in ipairs(positions) do
-		local node = minetest.get_node(pos)
-		local node_above = minetest.get_node(vector.new(pos.x, pos.y + 1, pos.z))
-		local node_below = minetest.get_node(vector.new(pos.x, pos.y - 1, pos.z))
+	for _, new_pos in ipairs(positions) do
+		local node = minetest.get_node(new_pos)
+		local node_above = minetest.get_node(vector.new(new_pos.x, new_pos.y + 1, new_pos.z))
+		local node_below = minetest.get_node(vector.new(new_pos.x, new_pos.y - 1, new_pos.z))
 		if node.name == "air" and node_above.name == "air" then
 			if minetest.get_item_group(node_below.name, "cracky") > 0 or
 			minetest.get_item_group(node_below.name, "crumbly") > 0 or
@@ -326,7 +402,16 @@ function teleportation.find_best_pos(pos, radius)
 			minetest.get_item_group(node_below.name, "snappy") > 0 or
 			minetest.get_item_group(node_below.name, "snowy") > 0 or
 			minetest.get_item_group(node_below.name, "water") > 0 then
-				return pos
+			  local players_nearby = teleportation.get_players_near(pos, radius)
+			  if count_table(players_nearby) > 0 then
+			     for _, plr in ipairs(players_nearby) do
+			       if vector.distance(plr:get_pos(), new_pos) > 1 then
+			         return new_pos
+			       end
+			     end
+			  else
+			     return new_pos
+			  end
 			end
 		elseif minetest.get_item_group(node.name, "water") > 0 and minetest.get_item_group(node_above.name, "water") > 0 then
 			if minetest.get_item_group(node_below.name, "cracky") > 0 or
@@ -335,11 +420,39 @@ function teleportation.find_best_pos(pos, radius)
 			minetest.get_item_group(node_below.name, "snappy") > 0 or
 			minetest.get_item_group(node_below.name, "snowy") > 0 or
 			minetest.get_item_group(node_below.name, "water") > 0 then
-				return pos
+				local players_nearby = teleportation.get_players_near(pos, radius)
+        if count_table(players_nearby) > 0 then
+           for _, plr in ipairs(players_nearby) do
+             if vector.distance(plr:get_pos(), new_pos) > 1 then
+               return new_pos
+             end
+           end
+        else
+           return new_pos
+        end
 			end
 		end
 	end
 	return nil
+end
+
+function teleportation.get_players_near(pos, radius)
+  local objs = minetest.get_objects_inside_radius(pos, radius*2)
+  local result = {}
+  for _, obj in ipairs(objs) do
+    if obj:is_player() then
+      table.insert(result, obj)
+    end
+  end
+  return result
+end
+
+function count_table(input)
+  local result = 0
+  for _, v in ipairs(input) do
+    result = result + 1
+  end
+  return result
 end
 
 function splitstr(input, sep)
