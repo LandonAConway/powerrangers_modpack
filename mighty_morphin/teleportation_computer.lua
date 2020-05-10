@@ -145,23 +145,25 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
             end
           end
         end
-        minetest.chat_send_player(player:get_player_name(), player_count.." Players teleported to: "..minetest.pos_to_string(old_pos))
+        minetest.chat_send_player(player:get_player_name(), player_count.." Players teleported near: "..minetest.pos_to_string(minetest.string_to_pos(fields.pos)))
       end
     end
     if fields.teleport_back then
-      local player_count = 0
-      for _, selected_player in ipairs(selected_players) do
-        if check_if_online(selected_player) then
-          local plr = minetest.get_player_by_name(selected_player)
-          local meta = plr:get_meta()
-          local old_pos = minetest.string_to_pos(meta:get_string("cmc_last_pos"))
-          meta:set_string("cmc_last_pos", minetest.pos_to_string(plr:get_pos()))
-          plr:set_pos(old_pos)
-          player_count = player_count + 1
-          minetest.chat_send_player(selected_player, "Teleported to: "..minetest.pos_to_string(old_pos))
-        end
-      end
-      minetest.chat_send_player(player:get_player_name(), player_count.." Players teleported to: "..minetest.pos_to_string(old_pos))
+		local player_count = 0
+		for _, selected_player in ipairs(selected_players) do
+			if check_if_online(selected_player) then
+				local plr = minetest.get_player_by_name(selected_player)
+				local meta = plr:get_meta()
+				local old_pos = minetest.string_to_pos(meta:get_string("cmc_last_pos"))
+				if oldpos ~= nil and oldpos ~= "" then
+					meta:set_string("cmc_last_pos", minetest.pos_to_string(plr:get_pos()))
+					plr:set_pos(old_pos)
+					player_count = player_count + 1
+					minetest.chat_send_player(selected_player, "Teleported to: "..minetest.pos_to_string(old_pos))
+				end
+			end
+		end
+		minetest.chat_send_player(player:get_player_name(), player_count.." Players teleported back.")
     end
   end
 end)
