@@ -1,4 +1,4 @@
-Mighty Morphin Power Rangers v2.1
+Morphing Grid (BETA) v0.1
 
 
 DESCRIPTION

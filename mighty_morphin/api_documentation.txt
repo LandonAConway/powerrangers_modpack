@@ -1,0 +1,168 @@
+This is the official documentation on the morphinggrid api. This api can be used to create power rangers.
+
+I. Required setup for a Power Rangers mod
+	--You must do this otherwise errors will be thrown in many circumstances
+	--It basically registers the team that the rangers in the mod will belong to.
+	morphinggrid.register_rangertype("modname", {
+  		description = "Ranger team name, I.E. Mighty Morphin",
+  		weapons = {"modname:weaponone", "modname:weapontwo"} --list of all weapons used by the team
+	})
+
+	--This shows an example of how to register a ranger.
+	morphinggrid.register_ranger("modname:red_ranger", {
+    	description = "Red Ranger",
+    	heal = 100, --The amount that the armor heals
+    	use = 100, --The number used to calculate the amount of times the armor can be hit before your armor gets destroyed. hit times = 65535 / use.
+    	weapons = {"modname:weaponone", "modname:weapontwo"}, --A list of weapons that belongs to the specified ranger.
+    	ranger_groups = {}, --Add leader if the specified ranger is the leader.
+    
+    	-- You can create a morpher here. This is optional but if you do not create one here you will have to create one using morphinggrid.register_morpher().
+    	morpher = {
+    			type = "craftitem",
+      			name = "modname:red_ranger_morpher",
+      			inventory_image = "red_ranger_morpher.png",
+      			description = "Red Ranger Morpher",
+      
+      		--create a recipe for the morpher here if desired
+      		recipe = {
+        		type="shapeless",
+        		recipe = {"morphinggrid:energy", "default:steel_ingot"}
+      		},
+    	}
+    })
+    	
+	--More options for registering a ranger
+		
+		--Fields
+			after_morph = <function(player, morph_info)> --do something when a player morphs into this ranger.
+			after_demorph = <function(player, demorph_info)> --do something when a player demorphs from being this ranger.
+			
+			--default contains auto generated filenames. Whatever filenames are not specified will still be auto generated. Do not include < or > in the filenames.
+			armor_textures = {
+				helmet = { armor="<filename>", preview="<filename>", inventory="<filename>" },
+				chestplate = { armor="<filename>", preview="<filename>", inventory="<filename>" },
+				leggings = { armor="<filename>", preview="<filename>", inventory="<filename>" },
+				boots = { armor="<filename>", preview="<filename>", inventory="<filename>" }
+			}
+			
+			--By default, if you do not specify this, right clicking the morpher will morph the ranger.
+	      	--If you want to do something special, such as only morph if a condition is true,
+	      	--you can put a function here and this is what happens instead when you
+	      	--right click the morpher.
+	      	--This is an example of how you would morph with the morph_func_override
+	      	morph_func_override = function(user)
+	      		local mycondition = true
+	      		if mycondition then
+		        	local ranger = morphinggrid.get_ranger("modname:red_ranger") --get the rangers definition from it's registration name
+		      	  	morphinggrid.morph(user, ranger) --morph the player
+		      	end
+	      	end
+		
+		--Groups
+			leader = 1 --lets the morphinggrid know that the specified ranger is the leader of it's group.
+			hidden = 1 --prevents the ranger from being listed openly. This is sort of the same as not having an item show in the creative inventory.
+			
+II. Registering a morpher
+	
+	--this is an example of how to register a morpher. The table can be built the same way as any craftitem or tool which means you can also use fields accepted by their definitions.
+	morphinggrid.register_morpher("modname:red_morpher", {
+		type = "craftitem", --determines what the morpher derives from. can also be "tool". It is "craftitem" by default, if this field is not entered.
+		description = "Red Morpher",
+		ranger = "modname:red" --The ranger this morpher morphs the player into. This is not needed if using 'morph_func_override', otherwise it is required.
+		
+		--This field is optional. It overrides the default function that happens when the morpher is left clicked.
+		--Without it, by default, the morpher will morph the player to the ranger in the 'ranger' field.
+		--If you use this field, the 'ranger' field can by nil. But it is still good to keep the 'ranger' field so it is documnted.
+		morph_func_override = function(user)
+			morphinggrid.morph(user, "modname:red") --You will need to manually morph the player while using this function.
+		end
+	})
+			
+II. Registering a weapon
+	
+	--this table can be added to any tool, craftitem, or node
+	--example
+	minetest.register_tool("modname", {
+		description = "Weapon Name",
+		...
+		--Add this table to your tool, craftitem, or node definition.
+		ranger_weapon = {
+			weapon_key = "desired_weapon_keyword", --enter the desired weapon key that will be entered while typing the chat command '/summon_weapon <weapon_key>'
+			rangers = { "modname:red_ranger" } --a list of rangers this weapon belongs to. Of coarse there can be multiple rangers.
+		}
+	})
+	
+	--Additional fields
+	
+	--By default, you can summon the weapon if you are morphed as the listed rangers but if you want to have a custom reason
+	--that determines why it can be summoned or not, add 'can_summon' to the 'ranger_weapon' table and make it equel to a
+	--function. There must be a return value of true or false.
+	can_summon = <function>
+  
+III. Methods
+	
+	morphinggrid.demorph(player, demorph_settings) --demorphs a player. player = player ref. Returns two values; bool, demorph_info
+	morphinggrid.get_morph_status(player) --returns the ranger name (i.e. 'modname:red_ranger') that the specified player is currently morphed as. returns nil if not morphed.
+	morphinggrid.get_ranger(ranger_name) --returns the definition of a specified ranger. rangername = modname:ranger.
+	morphinggrid.get_ranger_group(ranger_name, ranger_group) --returns the amount of the specified group. ranger_name = <string>, ranger_group = <string>.
+	morphinggrid.get_rangertype(name) --returns the definition of a ranger type. name = modname
+	morphinggrid.get_registered_rangers() --returns table of all registered ranger definitions.
+	morphinggrid.get_registered_rangertypes() --returns a table of all registered ranger type definitions.
+	morphinggrid.morph(player, ranger, morph_settings) --morphs a player. player = player ref, ranger = ranger definition. Returns two values; bool, morph_info
+	morphinggrid.register_after_demorph(<function(player, ranger_name, demorph_info)>) --do something after a player demorphs.
+	morphinggrid.register_after_morph(<function(player, ranger_name, morph_info)>) --do something after a player morphs.
+	morphinggrid.register_morpher(name, morpher_definition) --register a morpher
+	morphinggrid.register_ranger(name, ranger_definition) --register a ranger
+	morphinggrid.register_rangertype(name, rangertype_definition) --register a ranger type
+	
+IV. Tables
+	
+	--You can optionally input this when using 'morphinggrid.morph'. All fields are optional.
+	morph_settings = {
+		morpher = <morpher_item_string> --So morph_info will know what morpher was used to morph the player. This can be empty.
+		priv_bypass = <bool> --Set to true to bypass the requirment for the 'power_rangers' priv.
+		chat_messages = <bool>, --If false, no chat messages will be shown.
+		log_this = <bool> --if false, this morph will not be logged.
+	}
+	
+	--You can optionally input this when using 'morphinggrid.demorph'. All fields are optional.
+	demorph_settings = {
+		voluntary = true, --Set this to true if the player intentionally wants to demorph.
+		priv_bypass = <bool> --Set to true to bypass the requirment for the 'power_rangers' priv.
+		chat_messages = <bool>, --If false, no chat messages will be shown.
+		log_this = <bool> --If false, this demorph will not be logged.
+	}
+	
+	--This is the second return value when using 'morphinggrid.morph'.
+	morph_info = {
+		type = "morph" --this will always be 'morph'. morph_info and demorph_info are logged in the same table so this can be used to determine if it is a morph or demorph.
+		timestamp = <string> --shows what time the action happened.
+		player = <player_obj_ref> --the player that did the action.
+		ranger = <ranger_def> --the ranger that was morphed into
+		pos = <pos> --the position that the player was at when the action took place.
+		reason = <string> --this can either be 'successful', 'not_stable', or 'no_permission'. 
+			--'successful' returns when everything went right.
+			--'not_stable' returns when the player could'nt morph becuase the powers were not stable.
+			--'no_permission' returns when the player tried to morph without permission.
+	}
+	
+	--This is the second return value when using 'morphinggrid.demorph'.
+	demorph_info = {
+		type = "demorph" --this will always be 'demorph'. morph_info and demorph_info are logged in the same table so this can be used to determine if it is a morph or demorph.
+		timestamp = <string> --shows what time the action happened.
+		player = <player_obj_ref> --the player that did the action.
+		ranger = <ranger_def> --the ranger that was morphed into
+		pos = <pos> --the position that the player was at when the action took place.
+		reason = <string> --this can either be 'successful', 'not_stable', or 'no_permission'. 
+			--'successful' returns when everything went right.
+			--'not_stable' returns when the player demorphed because their powers were unstable.
+			--'no_permission' returns when the player tried to demorph without permission.
+	}
+	
+V. Glabal Tables
+	
+	morphinggrid.registered_rangertypes --Map of all ranger types indexed by name
+	morphinggrid.registered_rangers --Map of all rangers indexed by name
+	morphinggrid.registered_morphers --Map of all morphers indexed by same name as their item string name.
+	morphinggrid.registered_weapons --Map of all weapons ('ranger_weapon' tables) indexed by their item string name.
+	morphinggrid.morphing_log --Log of all morphs and demorphs since server startup.
