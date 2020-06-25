@@ -1,1 +1,1 @@
-Adds Power Rangers to Minetest.
+Adds the Mighty Morphin Power Rangers to Minetest.
