@@ -1,55 +1,3 @@
-function mighty_morphin.set_ranger_meta(player, ranger)
-	local meta = player:get_meta()
-	
-	meta:set_string('power_rangers_mod_name', 'mighty_morphin')
-	
-	local all_weapons = 'mighty_morphin:power_axe|mighty_morphin:power_bow|mighty_morphin:power_lance|mighty_morphin:power_daggers|mighty_morphin:power_sword|mighty_morphin:dragon_dagger|mighty_morphin:saba'
-	
-	if ranger == "black" then
-		meta:set_string('mighty_morphin_black_weapons', all_weapons)
-		meta:set_string('mighty_morphin_morph_status', 'black')
-	elseif ranger == "pink" then
-		meta:set_string('mighty_morphin_pink_weapons', all_weapons)
-		meta:set_string('mighty_morphin_morph_status', 'pink')
-	elseif ranger == "blue" then
-		meta:set_string('mighty_morphin_blue_weapons', all_weapons)
-		meta:set_string('mighty_morphin_morph_status', 'blue')
-	elseif ranger == "yellow" then
-		meta:set_string('mighty_morphin_yellow_weapons', all_weapons)
-		meta:set_string('mighty_morphin_morph_status', 'yellow')
-	elseif ranger == "red" then
-		meta:set_string('mighty_morphin_red_weapons', all_weapons)
-		meta:set_string('mighty_morphin_morph_status', 'red')
-	elseif ranger == "green" then
-		meta:set_string('mighty_morphin_green_weapons', all_weapons)
-		meta:set_string('mighty_morphin_morph_status', 'green')
-	elseif ranger == "white" then
-		meta:set_string('mighty_morphin_white_weapons', all_weapons)
-		meta:set_string('mighty_morphin_morph_status', 'white')
-	elseif ranger == "black_shield" then
-		meta:set_string('mighty_morphin_black_shield_weapons', all_weapons)
-		meta:set_string('mighty_morphin_morph_status', 'black_shield')
-	elseif ranger == "pink_shield" then
-		meta:set_string('mighty_morphin_pink_shield_weapons', all_weapons)
-		meta:set_string('mighty_morphin_morph_status', 'pink_shield')
-	elseif ranger == "blue_shield" then
-		meta:set_string('mighty_morphin_blue_shield_weapons', all_weapons)
-		meta:set_string('mighty_morphin_morph_status', 'blue_shield')
-	elseif ranger == "yellow_shield" then
-		meta:set_string('mighty_morphin_yellow_shield_weapons', all_weapons)
-		meta:set_string('mighty_morphin_morph_status', 'yellow_shield')
-	elseif ranger == "red_shield" then
-		meta:set_string('mighty_morphin_red_shield_weapons', all_weapons)
-		meta:set_string('mighty_morphin_morph_status', 'red_shield')
-	elseif ranger == "green_no_shield" then
-		meta:set_string('mighty_morphin_green_no_shield_weapons', all_weapons)
-		meta:set_string('mighty_morphin_morph_status', 'green_no_shield')
-	elseif ranger == "none" then
-		meta:set_string('mighty_morphin_none_weapons', '')
-		meta:set_string('mighty_morphin_morph_status', 'none')
-	end
-end
-
 --Dragon Shield
 function mighty_morphin.give_dragon_shield(from_player, to_player)
 	local from_ranger = mighty_morphin.get_current_ranger(from_player)
@@ -71,15 +19,15 @@ function mighty_morphin.give_dragon_shield(from_player, to_player)
 			to_ranger ~= "green_no_shield" and
 			to_ranger ~= "white" then
 				local take_away = mighty_morphin.get_ranger_without_dragon_shield(from_ranger)
-				mighty_morphin.morph(to_player, to_ranger.."_shield")
-				mighty_morphin.morph(from_player, take_away)
+				mighty_morphin.morph(to_player, morphinggrid.get_ranger("mighty_morphin:"..to_ranger.."_shield"))
+				mighty_morphin.morph(from_player, morphinggrid.get_ranger("mighty_morphin:"..take_away))
 				
 				minetest.chat_send_player(from_player:get_player_name(), "You gave the Dragon Shield to "..to_player:get_player_name())
 				minetest.chat_send_player(to_player:get_player_name(), from_player:get_player_name().." gave you the Dragon Shield")
 			elseif to_ranger == "green_no_shield" then
 				local take_away = mighty_morphin.get_ranger_without_dragon_shield(from_ranger)
-				mighty_morphin.morph(to_player, "green")
-				mighty_morphin.morph(from_player, take_away)
+				mighty_morphin.morph(to_player, morphinggrid.get_ranger("mighty_morphin:green"))
+				mighty_morphin.morph(from_player, morphinggrid.get_ranger("mighty_morphin:"..take_away))
 				
 				minetest.chat_send_player(from_player:get_player_name(), "You gave the Dragon Shield to "..to_player:get_player_name())
 				minetest.chat_send_player(to_player:get_player_name(), from_player:get_player_name().." gave you the Dragon Shield")
@@ -107,7 +55,7 @@ function mighty_morphin.summon_dragon_shield(player)
 		ranger == "yellow" or
 		ranger == "red" then
 			local new_ranger = mighty_morphin.get_ranger_with_dragon_shield(ranger)
-			mighty_morphin.morph(player, new_ranger)
+			mighty_morphin.morph(player, morphinggrid.get_ranger("mighty_morphin:"..new_ranger))
 			minetest.chat_send_player(player:get_player_name(), "You are now using the Dragon Shield.")
 		elseif ranger == "black_shield" or
 		ranger == "pink_shield" or
@@ -115,7 +63,7 @@ function mighty_morphin.summon_dragon_shield(player)
 		ranger == "yellow_shield" or
 		ranger == "red_shield" then
 			local new_ranger = mighty_morphin.get_ranger_without_dragon_shield(ranger)
-			mighty_morphin.morph(player, new_ranger)
+			mighty_morphin.morph(player, morphinggrid.get_ranger("mighty_morphin:"..new_ranger))
 			minetest.chat_send_player(player:get_player_name(), "You are no longer using the Dragon Shield.")
 		elseif ranger == "none" then
 			minetest.chat_send_player(player:get_player_name(), "You are not morphed.")
@@ -123,11 +71,11 @@ function mighty_morphin.summon_dragon_shield(player)
 	else
 		if ranger == "green" then
 			local new_ranger = mighty_morphin.get_ranger_without_dragon_shield(ranger)
-			mighty_morphin.morph(player, new_ranger)
+			mighty_morphin.morph(player, morphinggrid.get_ranger("mighty_morphin:"..new_ranger))
 			minetest.chat_send_player(player:get_player_name(), "You are no longer using the Dragon Shield.")
 		elseif ranger == "green_no_shield" then
 			local new_ranger = mighty_morphin.get_ranger_with_dragon_shield(ranger)
-			mighty_morphin.morph(player, new_ranger)
+			mighty_morphin.morph(player, morphinggrid.get_ranger("mighty_morphin:"..new_ranger))
 			minetest.chat_send_player(player:get_player_name(), "You are now using the Dragon Shield.")
 		elseif ranger == "none" then
 			minetest.chat_send_player(player:get_player_name(), "You are not morphed.")
@@ -221,8 +169,8 @@ end
 --Other Useful Functions
 function mighty_morphin.get_current_ranger(player)
 	local meta = player:get_meta()
-	local ranger = meta:get_string('mighty_morphin_morph_status')
-	return ranger
+	local ranger = mighty_morphin.split_string(meta:get_string('player_morph_status'), ":")
+	return ranger[2]
 end
 
 function mighty_morphin.player_has_item(player, item)
@@ -236,7 +184,8 @@ function mighty_morphin.player_has_item(player, item)
 end
 
 function mighty_morphin.player_has_item_and_is_morphed(player, item)
-	if not string.find(mighty_morphin.get_current_ranger(player), "none") then
+  local morph_status = morphinggrid.get_morph_status(player)
+	if morph_status ~= nil then
 		if mighty_morphin.player_has_item(player, item) then
 			return true
 		end
@@ -267,4 +216,10 @@ function mighty_morphin.check_if_string_contains(str, value)
 		result = true
 	end
 	return result
+end
+
+function mighty_morphin.upper_first_char(text)
+  local firstletter = string.sub(text, 1,1)
+  local therest = string.sub(text, 2)
+  return firstletter:upper()..therest
 end

@@ -1,18 +1,59 @@
 dofile(minetest.get_modpath("morphinggrid") .. "/functions.lua")
 
---Register Default
-register_ranger_as_armor("mighty_morphin", "black", "Black Ranger", 100, 8)
-register_ranger_as_armor("mighty_morphin", "pink", "Pink Ranger", 100, 8)
-register_ranger_as_armor("mighty_morphin", "blue", "Blue Ranger", 100, 8)
-register_ranger_as_armor("mighty_morphin", "yellow", "Yellow Ranger", 100, 8)
-register_ranger_as_armor("mighty_morphin", "red", "Red Ranger", 100, 8)
-register_ranger_as_armor("mighty_morphin", "green", "Green Ranger", 100, 3)
-register_ranger_as_armor("mighty_morphin", "white", "White Ranger", 100, 1)
+morphinggrid.register_rangertype("mighty_morphin", {
+  description = "Mighty Morphin",
+  weapons = {"mighty_morphin:power_axe", "mighty_morphin:power_bow", "mighty_morphin:power_lance", "mighty_morphin:power_daggers",
+            "mighty_morphin:power_sword", "mighty_morphin:dragon_dagger", "mighty_morphin:saba"}
+})
 
---Register Shields
-register_ranger_as_armor("mighty_morphin", "black_shield", "Black Ranger", 100, 3)
-register_ranger_as_armor("mighty_morphin", "pink_shield", "Pink Ranger", 100, 3)
-register_ranger_as_armor("mighty_morphin", "blue_shield", "Blue Ranger", 100, 3)
-register_ranger_as_armor("mighty_morphin", "yellow_shield", "Yellow Ranger", 100, 3)
-register_ranger_as_armor("mighty_morphin", "red_shield", "Red Ranger", 100, 3)
-register_ranger_as_armor("mighty_morphin", "green_no_shield", "Green Ranger", 100, 8)
+mmprrangers = {
+  {"black", "Black", 100, 12, "mastodon", {"mighty_morphin:power_axe"}, {}},
+  {"pink", "Pink", 100, 12, "pterodactyl", {"mighty_morphin:power_bow"}, {}},
+  {"blue", "Blue", 100, 12, "triceratops", {"mighty_morphin:power_lance"}, {}},
+  {"yellow", "Yellow", 100, 12, "saber_toothed_tiger", {"mighty_morphin:power_daggers"}, {}},
+  {"red", "Red", 100, 12, "tyrannosaurus", {"mighty_morphin:power_sword"}, { leader = 1 }},
+  {"green", "Green", 100, 10, "dragonzord", {"mighty_morphin:dragon_dagger"}, {}},
+  {"white", "White", 100, 9, "tigerzord", {"mighty_morphin:saba"}, { leader = 1 }}
+}
+
+mmprrangers_shields = {
+  {"black_shield", "Black", 100, 10, {"mighty_morphin:power_axe", "mighty_morphin:dragon_dagger"}, { hidden = 1 }},
+  {"pink_shield", "Pink", 100, 10, {"mighty_morphin:power_bow", "mighty_morphin:dragon_dagger"}, { hidden = 1 }},
+  {"blue_shield", "Blue", 100, 10, {"mighty_morphin:power_lance", "mighty_morphin:dragon_dagger"}, { hidden = 1 }},
+  {"yellow_shield", "Yellow", 100, 10, {"mighty_morphin:power_daggers", "mighty_morphin:dragon_dagger"}, { hidden = 1 }},
+  {"red_shield", "Red", 100, 10, {"mighty_morphin:power_sword", "mighty_morphin:dragon_dagger"}, { hidden = 1, leader = 1 }},
+  {"green_no_shield", "Green", 100, 12, {}, { hidden = 1 }}
+}
+
+for i, v in ipairs(mmprrangers) do
+  morphinggrid.register_ranger("mighty_morphin:"..v[1], {
+    description = v[2].." Mighty Morphin Ranger",
+    heal = v[3],
+    use = v[4],
+    weapons = v[6],
+    ranger_groups = v[7],
+    morpher = {
+      name = "mighty_morphin:"..v[5].."_morpher",
+      inventory_image = v[5].."_morpher.png",
+      description = mighty_morphin.upper_first_char(v[5]).." Morpher",
+      recipe = {
+        type="shapeless",
+        recipe = {"mighty_morphin:empty_morpher", "mighty_morphin:"..v[5].."_powercoin"}
+      },
+      morph_func_override = function(user)
+        local ranger = morphinggrid.get_ranger("mighty_morphin:"..v[1])
+        mighty_morphin.morph(user, ranger, "mighty_morphin:"..v[5].."_morpher")
+      end,
+    },
+  })
+end
+
+for i, v in ipairs(mmprrangers_shields) do
+  morphinggrid.register_ranger("mighty_morphin:"..v[1], {
+    description = v[2].." Mighty Morphin Ranger",
+    heal = v[3],
+    use = v[4],
+    weapons = v[5],
+    ranger_groups = v[6]
+  })
+end

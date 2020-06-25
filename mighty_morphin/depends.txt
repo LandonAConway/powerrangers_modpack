@@ -1,3 +1,5 @@
 morphinggrid
+communicator
+pr_henchmen
 dye
 electronic_materials?

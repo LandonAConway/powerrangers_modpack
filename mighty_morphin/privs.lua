@@ -1,4 +1,4 @@
-minetest.register_privilege("communicator", {
+minetest.register_privilege("ocommunicator", {
 	description = "Allows players to use communicator chat commands.",
 	give_to_singleplayer = false,
 })

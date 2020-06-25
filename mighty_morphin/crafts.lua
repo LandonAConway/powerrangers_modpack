@@ -26,11 +26,11 @@ if mod_loaded("electronic_materials") then
 	
 else
 
-	minetest.register_craft({
-		type = "shapeless",
-		output = "mighty_morphin:empty_morpher",
-		recipe = {"morphinggrid:energy", "default:steel_ingot", "default:copper_ingot"}
-	})
+--	minetest.register_craft({
+--		type = "shapeless",
+--		output = "mighty_morphin:empty_morpher",
+--		recipe = {"morphinggrid:energy", "default:steel_ingot", "default:copper_ingot"}
+--	})
 	
 	minetest.register_craft({
 	type = "shaped",
@@ -44,11 +44,11 @@ else
 	
 end
 
-minetest.register_craft({
-	type = "shapeless",
-	output = "mighty_morphin:mastodon_morpher",
-	recipe = {"mighty_morphin:mastodon_powercoin", "mighty_morphin:empty_morpher"},
-})
+--minetest.register_craft({
+--	type = "shapeless",
+--	output = "mighty_morphin:mastodon_morpher",
+--	recipe = {"mighty_morphin:mastodon_powercoin", "mighty_morphin:empty_morpher"},
+--})
 
 minetest.register_craft({
 	type = "shapeless",
@@ -59,11 +59,12 @@ minetest.register_craft({
 	}
 })
 
-minetest.register_craft({
-	type = "shapeless",
-	output = "mighty_morphin:pterodactyl_morpher",
-	recipe = {"mighty_morphin:pterodactyl_powercoin", "mighty_morphin:empty_morpher"},
-})
+--minetest.register_craft({
+--	type = "shapeless",
+--	output = "mighty_morphin:pterodactyl_morpher",
+--	recipe = {"mighty_morphin:pterodactyl_powercoin", "mighty_morphin:empty_morpher"},
+--})
+
 minetest.register_craft({
 	type = "shapeless",
 	output = "mighty_morphin:pterodactyl_powercoin",
@@ -73,11 +74,12 @@ minetest.register_craft({
 	}
 })
 
-minetest.register_craft({
-	type = "shapeless",
-	output = "mighty_morphin:triceratops_morpher",
-	recipe = {"mighty_morphin:triceratops_powercoin", "mighty_morphin:empty_morpher"},
-})
+--minetest.register_craft({
+--	type = "shapeless",
+--	output = "mighty_morphin:triceratops_morpher",
+--	recipe = {"mighty_morphin:triceratops_powercoin", "mighty_morphin:empty_morpher"},
+--})
+
 minetest.register_craft({
 	type = "shapeless",
 	output = "mighty_morphin:triceratops_powercoin",
@@ -87,11 +89,12 @@ minetest.register_craft({
 	}
 })
 
-minetest.register_craft({
-	type = "shapeless",
-	output = "mighty_morphin:saber_toothed_tiger_morpher",
-	recipe = {"mighty_morphin:saber_toothed_tiger_powercoin", "mighty_morphin:empty_morpher"},
-})
+--minetest.register_craft({
+--	type = "shapeless",
+--	output = "mighty_morphin:saber_toothed_tiger_morpher",
+--	recipe = {"mighty_morphin:saber_toothed_tiger_powercoin", "mighty_morphin:empty_morpher"},
+--})
+
 minetest.register_craft({
 	type = "shapeless",
 	output = "mighty_morphin:saber_toothed_tiger_powercoin",
@@ -101,11 +104,12 @@ minetest.register_craft({
 	}
 })
 
-minetest.register_craft({
-	type = "shapeless",
-	output = "mighty_morphin:tyrannosaurus_morpher",
-	recipe = {"mighty_morphin:tyrannosaurus_powercoin", "mighty_morphin:empty_morpher"},
-})
+--minetest.register_craft({
+--	type = "shapeless",
+--	output = "mighty_morphin:tyrannosaurus_morpher",
+--	recipe = {"mighty_morphin:tyrannosaurus_powercoin", "mighty_morphin:empty_morpher"},
+--})
+
 minetest.register_craft({
 	type = "shapeless",
 	output = "mighty_morphin:tyrannosaurus_powercoin",
@@ -115,11 +119,12 @@ minetest.register_craft({
 	}
 })
 
-minetest.register_craft({
-	type = "shapeless",
-	output = "mighty_morphin:dragonzord_morpher",
-	recipe = {"mighty_morphin:dragonzord_powercoin", "mighty_morphin:empty_morpher"},
-})
+--minetest.register_craft({
+--	type = "shapeless",
+--	output = "mighty_morphin:dragonzord_morpher",
+--	recipe = {"mighty_morphin:dragonzord_powercoin", "mighty_morphin:empty_morpher"},
+--})
+
 minetest.register_craft({
 	type = "shapeless",
 	output = "mighty_morphin:dragonzord_powercoin",
@@ -129,11 +134,12 @@ minetest.register_craft({
 	}
 })
 
-minetest.register_craft({
-	type = "shapeless",
-	output = "mighty_morphin:tigerzord_morpher",
-	recipe = {"mighty_morphin:tigerzord_powercoin", "mighty_morphin:empty_morpher"},
-})
+--minetest.register_craft({
+--	type = "shapeless",
+--	output = "mighty_morphin:tigerzord_morpher",
+--	recipe = {"mighty_morphin:tigerzord_powercoin", "mighty_morphin:empty_morpher"},
+--})
+
 minetest.register_craft({
 	type = "shapeless",
 	output = "mighty_morphin:tigerzord_powercoin",

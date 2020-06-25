@@ -1,12 +1,11 @@
 dofile(minetest.get_modpath("morphinggrid") .. "/morphing.lua")
 
-function mighty_morphin.morph(player, ranger)
-	mighty_morphin.set_ranger_meta(player, ranger)
-	if morphinggrid.morph(player, "mighty_morphin", ranger) == true
+function mighty_morphin.morph(player, ranger, morpher)
+	if morphinggrid.morph(player, ranger, { morpher = morpher }) == true
 	then
-		minetest.chat_send_player(player:get_player_name(), "You have sucessfully morphed into the "..ranger.." ranger")
+	  local ranger_ = mighty_morphin.split_string(ranger.name, ":")[2]
 		local meta = player:get_meta()
-		local rangercolor = mighty_morphin.getrangercolor(ranger)
+		local rangercolor = mighty_morphin.getrangercolor(ranger_)
 		meta:set_string("mmpr_last_morphed_color", rangercolor.."_Ranger")
 	end
 end

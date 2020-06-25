@@ -128,8 +128,8 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
             local plr = minetest.get_player_by_name(selected_player)
             local meta = plr:get_meta()
             local new_pos = minetest.string_to_pos(fields.pos)
-            local best_pos_a = teleportation.find_best_pos(new_pos, 2)
-            local best_pos_b = teleportation.find_best_pos(new_pos, 8)
+            local best_pos_a = communicator.teleportation.find_best_pos(new_pos, 2)
+            local best_pos_b = communicator.teleportation.find_best_pos(new_pos, 8)
             if check_if_online(selected_player) then --check if player is still online again since teleportation.find_best_pos() can be a slow process.
               if best_pos_a ~= nil then
                 meta:set_string("cmc_last_pos", minetest.pos_to_string(plr:get_pos()))
@@ -149,21 +149,21 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
       end
     end
     if fields.teleport_back then
-		local player_count = 0
-		for _, selected_player in ipairs(selected_players) do
-			if check_if_online(selected_player) then
-				local plr = minetest.get_player_by_name(selected_player)
-				local meta = plr:get_meta()
-				local old_pos = minetest.string_to_pos(meta:get_string("cmc_last_pos"))
-				if oldpos ~= nil and oldpos ~= "" then
-					meta:set_string("cmc_last_pos", minetest.pos_to_string(plr:get_pos()))
-					plr:set_pos(old_pos)
-					player_count = player_count + 1
-					minetest.chat_send_player(selected_player, "Teleported to: "..minetest.pos_to_string(old_pos))
-				end
-			end
-		end
-		minetest.chat_send_player(player:get_player_name(), player_count.." Players teleported back.")
+      local player_count = 0
+      for _, selected_player in ipairs(selected_players) do
+        if check_if_online(selected_player) then
+          local plr = minetest.get_player_by_name(selected_player)
+          local meta = plr:get_meta()
+          local old_pos = minetest.string_to_pos(meta:get_string("cmc_last_pos"))
+          if old_pos ~= nil and old_pos ~= "" then
+            meta:set_string("cmc_last_pos", minetest.pos_to_string(plr:get_pos()))
+            plr:set_pos(old_pos)
+            player_count = player_count + 1
+            minetest.chat_send_player(selected_player, "Teleported to: "..minetest.pos_to_string(old_pos))
+          end
+        end
+      end
+      minetest.chat_send_player(player:get_player_name(), player_count.." Players teleported back.")
     end
   end
 end)
