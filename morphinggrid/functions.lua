@@ -1,51 +1,22 @@
-dofile(minetest.get_modpath("3d_armor") .. "/api.lua")
+function morphinggrid.get_before_pointed_pos(player, max_distance)
+  local prevent_nil = nil
+  local result = nil
+  for i = 0, max_distance do
+    local pos = morphinggrid.get_pos_ahead(player, i)
+    prevent_nil = pos
+    if minetest.get_node(pos).name ~= "air" and minetest.get_node(pos).name ~= "default:water_source" and minetest.get_node(pos).name ~= "default:water_flowing" then
+      return result
+    end
+    result = pos
+  end
+  return prevent_nil
+end
 
-local S = armor_i18n.gettext
-
-function register_ranger_as_armor(modname, ranger, rangerdesc, power_heal, power_use)
-	armor:register_armor(modname..":helmet_"..ranger, {
-		description = S(rangerdesc.." Helmet"),
-		inventory_image = modname.."_inv_helmet_"..ranger..".png",
-		armor_groups = {fleshy=100},
-		groups = {armor_head=1, armor_heal=power_heal, armor_use=power_use, armor_water=1,
-			not_in_creative_inventory=1},
-		on_drop = function(itemstack, dropper, pos)
-			return
-		end,
-	})
-
-	armor:register_armor(modname..":chestplate_"..ranger, {
-		description = S(rangerdesc.." Chestplate"),
-		inventory_image = modname.."_inv_chestplate_"..ranger..".png",
-		armor_groups = {fleshy=100},
-		groups = {armor_torso=1, armor_heal=power_heal, armor_use=power_use,
-			not_in_creative_inventory=1},
-		on_drop = function(itemstack, dropper, pos)
-			return
-		end,
-	})
-
-	armor:register_armor(modname..":leggings_"..ranger, {
-		description = S(rangerdesc.." Leggings"),
-		inventory_image = modname.."_inv_leggings_"..ranger..".png",
-		armor_groups = {fleshy=100},
-		groups = {armor_legs=1, armor_heal=power_heal, armor_use=power_use,
-			not_in_creative_inventory=1},
-		on_drop = function(itemstack, dropper, pos)
-			return
-		end,
-	})
-
-	armor:register_armor(modname..":boots_"..ranger, {
-		description = S(rangerdesc.." Boots"),
-		inventory_image = modname.."_inv_boots_"..ranger..".png",
-		armor_groups = {fleshy=100},
-		groups = {armor_feet=1, armor_heal=power_heal, armor_use=power_use,
-			not_in_creative_inventory=1},
-		on_drop = function(itemstack, dropper, pos)
-			return
-		end,
-	})
+function morphinggrid.get_pos_ahead(player, distance)
+  local look_dir = player:get_look_dir()
+  local pos = player:get_pos()
+  
+  return vector.new(pos.x + (distance * look_dir.x), (pos.y + 1) + (distance * look_dir.y), pos.z + (distance * look_dir.z))
 end
 
 function morphinggrid.split_string (inputstr, sep)
@@ -63,4 +34,29 @@ function morphinggrid.split_string (inputstr, sep)
 	end
 	
 	return t
+end
+
+function morphinggrid.seconds_to_clock(seconds)
+  if seconds <= 0 then
+    return "00:00:00"
+  else
+    local days_ = math.floor(seconds/86400)
+    seconds = seconds - days_ * 86400
+    local hours_ = math.floor(seconds / 3600)
+    seconds = seconds - hours_ * 3600
+    local minutes_ = math.floor(seconds / 60)
+    seconds = seconds - minutes_ * 60
+    local seconds_ = seconds
+    
+    return {days = days_, hours = hours_, minutes = minutes_, seconds = seconds_}
+  end
+end
+
+function if_any_of_nodes(pos, nodes)
+  for i, v in ipairs(nodes) do
+    if minetest.get_node(pos).name == v then
+      return true
+    end
+  end
+  return false
 end
