@@ -1,4 +1,4 @@
-Mighty Morphin Power Rangers v2.1
+Power Rangers Modpack v2.1
 
 
 DESCRIPTION
