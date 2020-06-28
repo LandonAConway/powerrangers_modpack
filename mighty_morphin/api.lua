@@ -1,1 +1,0 @@
-mighty_morphin = {}
