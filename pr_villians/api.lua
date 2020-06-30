@@ -19,6 +19,7 @@ function pr_villians.register_henchman(name, def)
   def.water_damage = def.water_damage or 1
   def.lifetime = def.lifetime or 120
   def.damageinterval = def.damageinterval or 0
+  def.weight = def.weight or 155
   def.movingspeed = def.movingspeed or 2
   def.max_free_fall = def.max_free_fall or 4
   def.benefit = def.benefit or 1
@@ -72,6 +73,7 @@ function pr_villians.register_henchman(name, def)
     team = "default",
     time = 0,
     hp = def.hp,
+    weight = def.weight,
     damage = def.damage,
     water_damage = def.water_damage,
     id = 0,
@@ -104,6 +106,8 @@ function pr_villians.register_henchman(name, def)
       self.object:set_acceleration({x=0,y=-10,z =0})    -- set the entity gravity.
       self.id = math.random(1,9999)     --so the mob can determine difference from other mobs
       self.falling_to_punch = false
+      self.fall_distance = 0
+      self.kickback = false
       anim(self,"stand")
       
       for k, v in pairs(pr_villians.henchmen.registered_callbacks.on_activate) do
@@ -122,7 +126,9 @@ function pr_villians.register_henchman(name, def)
           self.target = puncher
         end
         local look_dir = puncher:get_look_dir()
-        self.object:add_velocity({x=look_dir.x*15,y=look_dir.y*4,z=look_dir.z*15})
+        if not self.kickback then stand(self) end
+        self.kickback = true
+        self.object:add_velocity({x=look_dir.x*(self.movingspeed*2),y=look_dir.y*(self.movingspeed*2),z=look_dir.z*(self.movingspeed*2)})
         local item = minetest.registered_tools[puncher:get_wielded_item():get_name()]
         if item and item.tool_capabilities and item.tool_capabilities.damage_groups then
           local d = tool_capabilities.damage_groups.fleshy
@@ -228,6 +234,10 @@ function pr_villians.register_henchman(name, def)
         self.max_free_fall = self.max_free_fall or 4
         local line_of_sight = minetest.line_of_sight(self.object:get_pos(), {x=self.object:get_pos().x,y=self.object:get_pos().y-self.max_free_fall,z=self.object:get_pos().z})
         if line_of_sight == true then
+          local top_pos = self.object:get_pos()
+          local raycast = Raycast(top_pos, {x=top_pos.x,y=top_pos.y-(self.max_free_fall+100),z=top_pos.z})
+          local bottom_pos = get_node_pos_raycast(raycast)
+          self.fall_distance = vector.distance(top_pos,bottom_pos)
           self.falling_to_punch = true
         end
         
@@ -240,7 +250,8 @@ function pr_villians.register_henchman(name, def)
           if not pr_villians.check_if_any_group(node_under, {"water"}) then
             local velocity = self.object:get_velocity() or {x=0,y=0,z=0}
             if velocity.y > -0.2 and velocity.y < 0.2  then
-              self.object:punch(self.object,1,{full_punch_interval=1,damage_groups={fleshy=20}})
+              local damage = (self.weight*0.047)*self.fall_distance
+              self.object:punch(self.object,1,{full_punch_interval=1,damage_groups={fleshy=damage}})
               self.falling_to_punch = false
             end
           end
@@ -280,7 +291,16 @@ function pr_villians.register_henchman(name, def)
             self.target = nil
             return
           end
+          
           lookat(self,tarp)
+          
+          if self.kickback == true then
+            if not slow_velocity(self) then
+              return
+            end
+            self.kickback = false
+          end
+          
           walk(self,2)
           self.lifetime = 120 -- resets lifetime
     
@@ -435,9 +455,9 @@ function walk(self,speed)
   if not self.can_swim then
     if not pr_villians.check_if_any_group(posinfront(self,1),{"water"}) then
       self.object:set_velocity({
-        x = x,
-        y = v.y,
-        z = z
+        x = x or 0,
+        y = v.y or 0,
+        z = z or 0
       })
     else
       stand(self)
@@ -547,4 +567,27 @@ function posinfront(self, distance)
   local x = math.sin(yaw) * -distance
   local z = math.cos(yaw) * distance
   return vector.new(p.x + x, p.y - 1, p.z + z)
+end
+
+function slow_velocity(self)
+  local vel = self.object:get_velocity() or {x=0,y=0,z=0}
+  local msp = self.movingspeed + (self.movingspeed*0.5)
+  local msn = (0 - self.movingspeed) - (self.movingspeed*0.5)
+  if vel.x < msp and vel.x > msn and
+  vel.z < msp and vel.z > msn then
+    return true
+  end
+  if self.object ~=nil then
+    self.object:add_velocity({x=0-(vel.x*0.1),y=0,z=0-(vel.z*0.1)})
+  end
+  return false
+end
+
+function get_node_pos_raycast(raycast)
+  for pt in raycast do
+    if pt.type == "node" then
+      return pt.under
+    end
+  end
+  return {x=0,y=0,z=0}
 end
