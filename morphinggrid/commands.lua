@@ -83,18 +83,19 @@ minetest.register_chatcommand("summon_weapon", {
     if text ~= nil and text ~= "" then
       for k, v in pairs(morphinggrid.registered_weapons) do
         if v.weapon_key == text then
-          if morphinggrid.can_summon_weapon(player, k) then
+          local can_summon, message = morphinggrid.can_summon_weapon(player, k)
+          if can_summon then
             local inv = player:get_inventory()
             local stack = ItemStack(k.." 1")
             local leftover = inv:add_item(player:get_wield_list(), stack)
             
             if leftover:get_count() > 0 then
-              return false, "You cannot summon the "..v.description.." becuase your inventory is full"
+              return false, message or "You cannot summon the "..v.description.." becuase your inventory is full"
             end
             
-            return true, "You have summoned the '"..v.description.."'."
+            return true, message or "You have summoned the '"..v.description.."'."
           end
-          return false, "You don't have access to this weapon. (Belongs To: "..table.concat(get_ranger_descs(v.rangers), ", ")..")"
+          return false, message or "You don't have access to this weapon. (Belongs To: "..table.concat(get_ranger_descs(v.rangers), ", ")..")"
         end
       end
       return false, "'"..text.."' is not a registered weapon."

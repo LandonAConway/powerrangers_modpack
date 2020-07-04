@@ -20,6 +20,7 @@ end
 
 dofile(minetest.get_modpath("morphinggrid") .. "/events.lua")
 dofile(minetest.get_modpath("morphinggrid") .. "/craftitems.lua")
+dofile(minetest.get_modpath("morphinggrid") .. "/crafting.lua")
 dofile(minetest.get_modpath("morphinggrid") .. "/energy_port.lua")
 dofile(minetest.get_modpath("morphinggrid") .. "/functions.lua")
 dofile(minetest.get_modpath("morphinggrid") .. "/connections.lua")

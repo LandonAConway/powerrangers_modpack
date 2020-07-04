@@ -1,4 +1,4 @@
-Power Rangers Zeo v1.0
+Power Rangers Zeo v1.1
 
 
 DESCRIPTION

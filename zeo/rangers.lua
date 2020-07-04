@@ -8,15 +8,16 @@ morphinggrid.register_rangertype("zeo", {
               "zeo:zeo_ii_power_clubs",
               "zeo:zeo_iii_power_tonfas",
               "zeo:zeo_iv_power_hatchets",
-              "zeo:zeo_v_power_sword"}
+              "zeo:zeo_v_power_sword",
+              "zeo:advanced_zeo_laser_pistol"}
 })
 
 zeo.rangers = {
-  {"pink", "Pink", 100, 5, {}, {"zeo:zeo_i_power_disk", "zeo:zeo_power_pod_sword", "zeo:zeo_laser_pistol"}},
-  {"yellow", "Yellow", 100, 5, {}, {"zeo:zeo_ii_power_clubs", "zeo:zeo_power_pod_sword", "zeo:zeo_laser_pistol"}},
-  {"blue", "Blue", 100, 5, {}, {"zeo:zeo_iii_power_tonfas", "zeo:zeo_power_pod_sword", "zeo:zeo_laser_pistol"}},
-  {"green", "Green", 100, 5, {}, {"zeo:zeo_iv_power_hatchets", "zeo:zeo_power_pod_sword", "zeo:zeo_laser_pistol"}},
-  {"red", "Red", 100, 5, { leader = 1 }, {"zeo:zeo_v_power_sword", "zeo:zeo_power_pod_sword", "zeo:zeo_laser_pistol"}}
+  {"pink", "Pink", 100, 5, {}, {"zeo:zeo_i_power_disk", "zeo:zeo_power_pod_sword", "zeo:zeo_laser_pistol", "zeo:advanced_zeo_laser_pistol"}},
+  {"yellow", "Yellow", 100, 5, {}, {"zeo:zeo_ii_power_clubs", "zeo:zeo_power_pod_sword", "zeo:zeo_laser_pistol", "zeo:advanced_zeo_laser_pistol"}},
+  {"blue", "Blue", 100, 5, {}, {"zeo:zeo_iii_power_tonfas", "zeo:zeo_power_pod_sword", "zeo:zeo_laser_pistol", "zeo:advanced_zeo_laser_pistol"}},
+  {"green", "Green", 100, 5, {}, {"zeo:zeo_iv_power_hatchets", "zeo:zeo_power_pod_sword", "zeo:zeo_laser_pistol", "zeo:advanced_zeo_laser_pistol"}},
+  {"red", "Red", 100, 5, { leader = 1 }, {"zeo:zeo_v_power_sword", "zeo:zeo_power_pod_sword", "zeo:zeo_laser_pistol", "zeo:advanced_zeo_laser_pistol"}}
 }
 
 for i, v in ipairs(zeo.rangers) do

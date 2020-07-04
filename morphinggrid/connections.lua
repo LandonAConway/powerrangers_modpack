@@ -24,6 +24,7 @@ minetest.register_globalstep(function(dtime)
         --update armor wear
         if settings.timer < 1 then
           if not settings.in_use then
+            settings.armor_wear = settings.armor_wear or 0
             if settings.armor_wear > 0 then
               settings.armor_wear = higher_to(settings.armor_wear - 219, 0)
             end

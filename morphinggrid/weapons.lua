@@ -9,6 +9,8 @@ minetest.after(0, function()
         weapondef.name = k
         weapondef.description = weapondef.description or v.description or "Unknown"
         
+        if weapondef.ignore_requirments_on_can_summon == nil then weapondef.ignore_requirments_on_can_summon = true end
+        
         morphinggrid.registered_weapons[weapondef.name] = weapondef
       end
     end
@@ -26,17 +28,45 @@ end
 function morphinggrid.can_summon_weapon(player, weapon_name)
   local morph_status = morphinggrid.get_morph_status(player)
   local weapon = morphinggrid.registered_weapons[weapon_name]
-  if weapon.can_summon then
-    local ranger = morphinggrid.get_ranger(morph_status)
-    return weapon.can_summon(player, ranger)
+  if weapon.can_summon ~= nil then
+    if weapon.ignore_requirments_on_can_summon then
+      local ranger = morphinggrid.get_ranger(morph_status)
+      return weapon.can_summon(player, ranger)
+    end
   else
-    for i, v in ipairs(weapon.rangers) do
-      if v == morph_status then
+    for _, r in ipairs(weapon.rangers) do
+      if r == morph_status then
+        if weapon.required_weapons then
+          local inv = player:get_inventory()
+          local wl = player:get_wield_list()
+          for _, rw in ipairs(weapon.required_weapons) do
+            if not inv:contains_item(wl, ItemStack(rw)) then
+              return false, "This is a combined weapon. You do not have the required weapons in your inventory to summon this weapon. "..
+              "(Weapons: "..table.concat(get_weapon_keys(weapon.required_weapons), ", ")..")"
+            end
+          end
+          for _, rw in ipairs(weapon.required_weapons) do
+            inv:remove_item(wl, ItemStack(rw))
+          end
+        end
+        if weapon.can_summon ~= nil then
+          local ranger = morphinggrid.get_ranger(morph_status)
+          return weapon.can_summon(player, ranger)
+        end
         return true
       end
     end
   end
   return false
+end
+
+function get_weapon_keys(list)
+  local t = {}
+  for i, v in ipairs(list) do
+    local weapon_key = morphinggrid.registered_weapons[v].weapon_key
+    table.insert(t, weapon_key)
+  end
+  return t
 end
 
 --Firearms
@@ -71,7 +101,8 @@ function morphinggrid.firearms.fire(player, firearm)
   local pos2 = morphinggrid.get_pos_ahead(player, firearm.distance)
   local found_pointed_thing = nil
   if firearm.particle_override ~= nil then
-    firearm.particle_override(player, firearm)
+    local ranger = morphinggrid.registered_rangers[morphinggrid.get_morph_status(player)]
+    firearm.particle_override(player, ranger)
   else
     morphinggrid.firearms.fire_particle(player, firearm, {x=pos1.x,y=pos1.y+1,z=pos1.z})
   end

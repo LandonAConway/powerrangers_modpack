@@ -19,6 +19,15 @@ function morphinggrid.get_pos_ahead(player, distance)
   return vector.new(pos.x + (distance * look_dir.x), (pos.y + 0.4700000286102) + (distance * look_dir.y), pos.z + (distance * look_dir.z))
 end
 
+function morphinggrid.get_side_pos(player, offset, distance)
+  distance = distance or 0
+  local pos = player:get_pos()
+  local look_dir = player:get_look_dir()
+  local side_dir = {x=0-look_dir.z,y=look_dir.y,z=look_dir.x}
+  local side_pos = {x=pos.x+(offset*side_dir.x),y=pos.y,z=pos.z+(offset*side_dir.z)}
+  return {x=side_pos.x+(distance*look_dir.x),y=(side_pos.y+0.4700000286102)+(distance*look_dir.y),z=side_pos.z+(distance*look_dir.z)}
+end
+
 function morphinggrid.split_string (inputstr, sep)
 	if sep == nil then
 		sep = "%s"

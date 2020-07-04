@@ -1,3 +1,5 @@
+zeo.arsenal = {}
+
 minetest.register_tool("zeo:zeo_power_pod_sword", {
   description = "Zeo Power Pod Sword",
   inventory_image = "zeo_power_pod_sword.png",
@@ -47,6 +49,37 @@ morphinggrid.register_firearm("zeo:zeo_laser_pistol", {
       cracky={times={[50]=0.10}, uses=1, maxlevel=50},
     },
     damage_groups = {fleshy=310},
+  },
+  sound = {breaks = "default_tool_breaks"},
+})
+
+morphinggrid.register_firearm("zeo:advanced_zeo_laser_pistol", {
+  description = "Advenced Zeo Laser Pistol",
+  inventory_image = "zeo_laser_pistol_advanced.png",
+  distance = 75,
+  particle_texture = "zeo_laser_pistol_particle.png",
+  ranger_weapon = {
+    weapon_key = "advanced_zeo_laser_pistol",
+    rangers = {
+      "zeo:pink",
+      "zeo:yellow",
+      "zeo:blue",
+      "zeo:green",
+      "zeo:red"
+    },
+    required_weapons = {
+      "zeo:zeo_power_pod_sword",
+      "zeo:zeo_laser_pistol"
+    }
+  },
+  tool_capabilities = {
+    full_punch_interval = 0.4,
+    max_drop_level=1,
+    groupcaps={
+      snappy={times={[1]=1.90, [2]=0.90, [3]=0.30}, uses=1, maxlevel=3},
+      cracky={times={[50]=0.10}, uses=1, maxlevel=50},
+    },
+    damage_groups = {fleshy=340},
   },
   sound = {breaks = "default_tool_breaks"},
 })
@@ -160,3 +193,12 @@ minetest.register_tool("zeo:zeo_v_power_sword", {
   sound = {breaks = "default_tool_breaks"},
   groups = {sword = 1}
 })
+
+function zeo.arsenal.can_summon(ranger_names, ranger_name)
+  for i,v in ipairs(ranger_names) do
+    if v == ranger_name then
+      return true
+    end
+  end
+  return false
+end
