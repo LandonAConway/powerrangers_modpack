@@ -279,17 +279,18 @@ function mighty_morphin.fire_power_blaster(player, ranger)
 end
 
 function mighty_morphin.power_blaster_particle(pos,look_dir,speed,texture)
+  local pos = {x=pos.x,y=pos.y+0.5,z=pos.z}
   minetest.add_particlespawner({
-    amount = 100,
-    time = 0.4,
+    amount = 200,
+    time = 0.7,
     minpos = pos,
     maxpos = pos,
     minvel = {x=look_dir.x*speed,y=look_dir.y*speed,z=look_dir.z*speed},
     maxvel = {x=look_dir.x*speed,y=look_dir.y*speed,z=look_dir.z*speed},
     minacc = {x=look_dir.x*(speed/2),y=look_dir.y*(speed/2),z=look_dir.z*(speed/2)},
     maxacc = {x=look_dir.x*speed,y=look_dir.y*speed,z=look_dir.z*speed},
-    minxptime = 15,
-    maxxptime = 19,
+    minxptime = 100,
+    maxxptime = 100,
     minsize = 1,
     maxsize = 3,
     collisiondetection = true,

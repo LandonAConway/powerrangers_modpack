@@ -60,6 +60,8 @@ function morphinggrid.morph(player, ranger, morph_settings)
       return false, morph_info
     end
     
+    morphinggrid.save_current_armor(player)
+    
     local inv = minetest.get_inventory({
       type="detached", name=player_name.."_armor"})
     
@@ -200,7 +202,7 @@ function morphinggrid.demorph(player, demorph_settings, is_morphing)
       demorph_info.reason = "successful"
       demorph_settings.log_this = false
       result = true
-    else
+    else --not morphing
       if ranger == nil then
         demorph_info.reason = "not_morphed"
         demorph_settings.log_this = false
@@ -216,6 +218,7 @@ function morphinggrid.demorph(player, demorph_settings, is_morphing)
         end
         
         inv:set_list("armor", {})
+        morphinggrid.load_last_armor(player)
         
         armor:save_armor_inventory(player)
         armor:set_player_armor(player)
@@ -320,6 +323,38 @@ function morphinggrid.set_ranger_meta(player, ranger)
   
   meta:set_string('player_morph_status', ranger.name)
   meta:set_string('player_last_morph_status', ranger.name)
+end
+
+function morphinggrid.save_current_armor(player)
+  local is_morphed = morphinggrid.get_morph_status(player)
+  if is_morphed == nil then
+    local inv = minetest.get_inventory({
+      type="detached", name=player:get_player_name().."_armor"})
+      
+    local list_ = inv:get_list("armor")
+    local list = {}
+    
+    for i,v in ipairs(list_) do
+      table.insert(list, v:get_name().." "..v:get_count())
+    end
+    
+    player:get_meta():set_string("saved_armor", minetest.serialize(list))
+  end
+  return false
+end
+
+function morphinggrid.load_last_armor(player)
+  local list_ = minetest.deserialize(player:get_meta():get_string("saved_armor")) or {}
+  local list = {}
+  
+  for i,v in ipairs(list_) do
+    table.insert(list, ItemStack(v))
+  end
+  
+  local inv = minetest.get_inventory({
+    type="detached", name=player:get_player_name().."_armor"})
+  
+  inv:set_list("armor", list)
 end
 
 function morphinggrid.set_ranger_abilities(player, ranger)

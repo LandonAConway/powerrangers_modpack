@@ -54,7 +54,7 @@ morphinggrid.register_firearm("zeo:zeo_laser_pistol", {
 })
 
 morphinggrid.register_firearm("zeo:advanced_zeo_laser_pistol", {
-  description = "Advenced Zeo Laser Pistol",
+  description = "Advanced Zeo Laser Pistol",
   inventory_image = "zeo_laser_pistol_advanced.png",
   distance = 75,
   particle_texture = "zeo_laser_pistol_particle.png",
@@ -82,6 +82,37 @@ morphinggrid.register_firearm("zeo:advanced_zeo_laser_pistol", {
     damage_groups = {fleshy=340},
   },
   sound = {breaks = "default_tool_breaks"},
+})
+
+morphinggrid.register_firearm("zeo:zeo_blaster", {
+  description = "Zeo Blaster",
+  inventory_image = "zeo_blaster.png",
+  distance = 120,
+  particle_texture = "zeo_laser_pistol_particle.png",
+  ranger_weapon = {
+    weapon_key = "zeo_blaster",
+    rangers = {
+      "zeo:pink",
+      "zeo:yellow",
+      "zeo:blue",
+      "zeo:green",
+      "zeo:red"
+    },
+    required_weapons = {
+      "zeo:advanced_zeo_laser_pistol",
+      "zeo:zeo_i_power_disk",
+      "zeo:zeo_ii_power_clubs",
+      "zeo:zeo_iii_power_tonfas",
+      "zeo:zeo_iv_power_hatchets",
+      "zeo:zeo_v_power_sword"
+    }
+  },
+  tool_capabilities = {
+    full_punch_interval = 0.2,
+    max_drop_level = 1,
+    damage_groups = {fleshy=500}
+  },
+  sound = {breaks = "default_tool_breaks"}
 })
 
 minetest.register_tool("zeo:zeo_i_power_disk", {

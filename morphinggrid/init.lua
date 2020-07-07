@@ -18,6 +18,13 @@ function morphinggrid.mod_storage.set_string(key, value)
   storage:set_string(key, value)
 end
 
+--create morphers inventory
+minetest.register_on_joinplayer(function(player)
+  local inv = player:get_inventory()
+  inv:set_size("morphers", 4*14)
+  inv:set_size("morphers_main", 1*1)
+end)
+
 dofile(minetest.get_modpath("morphinggrid") .. "/events.lua")
 dofile(minetest.get_modpath("morphinggrid") .. "/craftitems.lua")
 dofile(minetest.get_modpath("morphinggrid") .. "/crafting.lua")
@@ -30,3 +37,4 @@ dofile(minetest.get_modpath("morphinggrid") .. "/ranger.lua")
 dofile(minetest.get_modpath("morphinggrid") .. "/weapons.lua")
 dofile(minetest.get_modpath("morphinggrid") .. "/privs.lua")
 dofile(minetest.get_modpath("morphinggrid") .. "/commands.lua")
+dofile(minetest.get_modpath("morphinggrid") .. "/morphers_inv.lua")

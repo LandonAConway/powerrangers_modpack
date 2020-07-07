@@ -58,12 +58,9 @@ function morphinggrid.register_ranger(name, rangerdef)
   local connection = minetest.deserialize(morphinggrid.mod_storage.get_string(name.."_connection"))
   morphinggrid.connections[name] = connection
   
-  morphinggrid.connections[name] = {}
+  morphinggrid.connections[name] = morphinggrid.connections[name] or {}
   morphinggrid.connections[name].name = name
   morphinggrid.connections[name].players = morphinggrid.connections[name].players or {}
-  morphinggrid.connections[name].timer = morphinggrid.connections[name].timer or 0
-  morphinggrid.connections[name].armor_wear = morphinggrid.connections[name].armor_wear or 0
-  morphinggrid.connections[name].in_use = morphinggrid.connections[name].in_use or false
 end
 
 function register_ranger_armor(rangerdef)
@@ -529,6 +526,25 @@ function morphinggrid.register_morpher(name, morpherdef)
   end
   
   morphinggrid.registered_morphers[name] = morpherdef
+end
+
+function morphinggrid.morph_from_morpher(player, morpher)
+  if type(morpher) == "string" then
+    if morphinggrid.registered_morphers[morpher] == nil then error("'"..morpher.."' is not a registered morpher.") end
+    morpher = morphinggrid.registered_morphers[morpher]
+  end
+  
+  if morpher.morph_func_override ~= nil then
+    morpher.morph_func_override(player)
+  elseif morpher.ranger == nil then
+    
+  else
+    local ranger = morphinggrid.registered_rangers[morpher.ranger]
+    if ranger == nil then
+      error("'"..morpher.ranger.."' is not a registered ranger.")
+    end
+    morphinggrid.morph(player, ranger, {morpher=morpher.name})
+  end
 end
 
 function morphinggrid.get_morpher(name)

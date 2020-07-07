@@ -2,7 +2,7 @@ function zeo.player_has_item(player, item)
   local inv = player:get_inventory()
   local stack = ItemStack(item.." 1")
   local result = false
-  if inv:contains_item("main", stack) == true then
+  if inv:contains_item("main", stack) == true or inv:contains_item("morphers", stack) == true then
     result = true
   end
   return result

@@ -147,23 +147,37 @@ function mighty_morphin.scan_for_players_with_power_coin(pos)
 end
 
 function mighty_morphin.search_for_powercoin(player)
-	if mighty_morphin.player_has_item(player, "mighty_morphin:mastodon_powercoin") or
-	mighty_morphin.player_has_item(player, "mighty_morphin:mastodon_morpher") or
-	mighty_morphin.player_has_item(player, "mighty_morphin:pterodactyl_powercoin") or
-	mighty_morphin.player_has_item(player, "mighty_morphin:pterodactyl_morpher") or
-	mighty_morphin.player_has_item(player, "mighty_morphin:triceratops_powercoin") or
-	mighty_morphin.player_has_item(player, "mighty_morphin:triceratops_morpher") or
-	mighty_morphin.player_has_item(player, "mighty_morphin:saber_toothed_tiger_powercoin") or
-	mighty_morphin.player_has_item(player, "mighty_morphin:saber_toothed_tiger_morpher") or
-	mighty_morphin.player_has_item(player, "mighty_morphin:tyrannosaurus_powercoin") or
-	mighty_morphin.player_has_item(player, "mighty_morphin:tyrannosaurus_morpher") or
-	mighty_morphin.player_has_item(player, "mighty_morphin:dragonzord_powercoin") or
-	mighty_morphin.player_has_item(player, "mighty_morphin:dragonzord_morpher") or
-	mighty_morphin.player_has_item(player, "mighty_morphin:tigerzord_powercoin") or
-	mighty_morphin.player_has_item(player, "mighty_morphin:tigerzord_morpher") then
-		return true
-	end
-	return false
+--	if mighty_morphin.player_has_item(player, "mighty_morphin:mastodon_powercoin") or
+--	mighty_morphin.player_has_item(player, "mighty_morphin:mastodon_morpher") or
+--	mighty_morphin.player_has_item(player, "mighty_morphin:pterodactyl_powercoin") or
+--	mighty_morphin.player_has_item(player, "mighty_morphin:pterodactyl_morpher") or
+--	mighty_morphin.player_has_item(player, "mighty_morphin:triceratops_powercoin") or
+--	mighty_morphin.player_has_item(player, "mighty_morphin:triceratops_morpher") or
+--	mighty_morphin.player_has_item(player, "mighty_morphin:saber_toothed_tiger_powercoin") or
+--	mighty_morphin.player_has_item(player, "mighty_morphin:saber_toothed_tiger_morpher") or
+--	mighty_morphin.player_has_item(player, "mighty_morphin:tyrannosaurus_powercoin") or
+--	mighty_morphin.player_has_item(player, "mighty_morphin:tyrannosaurus_morpher") or
+--	mighty_morphin.player_has_item(player, "mighty_morphin:dragonzord_powercoin") or
+--	mighty_morphin.player_has_item(player, "mighty_morphin:dragonzord_morpher") or
+--	mighty_morphin.player_has_item(player, "mighty_morphin:tigerzord_powercoin") or
+--	mighty_morphin.player_has_item(player, "mighty_morphin:tigerzord_morpher") then
+--		return true
+--	end
+	
+	 local items = { "mighty_morphin:mastodon_powercoin", "mighty_morphin:mastodon_morpher",
+	                 "mighty_morphin:pterodactyl_powercoin", "mighty_morphin:pterodactyl_morpher",
+	                 "mighty_morphin:triceratops_powercoin", "mighty_morphin:triceratops_morpher",
+	                 "mighty_morphin:saber_toothed_tiger_powercoin", "mighty_morphin:saber_toothed_tiger_morpher",
+	                 "mighty_morphin:tyrannosaurus_powercoin", "mighty_morphin:tyrannosaurus_morpher",
+	                 "mighty_morphin:dragonzord_powercoin", "mighty_morphin:dragonzord_morpher",
+	                 "mighty_morphin:tigerzord_powercoin", "mighty_morphin:tigerzord_morpher" }
+	
+	 for _, item in ipairs(items) do
+	   if mighty_morphin.player_has_item(player, item) then
+	     return true
+	   end
+	 end
+	 return false
 end
 
 --Other Useful Functions
@@ -176,11 +190,12 @@ end
 function mighty_morphin.player_has_item(player, item)
 	local inv = player:get_inventory()
 	local stack = ItemStack(item.." 1")
-	local result = false
-	if inv:contains_item("main", stack) == true then
-		result = true
+	if inv:contains_item("main", stack) == true or
+	inv:contains_item("morphers", stack) == true or
+	inv:contains_item("morphers_main", stack) == true then
+		return true
 	end
-	return result
+	return false
 end
 
 function mighty_morphin.player_has_item_and_is_morphed(player, item)

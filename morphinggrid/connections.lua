@@ -33,7 +33,7 @@ minetest.register_globalstep(function(dtime)
       end
     end
     --save connection properties
-    morphinggrid.mod_storage.set_string(v.name.."_connection", minetest.serialize(v))
+    morphinggrid.mod_storage.set_string(k.."_connection", minetest.serialize(v))
   end
 end)
 
