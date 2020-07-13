@@ -495,13 +495,15 @@ end
 function morphinggrid.register_morpher(name, morpherdef)
   morpherdef.name = name
   morpherdef.type = morpherdef.type or "craftitem"
+  morpherdef.commands = morpherdef.commands or {}
   morpherdef.groups = morpherdef.groups or {}
   morpherdef.groups.morpher = morpherdef.groups.morpher or 1
   
+  --on_use method. This is what allows the player to morph.
   local save_on_use = morpherdef.on_use
   morpherdef.on_use = function(itemstack, user, pointed_thing)
     if morpherdef.morph_func_override ~= nil then
-      morpherdef.morph_func_override(user)
+      itemstack = morpherdef.morph_func_override(user, itemstack)
     elseif morpherdef.ranger == nil then
       --nothing happens. This must be checked to prevent errors but allow for custom modding.
     else
@@ -513,10 +515,22 @@ function morphinggrid.register_morpher(name, morpherdef)
     end
     
     if save_on_use ~= nil then
-      save_on_use(itemstack, user, pointed_thing)
+      itemstack = save_on_use(itemstack, user, pointed_thing)
     end
+    return itemstack
   end
   
+  --Add default commands to the morpher.
+  morpherdef.commands.help = {
+    description = "Lists all commands for the morpher.",
+    func = function(name)
+      minetest.chat_send_player(name,"Commands for: "..morpherdef.description)
+      for cmd,t in pairs(morpherdef.commands) do
+        minetest.chat_send_player(name,cmd.." "..(t.params or "").." | "..(t.description or ""))
+      end
+    end
+  }
+
   if morpherdef.type == "craftitem" then
     minetest.register_craftitem(name, morpherdef)
   elseif morpherdef.type == "tool" then
@@ -528,14 +542,14 @@ function morphinggrid.register_morpher(name, morpherdef)
   morphinggrid.registered_morphers[name] = morpherdef
 end
 
-function morphinggrid.morph_from_morpher(player, morpher)
+function morphinggrid.morph_from_morpher(player, morpher, itemstack)
   if type(morpher) == "string" then
     if morphinggrid.registered_morphers[morpher] == nil then error("'"..morpher.."' is not a registered morpher.") end
     morpher = morphinggrid.registered_morphers[morpher]
   end
   
   if morpher.morph_func_override ~= nil then
-    morpher.morph_func_override(player)
+    itemstack = morpher.morph_func_override(player, itemstack) or itemstack
   elseif morpher.ranger == nil then
     
   else
@@ -545,6 +559,7 @@ function morphinggrid.morph_from_morpher(player, morpher)
     end
     morphinggrid.morph(player, ranger, {morpher=morpher.name})
   end
+  return itemstack
 end
 
 function morphinggrid.get_morpher(name)

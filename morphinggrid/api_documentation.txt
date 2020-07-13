@@ -37,7 +37,7 @@ I. Required setup for a Power Rangers mod
     	
 		--More options for registering a ranger
 			
-			--Fields
+			--Additional Fields
 				after_morph = <function(player, morph_info)> --do something when a player morphs into this ranger.
 				after_demorph = <function(player, demorph_info)> --do something when a player demorphs from being this ranger.
 				
@@ -78,10 +78,34 @@ II. Registering a morpher
 			--This field is optional. It overrides the default function that happens when the morpher is left clicked.
 			--Without it, by default, the morpher will morph the player to the ranger in the 'ranger' field.
 			--If you use this field, the 'ranger' field can by nil. But it is still good to keep the 'ranger' field so it is documnted.
-			morph_func_override = function(user)
+			morph_func_override = function(user, itemstack)
 				morphinggrid.morph(user, "modname:red") --You will need to manually morph the player while using this function.
+				return itemstack --This is optional. Return an itemstack to modify the morpher. Using the on_use() field will override this if it's return value is not nil.
 			end
 		})
+		
+		
+		--Additinal fields
+		
+		commands = <table> --A list of commands that can be executed per individual morpher. The table is built almost just like a chatcommand definition but it does not have a
+						   --privs field.
+		
+		--Additional field's usage
+		
+		--The command's name is the name of a table inside the 'commands' table below.
+		--'help' is a pre-existing command that cannot be overrided.
+		commands = {
+			command_name = {
+				description = "An example of a command that displays a chat command.",
+				params = "<text>",
+				func = function(name, text, itemstack) --'name' is the name of the player. 'text' is the input that the player gives. 'itemstack' is an itemstack of the morpher.
+					return true, name.." said: "..text, itemstack --You can return the bool result, a message, and an itemstack. Returning an itemstack replaces the morpher that
+																  --you are executing the command from. It could either be the morpher you are holding, or the morpher in your
+																  --'morphers' inventory that is in the single slot.
+				end
+			}
+		}
+		
 			
 II. Weapons/Arsenal
 	

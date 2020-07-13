@@ -39,7 +39,8 @@ minetest.register_chatcommand("morph", {
         local stack = inv:get_stack("morphers_main", 1)
         local stackname = stack:get_name()
         if morphinggrid.registered_morphers[stackname] ~= nil then
-          morphinggrid.morph_from_morpher(player, stackname)
+          local itemstack = morphinggrid.morph_from_morpher(player, stackname, stack) or stack
+          inv:set_stack("morphers_main", 1, itemstack)
           return true
         end
         return false, "The item placed in the single morpher slot is not a morpher. Use the chat command '/morphers'"
@@ -81,6 +82,59 @@ minetest.register_chatcommand("demorph", {
     end
   end,
 })
+
+minetest.register_chatcommand("morpher", {
+  params = "<cmd>",
+  description = "Execute a morpher command.",
+  
+  privs = {
+    interact = true,
+    power_rangers = true,
+  },
+  
+  func = function(name,text)
+    local player = minetest.get_player_by_name(name)
+    local inv = player:get_inventory()
+    if morphinggrid.registered_morphers[player:get_wielded_item():get_name()] ~= nil then
+      if text ~= nil and text ~= "" then
+        local stack = player:get_wielded_item()
+        local result,message,itemstack = morphinggrid.execute_morpher_cmd(name,text,stack)
+        player:set_wielded_item(itemstack or stack)
+        return result,message
+      end
+      return false, "Please enter a command."
+    elseif not inv:is_empty("morphers_main") then
+      local stack = inv:get_stack("morphers_main", 1)
+      local stackname = stack:get_name()
+      if morphinggrid.registered_morphers[stackname] ~= nil then
+        if text ~= nil and text ~= "" then
+          local result,message,itemstack = morphinggrid.execute_morpher_cmd(name,text,stack)
+          inv:set_stack("morphers_main", 1, itemstack)
+          return result,message
+        end
+        return false, "Please enter a command."
+      end
+      return false, "The item placed in the single morpher slot is not a morpher. Use the chat command '/morphers'"
+    end
+    return false, "The wielded item is not a morpher and there is no morpher placed in the single morpher slot. Use the chat command '/morphers'"
+  end
+})
+
+function morphinggrid.execute_morpher_cmd(name,text,itemstack)
+  local stack_name = itemstack:get_name()
+  local params = morphinggrid.split_string(text," ")
+  local morpherdef = morphinggrid.registered_morphers[stack_name]
+  if morpherdef.commands[params[1]] ~= nil then
+    local count = string.len(params[1])+1
+    local subtext = string.sub(text,count+1)
+    local result,message,newitemstack = morpherdef.commands[params[1]].func(name,subtext,itemstack)
+    if result == nil then result = true end
+    message = message or ""
+    itemstack = newitemstack or itemstack
+    return result,message,itemstack
+  end
+  return false, "The command '"..params[1].."' does not exist.", itemstack
+end
 
 minetest.register_chatcommand("summon_weapon", {
   params = "<weapon_key>",
