@@ -14,6 +14,10 @@ morphinggrid.register_after_demorph = function(fn)
 end
 
 function morphinggrid.morph(player, ranger, morph_settings)
+  if type (player) == "string" then
+    player = minetest.get_player_by_name(player)
+  end
+  
   if type(ranger) == "string" then
     local ranger_name = ranger
     ranger = morphinggrid.registered_rangers[ranger_name]
@@ -57,6 +61,7 @@ function morphinggrid.morph(player, ranger, morph_settings)
        " Please wait some time while the Morphing Grid re-stabelizes these ranger powers."..
        " Approximately: "..time_left.days.." Days, "..time_left.hours.." Hours, "..time_left.minutes.." Minutes, "..time_left.seconds.." Seconds")
       end
+      minetest.log("action","Player ("..player:get_player_name()..") Morphed: "..ranger.name..", "..(morph_info.reason or ""))
       return false, morph_info
     end
     
@@ -98,6 +103,10 @@ function morphinggrid.morph(player, ranger, morph_settings)
       player:set_properties(prop)
     end
     
+    if morph_settings.show_hud then
+      morphinggrid.show_hud(player, ranger)
+    end
+    
     if morph_settings.chat_messages then
       minetest.chat_send_player(player_name, "Morph successful. (Ranger: "..ranger.description..")")
     end
@@ -125,10 +134,15 @@ function morphinggrid.morph(player, ranger, morph_settings)
    table.insert(morphinggrid.morphing_log, morph_info)
   end
   
+  minetest.log("action","Player ("..player:get_player_name()..") Morphed: "..ranger.name..", "..(morph_info.reason or ""))
   return result, morph_info
 end
 
 function morphinggrid.demorph(player, demorph_settings, is_morphing)
+  if type(player) == "string" then
+    player = minetest.get_player_by_name(player)
+  end
+  
   demorph_settings = morphinggrid.configure_demorph_settings(demorph_settings)
   local demorph_info = {}
   
@@ -199,7 +213,11 @@ function morphinggrid.demorph(player, demorph_settings, is_morphing)
         morphinggrid.remove_weapons(player, rangertype.weapons)
       end
       
-      demorph_info.reason = "successful"
+      if demorph_settings.hide_hud then
+        morphinggrid.hide_hud(player)
+      end
+      
+      demorph_info.reason = "successful_durring_morph"
       demorph_settings.log_this = false
       result = true
     else --not morphing
@@ -243,6 +261,10 @@ function morphinggrid.demorph(player, demorph_settings, is_morphing)
         
         morphinggrid.remove_ranger_abilities(player, ranger)
         morphinggrid.remove_weapons(player, rangertype.weapons)
+        
+        if demorph_settings.hide_hud then
+          morphinggrid.hide_hud(player)
+        end
       
         meta:set_string("player_morph_status", "none")
         
@@ -283,15 +305,21 @@ function morphinggrid.demorph(player, demorph_settings, is_morphing)
     table.insert(morphinggrid.morphing_log, demorph_info)
   end
   
+  if ranger ~= nil then
+    minetest.log("action","Player ("..player:get_player_name()..") Demorphed: "..ranger.name..", "..(demorph_info.reason or ""))
+  end
+  
   return result, demorph_info
 end
 
 function morphinggrid.configure_morph_settings(morph_settings)
   morph_settings = morph_settings or {}
-  morph_settings.hide_player = morph_settings.hide_player or false
-  morph_settings.priv_bypass = morph_settings.priv_bypass or false
-  morph_settings.chat_messages = morph_settings.chat_messages or true
-  morph_settings.log_this = morph_settings.log_this or true
+  
+  if morph_settings.hide_player == nil then morph_settings.hide_player = false end
+  if morph_settings.priv_bypass == nil then morph_settings.priv_bypass = false end
+  if morph_settings.chat_messages == nil then morph_settings.chat_messages = true end
+  if morph_settings.log_this == nil then morph_settings.log_this = true end
+  if morph_settings.show_hud == nil then morph_settings.show_hud = true end
   
   morph_settings.armor_parts = morph_settings.armor_parts or {}
   
@@ -305,16 +333,152 @@ end
 
 function morphinggrid.configure_demorph_settings(demorph_settings)
   demorph_settings = demorph_settings or {}
-  demorph_settings.priv_bypass = demorph_settings.priv_bypass or false
-  demorph_settings.chat_messages = demorph_settings.chat_messages or true
-  demorph_settings.log_this = demorph_settings.log_this or true
-  demorph_settings.voluntary = demorph_settings.voluntary or true
+  if demorph_settings.priv_bypass == nil then demorph_settings.priv_bypass = false end
+  if demorph_settings.chat_messages == nil then demorph_settings.chat_messages = true end
+  if demorph_settings.log_this == nil then demorph_settings.log_this = true end
+  if demorph_settings.voluntary == nil then demorph_settings.voluntary = true end
+  if demorph_settings.hide_hud == nil then demorph_settings.hide_hud = true end
   return demorph_settings
 end
 
---Reset player wield hand
+morphinggrid.huds = {}
+
+--{
+--        hud_elem_type = "image",  -- See HUD element types
+--        -- Type of element, can be "image", "text", "statbar", or "inventory"
+--
+--        position = {x=0.5, y=0.5},
+--        -- Left corner position of element
+--
+--        name = "<name>",
+--
+--        scale = {x = 2, y = 2},
+--
+--        text = "<text>",
+--
+--        number = 2,
+--
+--        item = 3,
+--        -- Selected item in inventory. 0 for no item selected.
+--
+--        direction = 0,
+--        -- Direction: 0: left-right, 1: right-left, 2: top-bottom, 3: bottom-top
+--
+--        alignment = {x=0, y=0},
+--
+--        offset = {x=0, y=0},
+--
+--        size = { x=100, y=100 },
+--        -- Size of element in pixels
+--
+--        z_index = 0,
+--        -- Z index : lower z-index HUDs are displayed behind higher z-index HUDs
+--    }
+
 minetest.after(0, function()
+  local storage = morphinggrid.mod_storage.get_string("morphinggrid_huds")
+  if storage ~= "" then
+    morphinggrid.huds = minetest.deserialize(storage)
+  end
 end)
+
+minetest.register_on_joinplayer(function(player)
+  if morphinggrid.huds[player:get_player_name()] ~= nil then
+    local ranger = morphinggrid.get_morph_status(player)
+    if ranger ~= nil then
+      morphinggrid.show_hud(player, ranger, true)
+    end
+  end
+end)
+
+function morphinggrid.show_hud(player, ranger, startup)
+  if type(player) == "string" then
+    player = minetest.get_player_by_name(player)
+  end
+  
+  if type(ranger) == "string" then
+    ranger = morphinggrid.registered_rangers[ranger]
+  end
+  
+  local wear = morphinggrid.connections[ranger.name].players[player:get_player_name()].armor_wear or 0
+  local power_usage = ((((65535-wear)/65535)*10)*2)
+  
+  local position = {x=0.5,y=0.8}
+  local hud = {
+    title = {
+      hud_elem_type = "text",
+      position = position,
+      offset = {x=0,y=-32},
+      text = "Morph Status:",
+      number = "0xFFFFFF"
+    },
+    ranger = {
+      hud_elem_type = "text",
+      position = position,
+      offset = {x=0,y=0},
+      text = "Ranger: "..ranger.description,
+      number = "0xFFFFFF"
+    },
+    status = {
+      hud_elem_type = "statbar",
+      position = position,
+      offset = {x=-160,y=32},
+      text = "morphinggrid_power_usage_32.png",
+      number = power_usage
+    }
+  }
+  
+  if startup then
+    local _, err = pcall(morphinggrid.hide_hud,player)
+    morphinggrid.huds[player:get_player_name()] = nil
+  end
+  
+  if morphinggrid.huds[player:get_player_name()] == nil then
+    morphinggrid.huds[player:get_player_name()] = {}
+    morphinggrid.huds[player:get_player_name()].title = player:hud_add(hud.title)
+    morphinggrid.huds[player:get_player_name()].ranger = player:hud_add(hud.ranger)
+    morphinggrid.huds[player:get_player_name()].status = player:hud_add(hud.status)
+  end
+  
+  morphinggrid.mod_storage.set_string("morphinggrid_huds",minetest.serialize(morphinggrid.huds))
+end
+
+function morphinggrid.hide_hud(player)
+  if type(player) == "string" then
+    player = minetest.get_player_by_name(player)
+  end
+  
+  local huds = morphinggrid.huds[player:get_player_name()]
+  if huds ~= nil then
+    player:hud_remove(huds.title)
+    player:hud_remove(huds.ranger)
+    player:hud_remove(huds.status)
+    morphinggrid.huds[player:get_player_name()] = nil
+  end
+end
+
+function morphinggrid.hud_update_power_usage(player)
+  if type(player) == "string" then
+    player = minetest.get_player_by_name(player)
+  end
+  
+  if morphinggrid.hud_is_visible(player) then
+    local current = morphinggrid.get_current_ranger_wear(player)
+    local amount = ((((65535-current)/65535)*10)*2)
+    player:hud_change(morphinggrid.huds[player:get_player_name()].status,"number",math.floor(amount))
+  end
+end
+
+function morphinggrid.hud_is_visible(player)
+  if type(player) == "string" then
+    player = minetest.get_player_by_name(player)
+  end
+  
+  if morphinggrid.huds[player:get_player_name()] ~= nil then
+    return true
+  end
+  return false
+end
 
 function morphinggrid.set_ranger_meta(player, ranger)
   local meta = player:get_meta()

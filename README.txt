@@ -1,4 +1,4 @@
-Power Rangers Modpack v2.2
+Power Rangers Modpack v2.6
 
 
 DESCRIPTION

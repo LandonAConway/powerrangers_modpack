@@ -123,6 +123,7 @@ function register_ranger_armor(rangerdef)
       local caps = tool_capabilities or {}
       local damage_groups = caps.damage_groups or {fleshy = 0}
       morphinggrid.punch_ranger_armor(player, hitter, damage_groups.fleshy)
+      morphinggrid.hud_update_power_usage(player)
     end,
     
     on_drop = function(itemstack, dropper, pos)
@@ -185,6 +186,7 @@ function register_ranger_armor(rangerdef)
       local caps = tool_capabilities or {}
       local damage_groups = caps.damage_groups or {fleshy = 0}
       morphinggrid.punch_ranger_armor(player, hitter, damage_groups.fleshy)
+      morphinggrid.hud_update_power_usage(player)
     end,
     
     on_drop = function(itemstack, dropper, pos)
@@ -249,6 +251,7 @@ function register_ranger_armor(rangerdef)
       local caps = tool_capabilities or {}
       local damage_groups = caps.damage_groups or {fleshy = 0}
       morphinggrid.punch_ranger_armor(player, hitter, damage_groups.fleshy)
+      morphinggrid.hud_update_power_usage(player)
     end,
     
     on_drop = function(itemstack, dropper, pos)
@@ -313,6 +316,7 @@ function register_ranger_armor(rangerdef)
       local caps = tool_capabilities or {}
       local damage_groups = caps.damage_groups or {fleshy = 0}
       morphinggrid.punch_ranger_armor(player, hitter, damage_groups.fleshy)
+      morphinggrid.hud_update_power_usage(player)
     end,
     
     on_drop = function(itemstack, dropper, pos)
