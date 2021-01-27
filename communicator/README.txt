@@ -1,9 +1,9 @@
-Communicator v2.1
+Communicator v2.2
 
 
 DESCRIPTION
 ==============================
-Adds power rangers to Minetest. It requires the 3d Armor mod.
+Adds a communicator to the Power Rangers mod.
 
 
 LICENSE

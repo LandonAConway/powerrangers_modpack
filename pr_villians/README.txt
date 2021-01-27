@@ -3,7 +3,7 @@ Power Rangers Villians v2.2
 
 DESCRIPTION
 ==============================
-Adds power rangers to Minetest. It requires the 3d Armor mod.
+A villian API for the Power Rangers mod.
 
 
 LICENSE
