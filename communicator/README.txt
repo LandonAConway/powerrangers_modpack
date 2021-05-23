@@ -1,4 +1,4 @@
-Communicator v2.2
+Communicator v2.3
 
 
 DESCRIPTION
