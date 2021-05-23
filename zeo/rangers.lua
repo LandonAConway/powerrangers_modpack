@@ -48,7 +48,7 @@ for i, v in ipairs(zeo.rangers) do
         type="shapeless",
         recipe = {"default:gold_ingot", "default:steel_ingot", "default:copper_ingot", "zeo:zeo_crystal_"..i}
       },
-      morph_func_override = function(user)
+      morph_func_override = function(user, itemstack)
         local ranger = morphinggrid.get_ranger("zeo:"..v[1])
         zeo.morph(user, ranger)
       end

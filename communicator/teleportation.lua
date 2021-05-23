@@ -12,19 +12,42 @@ minetest.register_chatcommand("cmc_teleport_pos", {
   
   func = function(name, text)
     local player = minetest.get_player_by_name(name)
-    local pos = player:get_pos()
-    local meta = player:get_meta()
     
-    local to_pos = minetest.string_to_pos(text)
-    
-    if to_pos ~= nil then
-      meta:set_string("cmc_last_pos", minetest.pos_to_string(pos))
+    if communicator.player_has_communicator(player) then
+      local cmc = communicator.registered_communicators[player:get_inventory():get_stack("communicators_main", 1):get_name()]
       
-      communicator.teleportation.teleport(player, to_pos)
-      return true, "Teleported to: "..minetest.pos_to_string(to_pos)
-    else
-      return false, "Position is not a valid."
+      if cmc.teleportation then
+        local pos = player:get_pos()
+        local meta = player:get_meta()
+        
+        local to_pos = minetest.string_to_pos(text)
+        
+        if to_pos ~= nil then
+          meta:set_string("cmc_last_pos", minetest.pos_to_string(pos))
+          
+          local old_pos = pos;
+          local new_pos = to_pos;
+          local result, message = true, "Teleported to: "..minetest.pos_to_string(to_pos)
+          
+          if cmc.before_teleport ~= nil then
+            result, message = cmc.before_teleport(player, old_pos, new_pos, false)
+          end
+          
+          if result then
+            communicator.teleportation.teleport(player, to_pos)
+            
+            if cmc.after_teleport ~= nil then
+              cmc.after_teleport(player, old_pos, new_pos, false)
+            end
+          end
+          
+          return result, message
+        end
+        return false, "Position is not a valid."
+      end
+      return false, "Communicator does not support teleportation."
     end
+    return false, "You do not have a communicator in the communicator slot."
   end,
 })
 
@@ -40,30 +63,67 @@ minetest.register_chatcommand("cmc_safe_teleport_pos", {
   
   func = function(name, text)
     local player = minetest.get_player_by_name(name)
-    local pos = player:get_pos()
-    local meta = player:get_meta()
     
-    local to_pos = minetest.string_to_pos(text)
-    
-    if to_pos ~= nil then
-      local best_pos_a = communicator.teleportation.find_best_pos(to_pos, 2)
-      local best_pos_b = communicator.teleportation.find_best_pos(to_pos, 7)
-      if best_pos_a ~= nil then
-        meta:set_string("cmc_last_pos", minetest.pos_to_string(pos))
+    if communicator.player_has_communicator(player) then
+      local cmc = communicator.registered_communicators[player:get_inventory():get_stack("communicators_main", 1):get_name()]
+      
+      if cmc.teleportation then
+        local pos = player:get_pos()
+        local meta = player:get_meta()
         
-        player:set_pos(best_pos_a)
-        return true, "Teleported to: "..minetest.pos_to_string(best_pos_a)
-      elseif best_pos_b ~= nil then
-        meta:set_string("cmc_last_pos", minetest.pos_to_string(pos))
+        local to_pos = minetest.string_to_pos(text)
         
-        player:set_pos(best_pos_b)
-        return true, "Teleported to: "..minetest.pos_to_string(best_pos_b)
-      else
-        return false, "There is not enough space for teleportation."
+        if to_pos ~= nil then
+          local best_pos_a = communicator.teleportation.find_best_pos(to_pos, 2)
+          local best_pos_b = communicator.teleportation.find_best_pos(to_pos, 7)
+          if best_pos_a ~= nil then
+            local old_pos = pos;
+            local new_pos = best_pos_a;
+            local result, message = true, "Teleported to: "..minetest.pos_to_string(best_pos_a)
+            
+            if cmc.before_teleport ~= nil then
+              result, message = cmc.before_teleport(player, old_pos, new_pos, false)
+            end
+            
+            --teleport player
+            if result then
+              meta:set_string("cmc_last_pos", minetest.pos_to_string(pos))
+              player:set_pos(best_pos_a)
+
+              if cmc.after_teleport ~= nil then
+                cmc.after_teleport(player, old_pos, new_pos, false)
+              end
+            end
+          
+            return result, message
+          elseif best_pos_b ~= nil then
+            local old_pos = pos;
+            local new_pos = best_pos_b;
+            local result, message = true, "Teleported to: "..minetest.pos_to_string(best_pos_b)
+            
+            if cmc.before_teleport ~= nil then
+              result, message = cmc.before_teleport(player, old_pos, new_pos, false)
+            end
+            
+            --teleport player
+            if result then
+              meta:set_string("cmc_last_pos", minetest.pos_to_string(pos))
+              player:set_pos(best_pos_b)
+            
+              if cmc.after_teleport ~= nil then
+                cmc.after_teleport(player, old_pos, new_pos, false)
+              end
+            end
+            
+            return result, message
+          end
+          return false, "There is not enough space for teleportation."
+        end
+        return false, "Position is not a valid."
       end
-    else
-      return false, "Position is not a valid."
+      return false, "Communicator does not support teleportation."
     end
+    return false, "You do not have a communicator in the communicator slot."
   end,
 })
 
@@ -79,19 +139,55 @@ minetest.register_chatcommand("cmc_teleport", {
   
   func = function(name, text)
     local player = minetest.get_player_by_name(name)
-    local pos = player:get_pos()
-    local meta = player:get_meta()
     
-    local to_pos = communicator.teleportation.locations_get_pos(player, text)
-    
-    if text ~= nil and communicator.teleportation.locations_exists(player, text) then
-      meta:set_string("cmc_last_pos", minetest.pos_to_string(pos))
+    if communicator.player_has_communicator(player) then
+      local cmc = communicator.registered_communicators[player:get_inventory():get_stack("communicators_main", 1):get_name()]
       
-      communicator.teleportation.teleport(player, to_pos)
-      return true, "Teleported to: "..minetest.pos_to_string(to_pos)
-    else
-      return false, "Position key does not exist."
+      if cmc.teleportation then
+        local pos = player:get_pos()
+        local meta = player:get_meta()
+        local smeta = player:get_inventory():get_stack("communicators_main", 1):get_meta()
+        
+        --proposed--
+        local positions = minetest.deserialize(smeta:get_string("positions")) or {}
+        if positions[text] ~= nil then
+          local old_pos = pos;
+          local new_pos = positions[text];
+          local result, message = true, "Teleported to: "..minetest.pos_to_string(positions[text])
+          
+          if cmc.before_teleport ~= nil then
+            result, message = cmc.before_teleport(player, old_pos, new_pos, false)
+          end
+          
+          --teleport player
+          if result then
+            meta:set_string("cmc_last_pos", minetest.pos_to_string(pos))
+            player:set_pos(positions[text])
+            
+            if cmc.after_teleport ~= nil then
+              cmc.after_teleport(player, old_pos, new_pos, false)
+            end
+          end
+          
+          return result, message
+        end
+        return false, "Position key does not exist."
+        
+        --old--
+--        local to_pos = communicator.teleportation.locations_get_pos(player, text)
+--        
+--        if text ~= nil and communicator.teleportation.locations_exists(player, text) then
+--          meta:set_string("cmc_last_pos", minetest.pos_to_string(pos))
+--          
+--          communicator.teleportation.teleport(player, to_pos)
+--          return true, "Teleported to: "..minetest.pos_to_string(to_pos)
+--        else
+--          return false, "Position key does not exist."
+--        end
+      end
+      return false, "Communicator does not support teleportation."
     end
+    return false, "You do not have a communicator in the communicator slot."
   end,
 })
 
@@ -107,40 +203,76 @@ minetest.register_chatcommand("cmc_teleport_to_player", {
   
   func = function(name, text)
     local player = minetest.get_player_by_name(name)
-    local pos = player:get_pos()
-    local meta = player:get_meta()
     
-    if minetest.player_exists(text) then
-      for _, plr in ipairs(minetest.get_connected_players()) do
-        if text == plr:get_player_name() then
-          local to_pos = plr:get_pos()
-          
-          local best_pos_a = communicator.teleportation.find_best_pos(to_pos, 2)
-          local best_pos_b = communicator.teleportation.find_best_pos(to_pos, 7)
-          if best_pos_a ~= nil then
-            meta:set_string("cmc_last_pos", minetest.pos_to_string(pos))
-            
-            player:set_pos(best_pos_a)
-            return true, "Teleported to: "..minetest.pos_to_string(best_pos_a)
-          elseif best_pos_b ~= nil then
-            meta:set_string("cmc_last_pos", minetest.pos_to_string(pos))
-            
-            player:set_pos(best_pos_b)
-            return true, "Teleported to: "..minetest.pos_to_string(best_pos_b)
-          else
-            return false, "There is not enough space for teleportation."
-          end
-        end
-      end
+    if communicator.player_has_communicator(player) then
+      local cmc = communicator.registered_communicators[player:get_inventory():get_stack("communicators_main", 1):get_name()]
       
-      return false, "Player is not online."
-    else
-      return false, "Player does not exist."
+      if cmc.teleportation then
+        local pos = player:get_pos()
+        local meta = player:get_meta()
+        
+        if minetest.player_exists(text) then
+          for _, plr in ipairs(minetest.get_connected_players()) do
+            if text == plr:get_player_name() then
+              local to_pos = plr:get_pos()
+              
+              local best_pos_a = communicator.teleportation.find_best_pos(to_pos, 2)
+              local best_pos_b = communicator.teleportation.find_best_pos(to_pos, 7)
+              if best_pos_a ~= nil then
+                local old_pos = pos;
+                local new_pos = best_pos_a;
+                local result, message = true, "Teleported to: "..minetest.pos_to_string(best_pos_a)
+                
+                if cmc.before_teleport ~= nil then
+                  result, message = cmc.before_teleport(player, old_pos, new_pos, false)
+                end
+                
+                --teleport player
+                if result then
+                  meta:set_string("cmc_last_pos", minetest.pos_to_string(pos))
+                  player:set_pos(best_pos_a)
+                  
+                  if cmc.after_teleport ~= nil then
+                    cmc.after_teleport(player, old_pos, new_pos, false)
+                  end
+                end
+          
+                return result, message
+              elseif best_pos_b ~= nil then
+                local old_pos = pos;
+                local new_pos = best_pos_b;
+                local result, message = true, "Teleported to: "..minetest.pos_to_string(best_pos_b)
+                
+                if cmc.before_teleport ~= nil then
+                  result, message = cmc.before_teleport(player, old_pos, new_pos, false)
+                end
+                
+                --teleport player
+                if result then
+                  meta:set_string("cmc_last_pos", minetest.pos_to_string(pos))
+                  player:set_pos(best_pos_b)
+                  
+                  if cmc.after_teleport ~= nil then
+                    cmc.after_teleport(player, old_pos, new_pos, false)
+                  end
+                end
+          
+                return result, message
+              end
+              return false, "There is not enough space for teleportation."
+            end
+          end
+          return false, "Player is not online."
+        end
+        return false, "Player does not exist."
+      end
+      return false, "Communicator does not support teleportation."
     end
+    return false, "You do not have a communicator in the communicator slot."
   end,
 })
 
-minetest.register_chatcommand("cmc_teleportback", {
+minetest.register_chatcommand("cmc_teleport_back", {
   params = "",
   description = "Teleports player back to previous position.",
   
@@ -152,18 +284,41 @@ minetest.register_chatcommand("cmc_teleportback", {
   
   func = function(name, param)
     local player = minetest.get_player_by_name(name)
-    local meta = player:get_meta()
     
-    local pos = minetest.string_to_pos(meta:get_string("cmc_last_pos"))
-    
-    if pos ~= nil then
-      meta:set_string("cmc_last_pos", minetest.pos_to_string(player:get_pos()))
+    if communicator.player_has_communicator(player) then
+      local cmc = communicator.registered_communicators[player:get_inventory():get_stack("communicators_main", 1):get_name()]
       
-      communicator.teleportation.teleport(player, pos)
-      return true, "Teleported to: "..minetest.pos_to_string(pos)
-    else
-      return false, "No position set"
+      if cmc.teleportation then
+        local meta = player:get_meta()
+        
+        local pos = minetest.string_to_pos(meta:get_string("cmc_last_pos"))
+        
+        if pos ~= nil then
+          local old_pos = player:get_pos();
+          local new_pos = pos;
+          local result, message = true, "Teleported to: "..minetest.pos_to_string(pos)
+          
+          if cmc.before_teleport ~= nil then
+            result, message = cmc.before_teleport(player, old_pos, new_pos, false)
+          end
+          
+          --teleport player
+          if result then
+            meta:set_string("cmc_last_pos", minetest.pos_to_string(player:get_pos()))
+            communicator.teleportation.teleport(player, pos)
+            
+            if cmc.after_teleport ~= nil then
+              cmc.after_teleport(player, old_pos, new_pos, true)
+            end
+          end
+          
+          return result, message
+        end
+        return false, "No position set"
+      end
+      return false, "Communicator does not support teleportation."
     end
+    return false, "You do not have a communicator in the communicator slot."
   end,
 })
 
@@ -179,19 +334,35 @@ minetest.register_chatcommand("cmc_teleportation_add_pos", {
   
   func = function(name, text)
     local player = minetest.get_player_by_name(name)
-    local pos = player:get_pos()
-    local meta = player:get_meta()
     
-    if text ~= nil and text ~= "" then
-      if not string.find(text, "|") and not string.find(text, "=") then
-        communicator.teleportation.locations_add_pos(player, pos, text)
-        return true, "'"..text.."' added. "
-      else
-        return false, "Key cannot contain these characters: '|='."
+    if communicator.player_has_communicator(player) then
+      local cmc = communicator.registered_communicators[player:get_inventory():get_stack("communicators_main", 1):get_name()]
+      
+      if cmc.teleportation then
+        local pos = player:get_pos()
+        local meta = player:get_meta()
+        local stack = player:get_inventory():get_stack("communicators_main", 1)
+        local smeta = stack:get_meta()
+        
+        if text ~= nil and text ~= "" then
+          if not string.find(text, "|") and not string.find(text, "=") then
+            --proposed--
+            local positions = minetest.deserialize(smeta:get_string("positions")) or {}
+            positions[text] = pos
+            smeta:set_string("positions", minetest.serialize(positions))
+            player:get_inventory():set_stack("communicators_main", 1, stack)
+            
+            --old--
+--            communicator.teleportation.locations_add_pos(player, pos, text)
+            return true, "'"..text.."' added. "
+          end
+          return false, "Key cannot contain these characters: '|='."
+        end
+        return false, "Enter a key."
       end
-    else
-      return false, "Enter a key."
+      return false, "Communicator does not support teleportation."
     end
+    return false, "You do not have a communicator in the communicator slot."
   end,
 })
 
@@ -207,19 +378,40 @@ minetest.register_chatcommand("cmc_teleportation_remove_pos", {
   
   func = function(name, text)
     local player = minetest.get_player_by_name(name)
-    local pos = player:get_pos()
-    local meta = player:get_meta()
     
-    if text ~= nil and text ~= "" then
-      if communicator.teleportation.locations_get_pos(player, text) ~= nil then
-        communicator.teleportation.locations_remove_pos(player, text)
-        return true, "'"..text.."' removed. "
-      else
-        return false, "Key does not exist."
+    if communicator.player_has_communicator(player) then
+      local cmc = communicator.registered_communicators[player:get_inventory():get_stack("communicators_main", 1):get_name()]
+      
+      if cmc.teleportation then
+        local pos = player:get_pos()
+        local meta = player:get_meta()
+        local stack = player:get_inventory():get_stack("communicators_main", 1)
+        local smeta = stack:get_meta()
+        
+        if text ~= nil and text ~= "" then
+          --proposed--
+          local positions = minetest.deserialize(smeta:get_string("positions")) or {}
+          positions[text] = nil
+          smeta:set_string("positions", minetest.serialize(positions))
+          player:get_inventory():set_stack("communicators_main", 1, stack)
+          if positions[text] ~= nil then
+            return true, "'"..text.."' removed."
+          end
+          return false, "Key does not exist."
+          
+          --old--
+--          if communicator.teleportation.locations_get_pos(player, text) ~= nil then
+--            communicator.teleportation.locations_remove_pos(player, text)
+--            return true, "'"..text.."' removed. "
+--          else
+--            return false, "Key does not exist."
+--          end
+        end
+        return false, "Enter a key."
       end
-    else
-      return false, "Enter a key."
+      return false, "Communicator does not support teleportation."
     end
+    return false, "You do not have a communicator in the communicator slot."
   end,
 })
 
@@ -236,18 +428,45 @@ minetest.register_chatcommand("cmc_teleportation_get_keys", {
   func = function(name, text)
     local player = minetest.get_player_by_name(name)
     
-    local t = {}
-    for k, v in pairs(communicator.teleportation.locations_get_positions(player)) do
-      table.insert(t, k)
+    if communicator.player_has_communicator(player) then
+      local cmc = communicator.registered_communicators[player:get_inventory():get_stack("communicators_main", 1):get_name()]
+      
+      if cmc.teleportation then
+        --proposed--
+        local pos = player:get_pos()
+        local meta = player:get_meta()
+        local stack = player:get_inventory():get_stack("communicators_main", 1)
+        local smeta = stack:get_meta()
+        local positions = minetest.deserialize(smeta:get_string("positions")) or {}
+        
+        local keys;
+        
+        for k, p in pairs(positions) do
+          if keys == nil then keys = "" end
+          keys = keys..k..", ("..p.x..", "..p.y..", "..p.z..") "
+        end
+        
+        if keys ~= nil then
+          return true, keys
+        end
+        return false, "You have do not have any saved positions."
+      
+      --old--
+--        local t = {}
+--        for k, v in pairs(communicator.teleportation.locations_get_positions(player)) do
+--          table.insert(t, k)
+--        end
+--
+--        local keys = table.concat(t, ",")
+--
+--        if keys ~= nil and keys ~= "" then
+--          return true, "Position keys: "..keys
+--        end
+--        return false, "You have not saved any postions."
+      end
+      return false, "Communicator does not support teleportation."
     end
-    
-    local keys = table.concat(t, ",")
-    
-    if keys ~= nil and keys ~= "" then
-      return true, "Position keys: "..keys
-    else
-      return false, "You have not saved any postions."
-    end
+    return false, "You do not have a communicator in the communicator slot."
   end,
 })
 
@@ -263,18 +482,37 @@ minetest.register_chatcommand("cmc_teleportation_get_pos", {
   
   func = function(name, text)
     local player = minetest.get_player_by_name(name)
-    local pos = player:get_pos()
-    local meta = player:get_meta()
     
-    if text ~= nil and text ~= "" then
-      if communicator.teleportation.locations_get_pos(player, text) ~= nil then
-        return true, "Position of '"..text.."' is: "..minetest.pos_to_string(communicator.teleportation.locations_get_pos(player, text))
-      else
-        return false, "Key does not exist."
+    if communicator.player_has_communicator(player) then
+      local cmc = communicator.registered_communicators[player:get_inventory():get_stack("communicators_main", 1):get_name()]
+      
+      if cmc.teleportation then
+        local pos = player:get_pos()
+        local meta = player:get_meta()
+        
+        if text ~= nil and text ~= "" then
+          --proposed--
+          local pos = player:get_pos()
+          local meta = player:get_meta()
+          local stack = player:get_inventory():get_stack("communicators_main", 1)
+          local smeta = stack:get_meta()
+          local positions = minetest.deserialize(smeta:get_string("positions")) or {}
+
+          if positions[text] ~= nil then
+            return true, "Position of '"..text.."' is: "..minetest.pos_to_string(positions[text])
+          end
+          return false, "Key does not exist."
+        --old--
+--          if communicator.teleportation.locations_get_pos(player, text) ~= nil then
+--            return true, "Position of '"..text.."' is: "..minetest.pos_to_string(communicator.teleportation.locations_get_pos(player, text))
+--          end
+--          return false, "Key does not exist."
+        end
+        return false, "Enter a key."
       end
-    else
-      return false, "Enter a key."
+      return false, "Communicator does not support teleportation."
     end
+    return false, "You do not have a communicator in the communicator slot."
   end,
 })
 

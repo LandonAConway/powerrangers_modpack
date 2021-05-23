@@ -46,9 +46,9 @@ for i, v in ipairs(mmprrangers) do
         type="shapeless",
         recipe = {"mighty_morphin:empty_morpher", "mighty_morphin:"..v[5].."_powercoin"}
       },
-      morph_func_override = function(user)
+      morph_func_override = function(user, itemstack)
         local ranger = morphinggrid.get_ranger("mighty_morphin:"..v[1])
-        mighty_morphin.morph(user, ranger, "mighty_morphin:"..v[5].."_morpher")
+        mighty_morphin.morph(user, ranger, "mighty_morphin:"..v[5].."_morpher", itemstack)
       end,
     },
   })

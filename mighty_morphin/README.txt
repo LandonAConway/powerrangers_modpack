@@ -3,7 +3,7 @@ Mighty Morphin Power Rangers v2.2
 
 DESCRIPTION
 ==============================
-Adds the Mighty Morphin power rangers to Minetest.
+Adds power rangers to Minetest. It requires the 3d Armor mod.
 
 
 LICENSE

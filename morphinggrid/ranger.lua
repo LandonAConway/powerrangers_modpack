@@ -506,21 +506,52 @@ function morphinggrid.register_morpher(name, morpherdef)
   --on_use method. This is what allows the player to morph.
   local save_on_use = morpherdef.on_use
   morpherdef.on_use = function(itemstack, user, pointed_thing)
-    if morpherdef.morph_func_override ~= nil then
-      itemstack = morpherdef.morph_func_override(user, itemstack)
-    elseif morpherdef.ranger == nil then
-      --nothing happens. This must be checked to prevent errors but allow for custom modding.
-    else
-      local ranger = morphinggrid.get_ranger(morpherdef.ranger)
-      if ranger == nil then
-        error("'"..morpherdef.ranger.."' is not a registred ranger.")
-      end
-      morphinggrid.morph(user, ranger, { morpher = name })
-    end
-    
-    if save_on_use ~= nil then
-      itemstack = save_on_use(itemstack, user, pointed_thing)
-    end
+	local grid_params = {
+		player = user,
+		pos = user:get_pos(),
+		itemstack = itemstack
+	}
+	
+	local grid_args = morphinggrid.call_grid_functions("before_morpher_use", grid_params)
+	if not grid_args.cancel then
+		if morpherdef.morph_func_override ~= nil then
+		  itemstack = morpherdef.morph_func_override(user, itemstack)
+		elseif morpherdef.ranger == nil then
+		  --nothing happens. This must be checked to prevent errors but allow for custom modding.
+		else
+		  local ranger = morphinggrid.get_ranger(morpherdef.ranger)
+		  if ranger == nil then
+			error("'"..morpherdef.ranger.."' is not a registred ranger.")
+		  end
+		  morphinggrid.morph(user, ranger, { morpher = name, itemstack = itemstack })
+		end
+	else
+		grid_params.canceled = true
+	end
+	
+	morphinggrid.call_grid_functions("after_morpher_use", grid_params)
+	
+	if type(save_on_use) == "function" then
+		if morpherdef.register_griditem == true then
+			local _grid_params = {
+				itemstack = itemstack,
+				user = user,
+				pointed_thing = pointed_thing
+			}
+			
+			local _grid_args = morphinggrid.call_grid_functions("before_grid_item_use", _grid_params)
+			if not _grid_args.cancel then
+				itemstack = save_on_use(itemstack, user, pointed_thing)
+			else
+				_grid_params.canceled = true
+			end
+			
+			morphinggrid.call_grid_functions("after_grid_item_use", _grid_params)
+		else
+			itemstack = save_on_use(itemstack, user, pointed_thing)
+		end
+	end
+		
     return itemstack
   end
   
@@ -543,27 +574,47 @@ function morphinggrid.register_morpher(name, morpherdef)
     error("Type is not valid") --it must be either a craft item or tool.
   end
   
+  --register it as a morpher
   morphinggrid.registered_morphers[name] = morpherdef
+  
+  --register it as a griditem
+  if morpherdef.register_griditem == true then
+	morpherdef.is_morpher = true
+	morphinggrid.register_griditem(name, morpherdef)
+  end
 end
 
 function morphinggrid.morph_from_morpher(player, morpher, itemstack)
-  if type(morpher) == "string" then
-    if morphinggrid.registered_morphers[morpher] == nil then error("'"..morpher.."' is not a registered morpher.") end
-    morpher = morphinggrid.registered_morphers[morpher]
-  end
-  
-  if morpher.morph_func_override ~= nil then
-    itemstack = morpher.morph_func_override(player, itemstack) or itemstack
-  elseif morpher.ranger == nil then
-    
-  else
-    local ranger = morphinggrid.registered_rangers[morpher.ranger]
-    if ranger == nil then
-      error("'"..morpher.ranger.."' is not a registered ranger.")
+    if type(morpher) == "string" then
+		if morphinggrid.registered_morphers[morpher] == nil then error("'"..morpher.."' is not a registered morpher.") end
+		morpher = morphinggrid.registered_morphers[morpher]
     end
-    morphinggrid.morph(player, ranger, {morpher=morpher.name})
-  end
-  return itemstack
+  
+    local grid_params = {
+		player = player,
+		pos = player:get_pos(),
+		itemstack = itemstack
+    }
+
+    local grid_args = morphinggrid.call_grid_functions("before_morpher_use", grid_params)
+	if not grid_args.cancel then
+	    if morpher.morph_func_override ~= nil then
+			itemstack = morpher.morph_func_override(player, itemstack) or itemstack
+	    elseif morpher.ranger == nil then
+			
+	    else
+			local ranger = morphinggrid.registered_rangers[morpher.ranger]
+			if ranger == nil then
+				error("'"..morpher.ranger.."' is not a registered ranger.")
+			end
+			morphinggrid.morph(player, ranger, {morpher=morpher.name,itemstack=itemstack})
+	    end
+	else
+		grid_params.canceled = true
+	end
+	
+	morphinggrid.call_grid_functions("after_morpher_use", grid_params)
+    return itemstack
 end
 
 function morphinggrid.get_morpher(name)

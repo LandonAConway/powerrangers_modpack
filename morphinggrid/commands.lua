@@ -84,7 +84,7 @@ minetest.register_chatcommand("demorph", {
 })
 
 minetest.register_chatcommand("morpher", {
-  params = "<cmd>",
+  params = "<command>",
   description = "Execute a morpher command.",
   
   privs = {
@@ -123,16 +123,34 @@ minetest.register_chatcommand("morpher", {
 function morphinggrid.execute_morpher_cmd(name,text,itemstack)
   local stack_name = itemstack:get_name()
   local params = morphinggrid.split_string(text," ")
+  local count = string.len(params[1])+1
+  local subtext = string.sub(text,count+1)
   local morpherdef = morphinggrid.registered_morphers[stack_name]
-  if morpherdef.commands[params[1]] ~= nil then
-    local count = string.len(params[1])+1
-    local subtext = string.sub(text,count+1)
+  
+  local grid_params = {
+	player = minetest.get_player_by_name(name),
+	pos = minetest.get_player_by_name(name):get_pos(),
+	itemstack = itemstack,
+	command = params[1],
+	text = subtext,
+	canceled = false
+  }
+  
+  local grid_args = morphinggrid.call_grid_functions("before_morpher_command", grid_params)
+  
+  if grid_args.cancel then
+	grid_params.canceled = true
+	return false, grid_args.description or "Morpher failed to execute command.", itemstack
+  elseif morpherdef.commands[params[1]] ~= nil then
     local result,message,newitemstack = morpherdef.commands[params[1]].func(name,subtext,itemstack)
     if result == nil then result = true end
     message = message or ""
     itemstack = newitemstack or itemstack
     return result,message,itemstack
   end
+  
+  morphinggrid.call_grid_functions("after_morpher_command", grid_params)
+  
   return false, "The command '"..params[1].."' does not exist.", itemstack
 end
 

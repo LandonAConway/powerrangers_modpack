@@ -1,5 +1,6 @@
 morphinggrid.register_morpher("zeo:gold_staff", {
   type = "tool",
+  register_griditem = true,
   description = "Gold Staff",
   inventory_image = "zeo_gold_staff.png",
   ranger_weapon = {
@@ -18,11 +19,11 @@ morphinggrid.register_morpher("zeo:gold_staff", {
   sound = {breaks = "default_tool_breaks"},
   groups = {sword = 1, morpher=1},
   
-  morph_func_override = function(user)
+  morph_func_override = function(user, itemstack)
       local morphstate = morphinggrid.get_morph_status(user)
       if morphstate ~= "zeo:gold" then
         local ranger = morphinggrid.get_ranger("zeo:gold")
-        zeo.morph(user, ranger)
+        zeo.morph(user, ranger, itemstack)
       end
   end
 })

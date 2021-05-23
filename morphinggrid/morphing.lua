@@ -1,5 +1,3 @@
-dofile(minetest.get_modpath("3d_armor") .. "/api.lua")
-
 morphinggrid.morphing_log = {}
 
 morphinggrid.registered_after_morphs = {}
@@ -12,6 +10,9 @@ end
 morphinggrid.register_after_demorph = function(fn)
   table.insert(morphinggrid.registered_after_demorphs, fn)
 end
+
+--morph functions
+dofile(minetest.get_modpath("morphinggrid").."/grid_functions.lua")
 
 function morphinggrid.morph(player, ranger, morph_settings)
   if type (player) == "string" then
@@ -35,6 +36,7 @@ function morphinggrid.morph(player, ranger, morph_settings)
   
   --morph info
   morph_info.type = "morph"
+  morph_info.itemstack = morph_settings.itemstack
   morph_info.player = player
   morph_info.ranger = ranger
   morph_info.pos = player:get_pos()
@@ -51,72 +53,107 @@ function morphinggrid.morph(player, ranger, morph_settings)
    can_use = true
   end
   
-  if can_use == true then
-    local connection = morphinggrid.connections[ranger.name].players[player:get_player_name()]
-    if connection.timer > 0 then
-      morph_info.reason = "not_stable"
-      if morph_settings.chat_messages then
-       local time_left = morphinggrid.seconds_to_clock(connection.timer)
-       minetest.chat_send_player(player_name, "You cannot morph because these ranger powers are not currently stable."..
-       " Please wait some time while the Morphing Grid re-stabelizes these ranger powers."..
-       " Approximately: "..time_left.days.." Days, "..time_left.hours.." Hours, "..time_left.minutes.." Minutes, "..time_left.seconds.." Seconds")
-      end
-      minetest.log("action","Player ("..player:get_player_name()..") Morphed: "..ranger.name..", "..(morph_info.reason or ""))
-      return false, morph_info
-    end
-    
-    morphinggrid.save_current_armor(player)
-    
-    local inv = minetest.get_inventory({
-      type="detached", name=player_name.."_armor"})
-    
-    morphinggrid.demorph(player, {}, true)
-    
-    morphinggrid.connections[ranger.name].players[player:get_player_name()].in_use = true
-    
-    morphinggrid.set_ranger_meta(player, ranger)
-    morphinggrid.set_ranger_abilities(player, ranger)
-    
-    for k, v in pairs(morph_settings.armor_parts) do
-      if v == true then
-        local stack = ItemStack(rangername_split[1]..":"..k.."_"..rangername_split[2])
-        stack:set_wear(morphinggrid.connections[ranger.name].players[player:get_player_name()].armor_wear)
-        inv:add_item("armor", stack)
-        armor:save_armor_inventory(player)
-        armor:set_player_armor(player)
-      end
-    end
-    
-    if ranger.hide_identity then
-      player:set_nametag_attributes({text = " "})
-    end
-    
-    if ranger.hide_player or morph_settings.hide_player then
-      local meta = player:get_meta()
-      meta:set_string("morphinggrid_invis", "true")
-      local prop = {
-          collide_with_object = false,
-          pointable = false,
-          makes_footstep_sound = false,
-          visual_size = {x = 0, y = 0, z = 0},
-      }
-      player:set_properties(prop)
-    end
-    
-    if morph_settings.show_hud then
-      morphinggrid.show_hud(player, ranger)
-    end
-    
-    if morph_settings.chat_messages then
-      minetest.chat_send_player(player_name, "Morph successful. (Ranger: "..ranger.description..")")
-    end
-    morph_info.reason = "successful"
-    result = true
-  else
-    morph_info.reason = "no_permission"
-    morph_settings.log_this = false
-    minetest.chat_send_player(player_name, "You don't have permisson to morph (Missing Privileges: power_rangers)")
+  --do morph functions first.
+  local morph_params = {
+	player = morph_info.player,
+	ranger = morph_info.ranger.name,
+	pos = morph_info.pos,
+	timestamp = morph_info.timestamp,
+	itemstack = morph_info.itemstack
+  }
+  
+  local mfunc_args = morphinggrid.call_grid_functions("before_morph", morph_params)
+  
+  --check for privs again if mfunc_args.recheck_privs is true. This doesn't override can_use if morph_settings.priv_bypass is true.
+  --if mfunc_args.force_recheck_privs is true, then override can_use regardless.
+  if mfunc_args.recheck_privs == true then
+	if not morph_settings.priv_bypass then
+		can_use = minetest.check_player_privs(player_name, { power_rangers=true })
+	end
+  elseif mfunc_args.force_recheck_privs == true then
+	can_use = minetest.check_player_privs(player_name, { power_rangers=true })
   end
+  
+  if can_use == true then
+	if not mfunc_args.cancel then
+		local connection = morphinggrid.connections[ranger.name].players[player:get_player_name()]
+		if connection.timer > 0 then
+		  morph_info.reason = "not_stable"
+		  if morph_settings.chat_messages then
+		   local time_left = morphinggrid.seconds_to_clock(connection.timer)
+		   minetest.chat_send_player(player_name, "You cannot morph because these ranger powers are not currently stable."..
+		   " Please wait some time while the Morphing Grid re-stabelizes these ranger powers."..
+		   " Approximately: "..time_left.days.." Days, "..time_left.hours.." Hours, "..time_left.minutes.." Minutes, "..time_left.seconds.." Seconds")
+		  end
+		  minetest.log("action","Player ("..player:get_player_name()..") Morphed: "..ranger.name..", "..(morph_info.reason or ""))
+		  return false, morph_info
+		end
+		
+		morphinggrid.save_current_armor(player)
+		
+		local inv = minetest.get_inventory({
+		  type="detached", name=player_name.."_armor"})
+		
+		morphinggrid.demorph(player, {}, true)
+		
+		morphinggrid.connections[ranger.name].players[player:get_player_name()].in_use = true
+		
+		morphinggrid.set_ranger_meta(player, ranger)
+		morphinggrid.set_ranger_abilities(player, ranger)
+		
+		for k, v in pairs(morph_settings.armor_parts) do
+		  if v == true then
+			local stack = ItemStack(rangername_split[1]..":"..k.."_"..rangername_split[2])
+			stack:set_wear(morphinggrid.connections[ranger.name].players[player:get_player_name()].armor_wear)
+			inv:add_item("armor", stack)
+			armor:save_armor_inventory(player)
+			armor:set_player_armor(player)
+		  end
+		end
+    
+		if ranger.hide_identity then
+		  player:set_nametag_attributes({text = " "})
+		end
+		
+		if ranger.hide_player or morph_settings.hide_player then
+		  local meta = player:get_meta()
+		  meta:set_string("morphinggrid_invis", "true")
+		  local prop = {
+			  collide_with_object = false,
+			  pointable = false,
+			  makes_footstep_sound = false,
+			  visual_size = {x = 0, y = 0, z = 0},
+		  }
+		  player:set_properties(prop)
+		end
+		
+		if morph_settings.show_hud then
+		  morphinggrid.show_hud(player, ranger)
+		end
+    
+		if morph_settings.chat_messages then
+		  minetest.chat_send_player(player_name, "Morph successful (Ranger: "..ranger.description..")")
+		end
+		morph_info.reason = "successful"
+		result = true
+	else
+		morph_params.canceled = true
+		if morph_settings.chat_messages then
+		  minetest.chat_send_player(player_name, mfunc_args.description or "Morph unsuccessful.".." (Ranger: "..ranger.description..")")
+		end
+		morph_info.reason = mfunc_args.reason or "canceled"
+		result = true
+	end
+  else
+    morph_info.reason = mfunc_args.reason or "no_permission"
+    morph_settings.log_this = false
+    minetest.chat_send_player(player_name, mfunc_args.description or "You don't have permisson to morph (Missing Privileges: power_rangers)")
+  end
+  
+  --call after-morph functions
+	morph_params.reason = morph_info.reason
+	morph_params.canceled = mfunc_args.canceled
+	morphinggrid.call_grid_functions("after_morph", morph_params)
   
   for k, v in pairs(morphinggrid.registered_after_morphs) do
     morphinggrid.registered_after_morphs[v](player, ranger.name, morph_info)
@@ -134,7 +171,14 @@ function morphinggrid.morph(player, ranger, morph_settings)
    table.insert(morphinggrid.morphing_log, morph_info)
   end
   
-  minetest.log("action","Player ("..player:get_player_name()..") Morphed: "..ranger.name..", "..(morph_info.reason or ""))
+  --get morpher name
+  local morpher_name = "unknown"
+  if morph_info.itemstack ~= nil then
+	morpher_name = morph_info.itemstack:get_name()
+  end
+  
+  minetest.log("action","Player ("..player:get_player_name()..") Morphed: "..ranger.name..", "..
+  "Morpher: "..morpher_name..", "..(morph_info.reason or ""))
   return result, morph_info
 end
 
@@ -166,6 +210,36 @@ function morphinggrid.demorph(player, demorph_settings, is_morphing)
   
   if demorph_settings.priv_bypass then
     can_use = true
+  end
+  
+  --do demorph functions first.
+  local getranger = ranger or {}
+  local demorph_params = {
+	player = demorph_info.player,
+	ranger = getranger.name,
+	pos = demorph_info.pos,
+	timestamp = demorph_info.timestamp
+  }
+  
+  if ranger == nil then
+	demorph_params.morphed = false
+  else
+	demorph_params.morphed = true
+  end
+  
+  local dmfunc_args = {}
+  if is_morphing == false then
+	dmfunc_args = morphinggrid.call_grid_functions("before_demorph", demorph_params)
+  end
+  
+  --check for privs again if dmfunc_args.recheck_privs is true. This doesn't override can_use if demorph_settings.priv_bypass is true.
+  --if dmfunc_args.force_recheck_privs is true, then override can_use regardless.
+  if dmfunc_args.recheck_privs == true then
+	if not demorph_settings.priv_bypass then
+		can_use = minetest.check_player_privs(player_name, { power_rangers=true })
+	end
+  elseif dmfunc_args.force_recheck_privs == true then
+	can_use = minetest.check_player_privs(player_name, { power_rangers=true })
   end
   
   if ranger ~= nil then
@@ -221,60 +295,71 @@ function morphinggrid.demorph(player, demorph_settings, is_morphing)
       demorph_settings.log_this = false
       result = true
     else --not morphing
-      if ranger == nil then
-        demorph_info.reason = "not_morphed"
-        demorph_settings.log_this = false
-        minetest.chat_send_player(player_name, "You are not morphed.")
-      else
-        local inv = minetest.get_inventory({
-          type="detached", name=player_name.."_armor"})
-          
-        local wear = morphinggrid.get_current_ranger_wear(player)
-        if wear ~= nil then
-          morphinggrid.connections[ranger.name].players[player:get_player_name()].armor_wear = wear
-          morphinggrid.connections[ranger.name].players[player:get_player_name()].in_use = false
-        end
-        
-        inv:set_list("armor", {})
-        morphinggrid.load_last_armor(player)
-        
-        armor:save_armor_inventory(player)
-        armor:set_player_armor(player)
-        
-        player:set_nametag_attributes({text = ""})
-        
-        local is_invisible = meta:get_string("morphinggrid_invis")
-        
-        if is_invisible == "true" then
-          player:set_string("morphinggrid_invis", "false")
-          local prop = {
-            collide_with_object = true,
-            pointable = true,
-            makes_footstep_sound = true,
-            visual_size = {x = 1, y = 1, z = 1},
-          }
-          player:set_properties(prop)
-        end
-        
-        local rangername_split = morphinggrid.split_string(ranger.name, ":")
-        local rangertype = morphinggrid.get_rangertype(rangername_split[1])
-        
-        morphinggrid.remove_ranger_abilities(player, ranger)
-        morphinggrid.remove_weapons(player, rangertype.weapons)
-        
-        if demorph_settings.hide_hud then
-          morphinggrid.hide_hud(player)
-        end
-      
-        meta:set_string("player_morph_status", "none")
-        
-        if demorph_settings.chat_messages then
-          minetest.chat_send_player(player_name, "Demorph successful. (Ranger: "..ranger.description..")")
-        end
-        
-        demorph_info.reason = "successful"
-        result = true
-      end
+		if not dmfunc_args.cancel then
+		  if ranger == nil then
+			demorph_info.reason = "not_morphed"
+			demorph_settings.log_this = false
+			
+			morphinggrid.call_grid_functions("on_demorph_attempt", demorph_params)
+			minetest.chat_send_player(player_name, "You are not morphed.")
+		  else
+			local inv = minetest.get_inventory({
+			  type="detached", name=player_name.."_armor"})
+			  
+			local wear = morphinggrid.get_current_ranger_wear(player)
+			if wear ~= nil then
+			  morphinggrid.connections[ranger.name].players[player:get_player_name()].armor_wear = wear
+			  morphinggrid.connections[ranger.name].players[player:get_player_name()].in_use = false
+			end
+			
+			inv:set_list("armor", {})
+			morphinggrid.load_last_armor(player)
+			
+			armor:save_armor_inventory(player)
+			armor:set_player_armor(player)
+			
+			player:set_nametag_attributes({text = ""})
+			
+			local is_invisible = meta:get_string("morphinggrid_invis")
+			
+			if is_invisible == "true" then
+			  player:set_string("morphinggrid_invis", "false")
+			  local prop = {
+				collide_with_object = true,
+				pointable = true,
+				makes_footstep_sound = true,
+				visual_size = {x = 1, y = 1, z = 1},
+			  }
+			  player:set_properties(prop)
+			end
+			
+			local rangername_split = morphinggrid.split_string(ranger.name, ":")
+			local rangertype = morphinggrid.get_rangertype(rangername_split[1])
+			
+			morphinggrid.remove_ranger_abilities(player, ranger)
+			morphinggrid.remove_weapons(player, rangertype.weapons)
+			
+			if demorph_settings.hide_hud then
+			  morphinggrid.hide_hud(player)
+			end
+		  
+			meta:set_string("player_morph_status", "none")
+			
+			if demorph_settings.chat_messages then
+			  minetest.chat_send_player(player_name, "Demorph successful. (Ranger: "..ranger.description..")")
+			end
+			
+			demorph_info.reason = "successful"
+			result = true
+		  end
+		else
+			demorph_params.canceled = true
+			demorph_info.reason = dmfunc_args.reason or "canceled"
+			demorph_settings.log_this = false
+			if demorph_settings.chat_messages then
+				minetest.chat_send_player(player_name, dmfunc_args.description or "Demorph unsuccessful.".." (Ranger: "..ranger.description..")")
+			end
+		end
     end
   else
     demorph_info.reason = "no_permission"
@@ -287,6 +372,13 @@ function morphinggrid.demorph(player, demorph_settings, is_morphing)
   
   if not demorph_settings.voluntary then
     demorph_info.reason = "not_stable"
+  end
+  
+  --call after-demorph functions
+  if not is_morphing then
+	demorph_params.reason = demorph_info.reason
+	demorph_params.canceled = dmfunc_args.canceled
+	morphinggrid.call_grid_functions("after_demorph", demorph_params)
   end
   
   for i, v in ipairs(morphinggrid.registered_after_demorphs) do

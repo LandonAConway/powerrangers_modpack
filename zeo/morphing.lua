@@ -1,7 +1,8 @@
-function zeo.morph(player, ranger)
+function zeo.morph(player, ranger, itemstack)
   local weapons = zeo.get_weapons()
   if zeo.player_has_item(player, "zeo:left_zeonizer") == true then
-    if morphinggrid.morph(player, ranger, { morpher = "zeo:right_zeonizer_"..morphinggrid.split_string(ranger.name, ":")[2]}) == true
+    if morphinggrid.morph(player, ranger, { morpher = "zeo:right_zeonizer_"..morphinggrid.split_string(ranger.name, ":")[2],
+		itemstack = itemstack}) == true
     then
       local ranger_ = morphinggrid.split_string(ranger.name, ":")[2]
       local meta = player:get_meta()
@@ -10,7 +11,7 @@ function zeo.morph(player, ranger)
     end
   else
     if ranger.name == "zeo:gold" then
-      if morphinggrid.morph(player, ranger) then
+      if morphinggrid.morph(player, ranger, {itemstack = itemstack}) then
         local ranger_ = morphinggrid.split_string(ranger.name, ":")[2]
         local meta = player:get_meta()
         local rangercolor = zeo.getrangercolor(ranger_)

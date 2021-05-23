@@ -1,7 +1,7 @@
 dofile(minetest.get_modpath("morphinggrid") .. "/morphing.lua")
 
-function mighty_morphin.morph(player, ranger, morpher)
-	if morphinggrid.morph(player, ranger, { morpher = morpher }) == true
+function mighty_morphin.morph(player, ranger, morpher, itemstack)
+	if morphinggrid.morph(player, ranger, { morpher = morpher, itemstack = itemstack }) == true
 	then
 	  local ranger_ = mighty_morphin.split_string(ranger.name, ":")[2]
 		local meta = player:get_meta()

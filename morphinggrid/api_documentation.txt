@@ -191,7 +191,8 @@ IV. Table Examples
 	
 	--You can optionally input this when using 'morphinggrid.morph'. All fields are optional.
 	morph_settings = {
-		morpher = <morpher_item_string> --So morph_info will know what morpher was used to morph the player. This can be empty.
+		morpher = <morpher_item_string> --So morph_info will know what morpher was used to morph the player. This can be empty. (*Deprecated. Use 'itemstack' instead)
+		itemstack = <ItemStack> --Allows morph_info to know the ItemStack used, and for other features. This is highly reccomended but not required.
 		priv_bypass = <bool> --Set to true to bypass the requirment for the 'power_rangers' priv.
 		chat_messages = <bool>, --If false, no chat messages will be shown.
 		log_this = <bool> --if false, this morph will not be logged.
@@ -212,6 +213,7 @@ IV. Table Examples
 		player = <player_obj_ref> --the player that did the action.
 		ranger = <ranger_def> --the ranger that was morphed into
 		pos = <pos> --the position that the player was at when the action took place.
+		itemstack = <ItemStack> --the ItemStack that was used to morph, if there was one.
 		reason = <string> --this can either be 'successful', 'not_stable', or 'no_permission'. 
 			--'successful' returns when everything went right.
 			--'not_stable' returns when the player could'nt morph becuase the powers were not stable.

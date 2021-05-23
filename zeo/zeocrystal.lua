@@ -1,4 +1,5 @@
-minetest.register_node("zeo:zeo_crystal", {
+morphinggrid.register_griditem("zeo:zeo_crystal", {
+	type = "node",
 	tiles = {
 		"zeo_crystal.png",
 		"zeo_crystal.png",
@@ -34,31 +35,31 @@ minetest.register_node("zeo:zeo_crystal", {
 	}
 })
 
-minetest.register_craftitem("zeo:zeo_crystal_1", {
+morphinggrid.register_griditem("zeo:zeo_crystal_1", {
   description = "Zeo Crystal 1",
   inventory_image = "zeo_crystal_1.png",
   groups = {not_in_creative_inventory=1},
 })
 
-minetest.register_craftitem("zeo:zeo_crystal_2", {
+morphinggrid.register_griditem("zeo:zeo_crystal_2", {
   description = "Zeo Crystal 2",
   inventory_image = "zeo_crystal_2.png",
   groups = {not_in_creative_inventory=1},
 })
 
-minetest.register_craftitem("zeo:zeo_crystal_3", {
+morphinggrid.register_griditem("zeo:zeo_crystal_3", {
   description = "Zeo Crystal 3",
   inventory_image = "zeo_crystal_3.png",
   groups = {not_in_creative_inventory=1},
 })
 
-minetest.register_craftitem("zeo:zeo_crystal_4", {
+morphinggrid.register_griditem("zeo:zeo_crystal_4", {
   description = "Zeo Crystal 4",
   inventory_image = "zeo_crystal_4.png",
   groups = {not_in_creative_inventory=1},
 })
 
-minetest.register_craftitem("zeo:zeo_crystal_5", {
+morphinggrid.register_griditem("zeo:zeo_crystal_5", {
   description = "Zeo Crystal 5",
   inventory_image = "zeo_crystal_5.png",
   groups = {not_in_creative_inventory=1},

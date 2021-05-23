@@ -1,26 +1,36 @@
-minetest.register_chatcommand("cmc_message", {
-  params = "<message>",
-  description = "Sends a message to everyone with the 'communicator' priv.",
-  
-  privs = {
-    interact = true,
-    power_rangers = true,
-    communicator = true,
-  },
-  
-  func = function(name, text)
-    if text ~= nil and text ~= "" then
-      local player = minetest.get_player_by_name(name)
-      communicator.message_rangers(player, text)
-    else
-      return false, "Enter a message."
-    end
-  end,
+morphinggrid.register_grid_function_type("before_communicator_command", "before-commuicator-command", {
+	params = {
+		{"player", "<Player>", "A reference to the player who has executed the command."},
+		{"pos", "<table>", "The position of the player who has executed the command."},
+		{"command", "<string>", "The command that was typed."},
+		{"text", "<string>", "The text followed by the command."},
+		{"itemstack", "<ItemStack>", "A reference to the ItemStack of the communicator involved."}
+	},
+	
+	args = {
+		{"cancel", "<boolean>", "If true, the command's function will not be executed."},
+		{"reason", "<string>", "A reason for cancelation."},
+		{"description", "<string>", "A description for cancelation."}
+	}
+})
+morphinggrid.register_grid_function_type("after_communicator_command", "after-communicator-command", {
+	params = {
+		{"player", "<Player>", "A reference to the player who has executed the command."},
+		{"pos", "<table>", "The position of the player who has executed the command."},
+		{"command", "<string>", "The command that was typed."},
+		{"text", "<string>", "The text followed by the command."},
+		{"itemstack", "<ItemStack>", "A reference to the ItemStack of the communicator involved."},
+		{"canceled", "<boolean>", "Returns true if the command was canceled."}
+	},
+	
+	args = {
+		
+	}
 })
 
-minetest.register_chatcommand("cmc_message_player", {
-  params = "<player> <message>",
-  description = "Sends a message to a specific player.",
+minetest.register_chatcommand("communicator", {
+  params = "<command>",
+  description = "Execute a communicator command.",
   
   privs = {
     interact = true,
@@ -28,131 +38,72 @@ minetest.register_chatcommand("cmc_message_player", {
     communicator = true,
   },
   
-  func = function(name, param)
+  func = function(name,text)
     local player = minetest.get_player_by_name(name)
-    local sendto, message = param:match("^(%S+)%s(.+)$")
-    
-    if message ~= nil and message ~= "" then
-      if minetest.player_exists(sendto) then
-        if not communicator.message_player(player, sendto, message) then
-          return false, "Player is not online"
+    local inv = player:get_inventory()
+    if not inv:is_empty("communicators_main") then
+      local stack = inv:get_stack("communicators_main", 1)
+      local stackname = stack:get_name()
+      if communicator.registered_communicators[stackname] ~= nil then
+        if text ~= nil and text ~= "" then
+          local result,message,itemstack = communicator.execute_communicator_cmd(name,text,stack)
+          inv:set_stack("communicators_main", 1, itemstack)
+          return result,message
         end
-      else
-        return false, "Player does not exist."
+        return false, "Please enter a command."
       end
-    else
-      return false, "Enter a message."
+      return false, "The item placed in the single communicator slot is not a communicator. Use the chat command '/communicators'"
     end
-  end,
+    return false, "There is no communicator placed in the single communicator slot. Use the chat command '/communicators'"
+  end
 })
 
-minetest.register_chatcommand("cmc_message_all", {
-  params = "<message>",
-  description = "Sends a message to everyone.",
-  
-  privs = {
-    interact = true,
-    power_rangers = true,
-    communicator = true,
-  },
-  
-  func = function(name, text)
-    if text ~= nil and text ~= "" then
-      local player = minetest.get_player_by_name(name)
-      communicator.message_world(player, text)
-    end
-  end,
-})
+local function before_cmd_executed(cmc,name,text,itemstack)
+  if cmc.before_cmd_executed ~= nil then
+    return cmc.before_cmd_executed(name,text,itemstack)
+  end
+  return true, nil, itemstack
+end
 
-minetest.register_chatcommand("cmc_set_nickname", {
-  params = "<nickname>",
-  description = "Sets the nickname that will be visible to people who do not have the 'communicator' priv.",
-  
-  privs = {
-    interact = true,
-    power_rangers = true,
-    communicator = true,
-  },
-  
-  func = function(name, text)
-    if text ~= nil and text ~= "" then
-      local player = minetest.get_player_by_name(name)
-      local meta = player:get_meta()
-      meta:set_string("communicator_nickname", text)
-      return true, "Nickname set to '"..text.."'."
-    else
-      return false, "Enter a nickname."
-    end
-  end,
-})
-
-minetest.register_chatcommand("cmc_clear_nickname", {
-  params = "",
-  description = "Clears the nickname.",
-  
-  privs = {
-    interact = true,
-    power_rangers = true,
-    communicator = true,
-  },
-  
-  func = function(name, text)
-    local player = minetest.get_player_by_name(name)
-    local meta = player:get_meta()
-    meta:set_string("communicator_nickname", "")
-    return true, "Nickname cleared."
-  end,
-})
-
-function communicator.message_rangers(player, text)
-  for _, plr in ipairs(minetest.get_connected_players()) do
-    if minetest.check_player_privs(plr:get_player_name(), { communicator=true }) then
-      minetest.chat_send_player(plr:get_player_name(), "<"..player:get_player_name().."@Communicator> "..text)
-    end
+local function after_cmd_executed(cmc,name,text,itemstack)
+  if cmc.after_cmd_executed ~=nil then
+    cmc.after_cmd_executed(name,text,itemstack)
   end
 end
 
-function communicator.message_player(player, to, text)
-  local meta = player:get_meta()
-  local ranger_def = morphinggrid.registered_rangers[morphinggrid.get_last_morph_status(player)] or { description="" }
-  local ranger = ranger_def.description:gsub("%s+", "_")
-  local communicator_nickname = meta:get_string("communicator_nickname")
+function communicator.execute_communicator_cmd(name,text,itemstack)
+  local stack_name = itemstack:get_name()
+  local params = morphinggrid.split_string(text," ")
+  local communicatordef = communicator.registered_communicators[stack_name]
   
-  for _, plr in ipairs(minetest.get_connected_players()) do
-    if plr:get_player_name() == to then
-      if communicator_nickname ~= nil and communicator_nickname ~= "" then
-        minetest.chat_send_player(player:get_player_name(), "<"..communicator_nickname.."@MMPR_Rangers> "..text)
-        minetest.chat_send_player(to, "<"..communicator_nickname.."@MMPR_Rangers> "..text)
-        return true
-      else
-        if ranger ~= nil and ranger ~= "" then
-          minetest.chat_send_player(player:get_player_name(), "<"..ranger.."@MMPR_Rangers> "..text)
-          minetest.chat_send_player(to, "<"..ranger.."@MMPR_Rangers> "..text)
-          return true
-        else
-          minetest.chat_send_player(player:get_player_name(), "<"..player:get_player_name().."> "..text)
-          minetest.chat_send_player(to, "<"..player:get_player_name().."> "..text)
-          return true
-        end
-      end
-    end
-  end
-  return false
-end
-
-function communicator.message_world(player, text)
-  local meta = player:get_meta()
-  local ranger_def = morphinggrid.registered_rangers[morphinggrid.get_last_morph_status(player)] or { description="" }
-  local ranger = ranger_def.description:gsub("%s+", "_")
-  local communicator_nickname = meta:get_string("communicator_nickname")
+  local count = string.len(params[1])+1
+  local subtext = string.sub(text,count+1)
   
-  if communicator_nickname ~= nil and communicator_nickname ~= "" then
-    minetest.chat_send_all("<"..communicator_nickname.."@MMPR_Rangers> "..text)
-  else
-    if ranger ~= nil and ranger ~= "" then
-      minetest.chat_send_all("<"..ranger.."@MMPR_Rangers> "..text)
-    else
-      minetest.chat_send_all("<"..player:get_player_name().."> "..text)
-    end
+  --execute before-commuicator-command functions.
+  local cc_params = {
+	player = minetest.get_player_by_name(name),
+	pos = minetest.get_player_by_name(name):get_pos(),
+	command = params[1],
+	text = subtext,
+	itemstack = itemstack
+  }
+  
+  local cc_args = morphinggrid.call_grid_functions("before_communicator_command", cc_params)
+  
+  if cc_args.cancel then
+	cc_params.canceled = true
+	return false, cc_args.description or "Communicator failed to execute command.", itemstack
+  elseif communicatordef.commands[params[1]] ~= nil then
+	local result,message,newitemstack = before_cmd_executed(communicatordef,name,subtext,itemstack)
+	if result then
+	  result,message,newitemstack = communicatordef.commands[params[1]].func(name,subtext,itemstack)
+	end
+	if result == nil then result = true end
+	message = message or ""
+	itemstack = newitemstack or itemstack
+	after_cmd_executed(communicatordef,name,subtext,itemstack)
+	return result,message,itemstack
   end
+  
+  return false, "The command '"..params[1].."' does not exist.", itemstack
 end

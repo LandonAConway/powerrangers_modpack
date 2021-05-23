@@ -3,7 +3,7 @@ Power Rangers Zeo v1.3
 
 DESCRIPTION
 ==============================
-Adds the Zeo Power Rangers to Minetest.
+Adds power rangers to Minetest. It requires the 3d Armor mod.
 
 
 LICENSE
