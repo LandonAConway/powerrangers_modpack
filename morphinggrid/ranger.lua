@@ -1,4 +1,4 @@
-dofile(minetest.get_modpath("3d_armor") .. "/api.lua")
+--dofile(minetest.get_modpath("3d_armor") .. "/api.lua")
 
 local S = armor_i18n.gettext
 
