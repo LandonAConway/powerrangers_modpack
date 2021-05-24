@@ -495,6 +495,17 @@ function ranger.get_ranger(rangerdef)
   return morphinggrid.split_string(rangerdef.name, ":")[2]
 end
 
+local function deepCopy(t)
+	local copy = {}
+	for k, v in pairs(t) do
+		if type(v) == "table" then
+			v = deepCopy(v)
+		end
+		copy[k] = v
+	end
+	return copy
+end
+
 --Morpher
 function morphinggrid.register_morpher(name, morpherdef)
   morpherdef.name = name
@@ -513,6 +524,7 @@ function morphinggrid.register_morpher(name, morpherdef)
 	}
 	
 	local grid_args = morphinggrid.call_grid_functions("before_morpher_use", grid_params)
+	itemstack = grid_params.itemstack
 	if not grid_args.cancel then
 		if morpherdef.morph_func_override ~= nil then
 		  itemstack = morpherdef.morph_func_override(user, itemstack)
@@ -530,24 +542,27 @@ function morphinggrid.register_morpher(name, morpherdef)
 	end
 	
 	morphinggrid.call_grid_functions("after_morpher_use", grid_params)
+	itemstack = grid_params.itemstack
 	
-	if type(save_on_use) == "function" then
-		if morpherdef.register_griditem == true then
-			local _grid_params = {
-				itemstack = itemstack,
-				user = user,
-				pointed_thing = pointed_thing
-			}
-			
-			local _grid_args = morphinggrid.call_grid_functions("before_grid_item_use", _grid_params)
-			if not _grid_args.cancel then
+	if morpherdef.register_griditem == true then
+		local _grid_params = {
+			itemstack = itemstack,
+			user = user,
+			pointed_thing = pointed_thing
+		}
+		
+		local _grid_args = morphinggrid.call_grid_functions("before_grid_item_on_use", _grid_params)
+		if not _grid_args.cancel then
+			if type(save_on_use) == "function" then
 				itemstack = save_on_use(itemstack, user, pointed_thing)
-			else
-				_grid_params.canceled = true
 			end
-			
-			morphinggrid.call_grid_functions("after_grid_item_use", _grid_params)
 		else
+			_grid_params.canceled = true
+		end
+		
+		morphinggrid.call_grid_functions("after_grid_item_on_use", _grid_params)
+	else
+		if type(save_on_use) == "function" then
 			itemstack = save_on_use(itemstack, user, pointed_thing)
 		end
 	end
@@ -580,7 +595,7 @@ function morphinggrid.register_morpher(name, morpherdef)
   --register it as a griditem
   if morpherdef.register_griditem == true then
 	morpherdef.is_morpher = true
-	morphinggrid.register_griditem(name, morpherdef)
+	morphinggrid.register_griditem(name, deepCopy(morpherdef))
   end
 end
 
@@ -597,6 +612,7 @@ function morphinggrid.morph_from_morpher(player, morpher, itemstack)
     }
 
     local grid_args = morphinggrid.call_grid_functions("before_morpher_use", grid_params)
+	itemstack = grid_params.itemstack
 	if not grid_args.cancel then
 	    if morpher.morph_func_override ~= nil then
 			itemstack = morpher.morph_func_override(player, itemstack) or itemstack

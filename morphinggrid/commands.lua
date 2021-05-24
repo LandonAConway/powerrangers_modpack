@@ -154,6 +154,65 @@ function morphinggrid.execute_morpher_cmd(name,text,itemstack)
   return false, "The command '"..params[1].."' does not exist.", itemstack
 end
 
+minetest.register_chatcommand("griditem", {
+  params = "<command>",
+  description = "Execute a grid item command.",
+  
+  privs = {
+    interact = true,
+    power_rangers = true,
+  },
+  
+  func = function(name,text)
+    local player = minetest.get_player_by_name(name)
+    local inv = player:get_inventory()
+    if morphinggrid.registered_griditems[player:get_wielded_item():get_name()] ~= nil then
+      if text ~= nil and text ~= "" then
+        local stack = player:get_wielded_item()
+        local result,message,itemstack = morphinggrid.execute_griditem_cmd(name,text,stack)
+        player:set_wielded_item(itemstack or stack)
+        return result,message
+      end
+      return false, "Please enter a command."
+    end
+    return false, "The wielded item is not a grid item."
+  end
+})
+
+function morphinggrid.execute_griditem_cmd(name,text,itemstack)
+  local stack_name = itemstack:get_name()
+  local params = morphinggrid.split_string(text," ")
+  local count = string.len(params[1])+1
+  local subtext = string.sub(text,count+1)
+  local griditemdef = morphinggrid.registered_griditems[stack_name]
+  
+  local grid_params = {
+	player = minetest.get_player_by_name(name),
+	pos = minetest.get_player_by_name(name):get_pos(),
+	itemstack = itemstack,
+	command = params[1],
+	text = subtext,
+	canceled = false
+  }
+  
+  local grid_args = morphinggrid.call_grid_functions("before_griditem_command", grid_params)
+  
+  if grid_args.cancel then
+	grid_params.canceled = true
+	return false, grid_args.description or "Grid Item failed to execute command.", itemstack
+  elseif griditemdef.griditem_commands[params[1]] ~= nil then
+    local result,message,newitemstack = griditemdef.griditem_commands[params[1]].func(name,subtext,itemstack)
+    if result == nil then result = true end
+    message = message or ""
+    itemstack = newitemstack or itemstack
+    return result,message,itemstack
+  end
+  
+  morphinggrid.call_grid_functions("after_griditem_command", grid_params)
+  
+  return false, "The command '"..params[1].."' does not exist.", itemstack
+end
+
 minetest.register_chatcommand("summon_weapon", {
   params = "<weapon_key>",
   description = "Summon a weapon.",

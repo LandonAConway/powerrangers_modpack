@@ -280,12 +280,25 @@ function morphinggrid.register_griditem(name, def)
 		def.type = "craftitem"
 	end
 	def.name = name
+	def.griditem_commands = def.griditem_commands or {}
 	
 	local allowed_item_types = {tool=true,craftitem=true,node=true}
 	if not allowed_item_types[def.type] then
 		error("item type '"..def.type.."' is invalid.")
 	end
 	
+	--Add default commands to the griditem.
+	def.griditem_commands.help = {
+		description = "Lists all commands for the griditem.",
+		func = function(name)
+		    minetest.chat_send_player(name,"Commands for: "..def.description or name)
+		    for cmd,t in pairs(def.griditem_commands) do
+				minetest.chat_send_player(name,cmd.." "..(t.params or "").." | "..(t.description or name))
+		    end
+		end
+	}
+	
+	--callbacks
 	for k, v in pairs(get_callbacks(def)) do
 		def[k] = def[k] or callback_data[k].default_func
 	end
@@ -307,6 +320,7 @@ function morphinggrid.register_griditem(name, def)
 				if not grid_args.cancel then
 					result = func(...)
 				else
+					grid_params.canceled = true
 					result = unpack(grid_args.args or {})
 				end
 				

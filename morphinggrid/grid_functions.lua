@@ -155,6 +155,37 @@ morphinggrid.register_grid_function_type("after_morpher_command", "after-morpher
 		
 	}
 })
+
+morphinggrid.register_grid_function_type("before_griditem_command", "before-griditem-command", {
+	params = {
+		{"player", "<Player>", "A reference to the player who is using the morpher."},
+		{"pos", "<table>", "The position of the player who is using the morpher."},
+		{"command", "<string>", "The command that was typed."},
+		{"text", "<string>", "The text followed by the command."},
+		{"itemstack", "<ItemStack>", "A reference to the ItemStack of the morpher being used."},
+	},
+	
+	args = {
+		{"cancel", "<boolean>", "If true, the morpher's function will be canceled."},
+		{"reason", "<string>", "A reason for cancelation."},
+		{"description", "<string>", "A description for cancelation."}
+	}
+})
+
+morphinggrid.register_grid_function_type("after_griditem_command", "after-griditem-command", {
+	params = {
+		{"player", "<Player>", "A reference to the player who is using the morpher."},
+		{"pos", "<table>", "The position of the player who is using the morpher."},
+		{"command", "<string>", "The command that was typed."},
+		{"text", "<string>", "The text followed by the command."},
+		{"itemstack", "<ItemStack>", "A reference to the ItemStack of the morpher being used."},
+		{"canceled", "<boolean>", "Returns true if the command was canceled."}
+	},
+	
+	args = {
+		
+	}
+})
 --end of grid function registeration
 
 local function get_grid_function_desc_list()
