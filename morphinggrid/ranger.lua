@@ -580,23 +580,25 @@ function morphinggrid.register_morpher(name, morpherdef)
       end
     end
   }
-
-  if morpherdef.type == "craftitem" then
-    minetest.register_craftitem(name, morpherdef)
-  elseif morpherdef.type == "tool" then
-    minetest.register_tool(name, morpherdef)
-  else
-    error("Type is not valid") --it must be either a craft item or tool.
-  end
   
   --register it as a morpher
   morphinggrid.registered_morphers[name] = morpherdef
   
   --register it as a griditem
   if morpherdef.register_griditem == true then
-	morpherdef.is_morpher = true
-	morphinggrid.register_griditem(name, deepCopy(morpherdef))
+	morpherdef.register_item = false
+	morpherdef.is_griditem = true
+	morpherdef.exclude_callbacks = {on_use=false}
+	morphinggrid.register_griditem(name, morpherdef)
   end
+  
+  --register item
+  local allowed_types = {tool=true,craftitem=true}
+  if not allowed_types[morpherdef.type] then
+	error("item type '"..morpherdef.type.."' is invalid.")
+  end
+  
+  minetest["register_"..morpherdef.type](name, morpherdef)
 end
 
 function morphinggrid.morph_from_morpher(player, morpher, itemstack)

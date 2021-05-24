@@ -261,15 +261,17 @@ end
 
 morphinggrid.registered_griditems = {}
 
-local function get_callbacks(def)
+local function get_callbacks(exclude)
 	local _callbacks = {}
 	for k, v in pairs(callbacks) do
 		_callbacks[k] = v
 	end
 	
-	--remove on_use if needed
-	if def.is_morpher then
-		_callbacks.on_use = nil
+	--remove excluded callbacks
+	for k, v in pairs(exclude) do
+		if v == true then
+			_callbacks[k] = false
+		end
 	end
 	
 	return _callbacks
@@ -280,7 +282,9 @@ function morphinggrid.register_griditem(name, def)
 		def.type = "craftitem"
 	end
 	def.name = name
+	def.exclude_callbacks = def.exclude_callbacks or {}
 	def.griditem_commands = def.griditem_commands or {}
+	def.callbacks = get_callbacks(def.exclude_callbacks)
 	
 	local allowed_item_types = {tool=true,craftitem=true,node=true}
 	if not allowed_item_types[def.type] then
@@ -299,7 +303,7 @@ function morphinggrid.register_griditem(name, def)
 	}
 	
 	--callbacks
-	for k, v in pairs(get_callbacks(def)) do
+	for k, v in pairs(get_callbacks(def.exclude_callbacks)) do
 		def[k] = def[k] or callback_data[k].default_func
 	end
 	
@@ -330,7 +334,15 @@ function morphinggrid.register_griditem(name, def)
 		end
 	end
 	
-	
-	minetest["register_"..def.type](name, def)
+	--register griditem
 	morphinggrid.registered_griditems[name] = def
+	
+	--register item
+	if type(def.register_item) ~= "boolean" then
+		def.register_item = true
+	end
+	
+	if def.register_item == true then
+		minetest["register_"..def.type](name, def)
+	end
 end
