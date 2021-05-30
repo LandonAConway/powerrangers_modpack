@@ -12,7 +12,16 @@ morphinggrid.register_firearm("mighty_morphin:blade_blaster", {
       "mighty_morphin:yellow", "mighty_morphin:yellow_shield",
       "mighty_morphin:red", "mighty_morphin:red_shield",
       "mighty_morphin:green", "mighty_morphin:green_no_shield"
-    }
+    },
+	items = {
+		"mighty_morphin:tigerzord_powercoin", "mighty_morphin:tigerzord_morpher",
+		"mighty_morphin:dragonzord_powercoin", "mighty_morphin:dragonzord_morpher",
+		"mighty_morphin:mastodon_powercoin", "mighty_morphin:mastodon_morpher",
+		"mighty_morphin:pterodactyl_powercoin", "mighty_morphin:pterodactyl_morpher",
+		"mighty_morphin:triceratops_powercoin", "mighty_morphin:triceratops_morpher",
+		"mighty_morphin:saber_toothed_tiger_powercoin", "mighty_morphin:saber_toothed_tiger_powercoin",
+		"mighty_morphin:tyrannosaurus_powercoin", "mighty_morphin:tyrannosaurus_morpher",
+	}
   },
   tool_capabilities = {
     full_punch_interval = 0.4,

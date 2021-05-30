@@ -1,9 +1,10 @@
-Power Rangers Zeo v1.5
+Turbo v0.01
 
 
 DESCRIPTION
 ==============================
-Adds power rangers to Minetest. It requires the 3d Armor mod.
+Adds turbo rangers to Minetest.
+This mod is in very beginning stages and has a long time before a full version will be available.
 
 
 LICENSE

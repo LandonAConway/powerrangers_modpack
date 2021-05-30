@@ -6,13 +6,6 @@ function mod_loaded(str)
 end
 
 if mod_loaded("electronic_materials") then
-
-	minetest.register_craft({
-		type = "shapeless",
-		output = "mighty_morphin:empty_morpher",
-		recipe = {"default:steel_ingot", "default:steel_ingot", "default:copper_ingot",
-				  "morphinggrid:standard_morpher_motherboard" }
-	})
 	
 	minetest.register_craft({
 	type = "shaped",
@@ -25,12 +18,6 @@ if mod_loaded("electronic_materials") then
 })
 	
 else
-
-	minetest.register_craft({
-		type = "shapeless",
-		output = "mighty_morphin:empty_morpher",
-		recipe = {"morphinggrid:energy", "default:steel_ingot", "default:copper_ingot"}
-	})
 	
 	minetest.register_craft({
 	type = "shaped",
@@ -43,3 +30,11 @@ else
 })
 	
 end
+
+minetest.register_craft({
+	type = "shapeless",
+	output = "mighty_morphin:empty_morpher",
+	recipe = {"default:steel_ingot", "default:steel_ingot", "default:copper_ingot", "dye:red", "dye:white",
+			  "dye:black", "morphinggrid:standard_morpher_motherboard", "morphinggrid:micro_energy_release_unit",
+				"morphinggrid:micro_energy_connector_unit"}
+})

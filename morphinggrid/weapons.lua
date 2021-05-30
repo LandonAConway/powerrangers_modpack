@@ -25,6 +25,31 @@ function morphinggrid.get_weapon(name)
   return morphinggrid.registered_weapons[name]
 end
 
+local function weapon_items(weapon_name)
+	local weapon = morphinggrid.registered_weapons[weapon_name]
+	local t = {}
+	for i, v in ipairs(weapon.items or {}) do
+		t[v] = true
+	end
+	return weapon
+end
+
+local function has_item(player, weapon_name)
+	local items = weapon_items(weapon_name)
+	local inv = player:get_inventory()
+	for _, i in pairs(inv:get_list("main")) do
+		if items[i:get_name()] then
+			return true
+		end
+	end
+	for _, i in pairs(inv:get_list("morphers")) do
+		if items[i:get_name()] then
+			return true
+		end
+	end
+	return false
+end
+
 function morphinggrid.can_summon_weapon(player, weapon_name)
   local morph_status = morphinggrid.get_morph_status(player)
   local weapon = morphinggrid.registered_weapons[weapon_name]
@@ -35,7 +60,7 @@ function morphinggrid.can_summon_weapon(player, weapon_name)
     end
   else
     for _, r in ipairs(weapon.rangers) do
-      if r == morph_status then
+      if r == morph_status or has_item(player, weapon_name) then
         if weapon.required_weapons then
           local inv = player:get_inventory()
           local wl = player:get_wield_list()

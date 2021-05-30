@@ -1,4 +1,4 @@
-Morphing Grid (BETA) v2.7
+Morphing Grid v2.9
 
 
 DESCRIPTION
