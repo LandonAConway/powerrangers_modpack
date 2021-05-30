@@ -28,6 +28,45 @@ morphinggrid.register_morpher("zeo:gold_staff", {
   end
 })
 
+morphinggrid.register_morpher("zeo:right_zeonizer", {
+	description = "Right Zeonizer",
+	inventory_image = "zeo_zeonizer_right.png",
+	groups = {not_in_creative_inventory=1},
+	has_connection = false,
+	
+	morpher_slots = {
+		amount = 1,
+		load_input = function(morpher)
+			return true, {}
+		end,
+		output = function(morpher, slots)
+			if slots[1]:get_name() == "zeo:zeo_crystal_1" then
+				return true, ItemStack("zeo:right_zeonizer_pink")
+			elseif slots[1]:get_name() == "zeo:zeo_crystal_2" then
+				return true, ItemStack("zeo:right_zeonizer_yellow")
+			elseif slots[1]:get_name() == "zeo:zeo_crystal_3" then
+				return true, ItemStack("zeo:right_zeonizer_blue")
+			elseif slots[1]:get_name() == "zeo:zeo_crystal_4" then
+				return true, ItemStack("zeo:right_zeonizer_green")
+			elseif slots[1]:get_name() == "zeo:zeo_crystal_5" then
+				return true, ItemStack("zeo:right_zeonizer_red")
+			end
+			
+			return false, morpher
+		end,
+		allow_put = function(morpher, itemstack)
+			if itemstack:get_name() == "zeo:zeo_crystal_1" or
+			itemstack:get_name() == "zeo:zeo_crystal_2" or
+			itemstack:get_name() == "zeo:zeo_crystal_3" or
+			itemstack:get_name() == "zeo:zeo_crystal_4" or
+			itemstack:get_name() == "zeo:zeo_crystal_5" then
+				return 1
+			end
+			return 0
+		end
+	}
+})
+
 minetest.register_craftitem("zeo:left_zeonizer", {
   description = "Left Zeonizer",
   inventory_image = "zeo_zeonizer_left.png",

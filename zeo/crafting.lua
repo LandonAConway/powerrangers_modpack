@@ -1,5 +1,12 @@
 minetest.register_craft({
     type = "shapeless",
+    output = "zeo:right_zeonizer",
+    recipe = {"default:gold_ingot", "default:steel_ingot", "default:copper_ingot",
+          "morphinggrid:energy", "default:diamond"}
+  })
+
+minetest.register_craft({
+    type = "shapeless",
     output = "zeo:left_zeonizer",
     recipe = {"default:gold_ingot", "default:steel_ingot", "default:copper_ingot",
           "morphinggrid:energy"}

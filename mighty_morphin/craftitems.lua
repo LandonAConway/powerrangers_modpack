@@ -1,7 +1,48 @@
-minetest.register_craftitem("mighty_morphin:empty_morpher", {
+morphinggrid.register_morpher("mighty_morphin:empty_morpher", {
+	type = "craftitem",
 	description = "Empty Morpher",
 	inventory_image = "emptymorpher.png",
 	groups = {not_in_creative_inventory=1, morpher=1},
+	has_connection = false,
+	
+	morpher_slots = {
+		amount = 1,
+		load_input = function(morpher)
+			return true, {}
+		end,
+		
+		output = function(morpher, slots)
+			if slots[1]:get_name() == "mighty_morphin:tigerzord_powercoin" then
+				return true, ItemStack("mighty_morphin:tigerzord_morpher")
+			elseif slots[1]:get_name() == "mighty_morphin:dragonzord_powercoin" then
+				return true, ItemStack("mighty_morphin:dragonzord_morpher")
+			elseif slots[1]:get_name() == "mighty_morphin:mastodon_powercoin" then
+				return true, ItemStack("mighty_morphin:mastodon_morpher")
+			elseif slots[1]:get_name() == "mighty_morphin:pterodactyl_powercoin" then
+				return true, ItemStack("mighty_morphin:pterodactyl_morpher")
+			elseif slots[1]:get_name() == "mighty_morphin:triceratops_powercoin" then
+				return true, ItemStack("mighty_morphin:triceratops_morpher")
+			elseif slots[1]:get_name() == "mighty_morphin:saber_toothed_tiger_powercoin" then
+				return true, ItemStack("mighty_morphin:saber_toothed_tiger_morpher")
+			elseif slots[1]:get_name() == "mighty_morphin:tyrannosaurus_powercoin" then
+				return true, ItemStack("mighty_morphin:tyrannosaurus_morpher")
+			end
+			return false, morpher
+		end,
+		
+		allow_put = function(morpher, itemstack)
+			if itemstack:get_name() == "mighty_morphin:tigerzord_powercoin" or
+			itemstack:get_name() == "mighty_morphin:dragonzord_powercoin" or
+			itemstack:get_name() == "mighty_morphin:mastodon_powercoin" or
+			itemstack:get_name() == "mighty_morphin:pterodactyl_powercoin" or
+			itemstack:get_name() == "mighty_morphin:triceratops_powercoin" or
+			itemstack:get_name() == "mighty_morphin:saber_toothed_tiger_powercoin" or
+			itemstack:get_name() == "mighty_morphin:tyrannosaurus_powercoin" then
+				return 1
+			end
+			return 0
+		end
+	},
 })
 -- minetest.register_craftitem("mighty_morphin:mastodon_morpher", {
 	-- description = "Mastodon Morpher",

@@ -98,6 +98,35 @@ morphinggrid.register_grid_function_type("after_demorph", "after-demorph", {
 	}
 })
 
+morphinggrid.register_grid_function_type("before_ranger_command", "before-ranger-command", {
+	params = {
+		{"player", "<Player>", "A reference to the player who is using the morpher."},
+		{"pos", "<table>", "The position of the player who is using the morpher."},
+		{"command", "<string>", "The command that was typed."},
+		{"text", "<string>", "The text followed by the command."},
+	},
+	
+	args = {
+		{"cancel", "<boolean>", "If true, the morpher's function will be canceled."},
+		{"reason", "<string>", "A reason for cancelation."},
+		{"description", "<string>", "A description for cancelation."}
+	}
+})
+
+morphinggrid.register_grid_function_type("after_ranger_command", "after-ranger-command", {
+	params = {
+		{"player", "<Player>", "A reference to the player who is using the morpher."},
+		{"pos", "<table>", "The position of the player who is using the morpher."},
+		{"command", "<string>", "The command that was typed."},
+		{"text", "<string>", "The text followed by the command."},
+		{"canceled", "<boolean>", "Returns true if the command was canceled."}
+	},
+	
+	args = {
+		
+	}
+})
+
 morphinggrid.register_grid_function_type("before_morpher_use", "before-morpher-use", {
 	params = {
 		{"player", "<Player>", "A reference to the player who is using the morpher."},

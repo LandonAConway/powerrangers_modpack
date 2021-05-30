@@ -13,7 +13,7 @@ for i,v in ipairs(zeo.rangers) do
     teleportation = true,
     groups = {teleportation=1},
     
-    command_presets = {
+    communicator_command_presets = {
       basic = true,
       teleportation = true
     }

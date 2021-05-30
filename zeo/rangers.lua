@@ -44,14 +44,25 @@ for i, v in ipairs(zeo.rangers) do
       name = "zeo:right_zeonizer_"..v[1],
       inventory_image = "zeo_zeonizer_right.png",
       description = "Right Zeonizer (Zeo Ranger "..i..")",
-      recipe = {
-        type="shapeless",
-        recipe = {"default:gold_ingot", "default:steel_ingot", "default:copper_ingot", "zeo:zeo_crystal_"..i}
-      },
       morph_func_override = function(user, itemstack)
         local ranger = morphinggrid.get_ranger("zeo:"..v[1])
         zeo.morph(user, ranger)
-      end
+      end,
+	  morpher_slots = {
+		amount = 1,
+		load_input = function(morpher)
+			return true, {ItemStack("zeo:zeo_crystal_"..i)}
+		end,
+		output = function(morpher, slots)
+			if slots[1]:get_name() == "" then
+				return true, ItemStack("zeo:right_zeonizer")
+			end
+			return false, morpher
+		end,
+		allow_put = function(morpher, itemstack)
+			return 0
+		end
+	  }
     }
   })
 end

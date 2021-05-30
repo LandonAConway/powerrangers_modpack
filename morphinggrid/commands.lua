@@ -83,6 +83,62 @@ minetest.register_chatcommand("demorph", {
   end,
 })
 
+minetest.register_chatcommand("ranger", {
+  params = "<command>",
+  description = "Execute a ranger command.",
+  
+  privs = {
+    interact = true,
+    power_rangers = true,
+  },
+  
+  func = function(name,text)
+    local player = minetest.get_player_by_name(name)
+    local inv = player:get_inventory()
+    local ranger = morphinggrid.get_morph_status(player)
+    if ranger ~= nil then
+      if text ~= nil and text ~= "" then
+        local result,message = morphinggrid.execute_ranger_cmd(name,text,ranger)
+        return result,message
+      end
+      return false, "Please enter a command."
+    end
+    return false, "You are not morphed."
+  end
+})
+
+function morphinggrid.execute_ranger_cmd(name,text,ranger)
+  local params = morphinggrid.split_string(text," ")
+  local count = string.len(params[1])+1
+  local subtext = string.sub(text,count+1)
+  local rangerdef = morphinggrid.registered_rangers[ranger]
+  
+  local grid_params = {
+	player = minetest.get_player_by_name(name),
+	pos = minetest.get_player_by_name(name):get_pos(),
+	ranger = ranger,
+	command = params[1],
+	text = subtext,
+	canceled = false
+  }
+  
+  local grid_args = morphinggrid.call_grid_functions("before_ranger_command", grid_params)
+  
+  if grid_args.cancel then
+	grid_params.canceled = true
+	return false, grid_args.description or "Failed to execute command.", itemstack
+  elseif rangerdef.ranger_commands[params[1]] ~= nil then
+    local result,message,newitemstack = rangerdef.ranger_commands[params[1]].func(name,subtext,ranger)
+    if result == nil then result = true end
+    message = message or ""
+    return result,message
+  end
+  
+  morphinggrid.call_grid_functions("after_ranger_command", grid_params)
+  
+  return false, "The command '"..params[1].."' does not exist."
+end
+
 minetest.register_chatcommand("morpher", {
   params = "<command>",
   description = "Execute a morpher command.",
@@ -141,8 +197,8 @@ function morphinggrid.execute_morpher_cmd(name,text,itemstack)
   if grid_args.cancel then
 	grid_params.canceled = true
 	return false, grid_args.description or "Morpher failed to execute command.", itemstack
-  elseif morpherdef.commands[params[1]] ~= nil then
-    local result,message,newitemstack = morpherdef.commands[params[1]].func(name,subtext,itemstack)
+  elseif morpherdef.morpher_commands[params[1]] ~= nil then
+    local result,message,newitemstack = morpherdef.morpher_commands[params[1]].func(name,subtext,itemstack)
     if result == nil then result = true end
     message = message or ""
     itemstack = newitemstack or itemstack

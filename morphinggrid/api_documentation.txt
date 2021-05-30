@@ -48,6 +48,19 @@ I. Required setup for a Power Rangers mod
 					leggings = { armor="<filename>", preview="<filename>", inventory="<filename>" },
 					boots = { armor="<filename>", preview="<filename>", inventory="<filename>" }
 				}
+
+				
+				--This is an optional field. The commands specified here will be useable when using the chat command '/ranger <command>' when morphed.
+				ranger_commands = {
+					command_name = {
+						description = "An example of a command that displays a chat command.",
+						params = "<text>",
+						func = function(name, text) --'name' is the name of the player. 'text' is the input that the player gives.
+							return true, name.." said: "..text, itemstack --You can return the bool result, and a message.
+						end
+					}
+				},
+
 				
 				--By default, if you do not specify this, right clicking the morpher will morph the ranger.
 				--If you want to do something special, such as only morph if a condition is true,
@@ -66,9 +79,10 @@ I. Required setup for a Power Rangers mod
 				leader = 1 --lets the morphinggrid know that the specified ranger is the leader of it's group.
 				hidden = 1 --prevents the ranger from being listed openly. This is sort of the same as not having an item show in the creative inventory.
 			
-II. Registering a morpher
+II. Registrations (Look above for 'ranger' registration.)
 	
 	A. Registering a morpher.
+		--morphers allow players to morph into (or 'become') a power ranger. Normally, each morpher would connect to a specific ranger within the morphinggrid, but custom functionality is possible.
 		--this is an example of how to register a morpher. The table can be built the same way as any craftitem or tool which means you can also use fields accepted by their definitions.
 		morphinggrid.register_morpher("modname:red_morpher", {
 			type = "craftitem", --determines what the morpher derives from. can also be "tool". It is "craftitem" by default, if this field is not entered.
@@ -87,14 +101,39 @@ II. Registering a morpher
 		
 		--Additinal fields
 		
-		commands = <table> --A list of commands that can be executed per individual morpher. The table is built almost just like a chatcommand definition but it does not have a
-						   --privs field.
+		register_griditem = <boolean> --Privides the ability to also register the item as a griditem if desired.
+		morpher_slots = <table> --If registered, an extra command called 'slots' will be added to morpher_commands. 'slots' allows player to esssetially insert objects into their morphers. For example - putting a powercoin into your morpher and taking it out.
+		morpher_commands = <table> --A list of commands that can be executed per individual morpher. The table is built almost just like a chatcommand definition but it does not have a
+						--privs field.
 		
+
 		--Additional field's usage
+		
+		--registers a morpher as a griditem
+		regsiter_griditem = true
+
+		
+		--registers morpher slots functionality
+		--this is an example of a morpher that has a powercoin, and what happens when it is removed.
+		morpher_slots = {
+			amount = 1, --the amount of stack slots available
+			--'input_load' should return a boolean type determining if the operation failed or not, then a table of the itemstacks that are loaded when the formspec appears or is refreshed, in the order that they appear.
+			load_input = function(morpher) --'morpher' is the itemstack of the morpher of that the player is executing the command from.
+				return true, {ItemStack("mighty_morphin:mastodon_powercoin")}
+			end
+			--'output' should return a boolean type determining if the operation failed or not (if it is true, the formspec will be refreshed) then, the new itemstack of the morpher of that the player is executing the command from.
+			output = function(itemstack, slots) --'itemstack' is the itemstack of the executed morpher command, 'slots' is a table of ItemStacks.
+				if slots[1]:get_name() == "" then --checks if there is no item.
+					return true, ItemStack("mighty_morphin:empty_morpher") --the current morpher will be replaced with an empty one
+				end
+				return false, itemstack
+			end
+		}
+
 		
 		--The command's name is the name of a table inside the 'commands' table below.
 		--'help' is a pre-existing command that cannot be overrided.
-		commands = {
+		morpher_commands = {
 			command_name = {
 				description = "An example of a command that displays a chat command.",
 				params = "<text>",
@@ -102,6 +141,38 @@ II. Registering a morpher
 					return true, name.." said: "..text, itemstack --You can return the bool result, a message, and an itemstack. Returning an itemstack replaces the morpher that
 																  --you are executing the command from. It could either be the morpher you are holding, or the morpher in your
 																  --'morphers' inventory that is in the single slot.
+				end
+			}
+		}
+	
+	B. Regisering a girditem (formally called 'Grid Item')
+		--griditems are supposed to be what connects to the morphinggrid.
+		--they usually contain energy that links to the Morphing Grid so a player can morph into a specific ranger.
+		--griditems can be tools, craftitems, or nodes.
+		--this is an example of how to register a griditem.
+		morphinggrid.register_griditem("mighty_morphin:mastodon_powercoin", {
+			type = "craftitem",
+			description = "Mastodon Powercoin",
+			inventory_image = "mastodon_powercoin.png",
+		})
+
+		--Additional fields
+			
+			griditem_commands = <table> --A list of commands that can be executed per individual griditem. The table is built almost just like a chatcommand definition but it does not have a
+						--privs field.
+
+
+		--Additional field's usage
+		
+		--The command's name is the name of a table inside the 'commands' table below.
+		--'help' is a pre-existing command that cannot be overrided.
+		griditem_commands = {
+			command_name = {
+				description = "An example of a command that displays a chat command.",
+				params = "<text>",
+				func = function(name, text, itemstack) --'name' is the name of the player. 'text' is the input that the player gives. 'itemstack' is the itemstack of the griditem.
+					return true, name.." said: "..text, itemstack --You can return the bool result, a message, and an itemstack. Returning an itemstack replaces the griditem that
+											--you are executing the command from.
 				end
 			}
 		}
@@ -183,6 +254,7 @@ III. Methods
 	morphinggrid.register_after_demorph(<function(player, ranger_name, demorph_info)>) --do something after a player demorphs.
 	morphinggrid.register_after_morph(<function(player, ranger_name, morph_info)>) --do something after a player morphs.
 	morphinggrid.register_firearm(name, firearm_definition) --register a firearm
+	morphinggrid.register_griditem(name, griditem_definition) --register a griditem
 	morphinggrid.register_morpher(name, morpher_definition) --register a morpher
 	morphinggrid.register_ranger(name, ranger_definition) --register a ranger
 	morphinggrid.register_rangertype(name, rangertype_definition) --register a ranger type

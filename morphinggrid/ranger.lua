@@ -1,6 +1,27 @@
---dofile(minetest.get_modpath("3d_armor") .. "/api.lua")
-
 local S = armor_i18n.gettext
+
+morphinggrid.registered_rangertypes = {}
+rangertype = {}
+
+function morphinggrid.register_rangertype(name, rangertypedef)
+  rangertypedef.name = name
+  rangertypedef.weapons = rangertypedef.weapons or {}
+  morphinggrid.registered_rangertypes[name] = rangertypedef
+  --table.insert(morphinggrid.registered_rangertypes, rangertypedef)
+end
+
+function morphinggrid.get_rangertype(name)
+  for i, v in pairs(morphinggrid.registered_rangertypes) do
+    if v.name == name then
+      return v
+    end
+  end
+  return nil
+end
+
+function morphinggrid.get_registered_rangertypes()
+  return morphinggrid.registered_rangertypes
+end
 
 morphinggrid.registered_rangers = {}
 morphinggrid.registered_morphers = {}
@@ -24,6 +45,18 @@ function morphinggrid.register_ranger(name, rangerdef)
   
   --Register Armor
   register_ranger_armor(rangerdef)
+  
+  --ranger commands
+  rangerdef.ranger_commands = rangerdef.ranger_commands or {}
+  rangerdef.ranger_commands.help = {
+    description = "Lists all commands for the ranger.",
+    func = function(name)
+      minetest.chat_send_player(name,"Commands for: "..(rangerdef.description or name))
+      for cmd,t in pairs(rangerdef.ranger_commands) do
+        minetest.chat_send_player(name,cmd.." "..(t.params or "").." | "..(t.description or name))
+      end
+    end
+  }
   
   if rangerdef.morpher ~= nil then
     local morpherdef = rangerdef.morpher
@@ -510,40 +543,48 @@ end
 function morphinggrid.register_morpher(name, morpherdef)
   morpherdef.name = name
   morpherdef.type = morpherdef.type or "craftitem"
-  morpherdef.commands = morpherdef.commands or {}
+  morpherdef.morpher_commands = morpherdef.morpher_commands or {}
   morpherdef.groups = morpherdef.groups or {}
   morpherdef.groups.morpher = morpherdef.groups.morpher or 1
+  
+  --configure if the morpher is supposed to morph a player. This should be false if a morpher does not have a connection to the morphinggrid.
+  --This is set to 'true' by default. If the morpher has no connection, the 'morphing' functionality will not be registered.
+  if type(morpherdef.has_connection) ~= "boolean" then
+	morpherdef.has_connection = true
+  end
   
   --on_use method. This is what allows the player to morph.
   local save_on_use = morpherdef.on_use
   morpherdef.on_use = function(itemstack, user, pointed_thing)
-	local grid_params = {
-		player = user,
-		pos = user:get_pos(),
-		itemstack = itemstack
-	}
-	
-	local grid_args = morphinggrid.call_grid_functions("before_morpher_use", grid_params)
-	itemstack = grid_params.itemstack
-	if not grid_args.cancel then
-		if morpherdef.morph_func_override ~= nil then
-		  itemstack = morpherdef.morph_func_override(user, itemstack)
-		elseif morpherdef.ranger == nil then
-		  --nothing happens. This must be checked to prevent errors but allow for custom modding.
+	if morpherdef.has_connection then
+		local grid_params = {
+			player = user,
+			pos = user:get_pos(),
+			itemstack = itemstack
+		}
+		
+		local grid_args = morphinggrid.call_grid_functions("before_morpher_use", grid_params)
+		itemstack = grid_params.itemstack
+		if not grid_args.cancel then
+			if morpherdef.morph_func_override ~= nil then
+			  itemstack = morpherdef.morph_func_override(user, itemstack)
+			elseif morpherdef.ranger == nil then
+			  --nothing happens. This must be checked to prevent errors but allow for custom modding.
+			else
+			  local ranger = morphinggrid.get_ranger(morpherdef.ranger)
+			  if ranger == nil then
+				error("'"..morpherdef.ranger.."' is not a registred ranger.")
+			  end
+			  morphinggrid.morph(user, ranger, { morpher = name, itemstack = itemstack })
+			end
 		else
-		  local ranger = morphinggrid.get_ranger(morpherdef.ranger)
-		  if ranger == nil then
-			error("'"..morpherdef.ranger.."' is not a registred ranger.")
-		  end
-		  morphinggrid.morph(user, ranger, { morpher = name, itemstack = itemstack })
+			grid_params.canceled = true
 		end
-	else
-		grid_params.canceled = true
+		
+		morphinggrid.call_grid_functions("after_morpher_use", grid_params)
+		itemstack = grid_params.itemstack
 	end
-	
-	morphinggrid.call_grid_functions("after_morpher_use", grid_params)
-	itemstack = grid_params.itemstack
-	
+		
 	if morpherdef.register_griditem == true then
 		local _grid_params = {
 			itemstack = itemstack,
@@ -571,15 +612,32 @@ function morphinggrid.register_morpher(name, morpherdef)
   end
   
   --Add default commands to the morpher.
-  morpherdef.commands.help = {
+  morpherdef.morpher_commands.help = {
     description = "Lists all commands for the morpher.",
     func = function(name)
       minetest.chat_send_player(name,"Commands for: "..morpherdef.description)
-      for cmd,t in pairs(morpherdef.commands) do
+      for cmd,t in pairs(morpherdef.morpher_commands) do
         minetest.chat_send_player(name,cmd.." "..(t.params or "").." | "..(t.description or ""))
       end
     end
   }
+  
+  if type(morpherdef.morpher_slots) == "table" then
+	morpherdef.morpher_commands.slots = {
+		description = "Gives access to the morpher's slots.",
+		func = function(pname)
+			minetest.show_formspec(pname, "morphinggrid:morpher_slots", morphinggrid.morpher_slots.formspec(pname, name))
+		end
+	}
+  end
+  
+  --get register_item
+  local register_item
+  if type(morpherdef.register_item) == "boolean" then
+	register_item = morpherdef.register_item
+  else
+	register_item = true
+  end
   
   --register it as a morpher
   morphinggrid.registered_morphers[name] = morpherdef
@@ -593,9 +651,11 @@ function morphinggrid.register_morpher(name, morpherdef)
   end
   
   --register item
-  local allowed_types = {tool=true,craftitem=true}
-  if not allowed_types[morpherdef.type] then
-	error("item type '"..morpherdef.type.."' is invalid.")
+  if register_item == true then
+	  local allowed_types = {tool=true,craftitem=true}
+	  if not allowed_types[morpherdef.type] then
+		error("item type '"..morpherdef.type.."' is invalid.")
+	  end
   end
   
   minetest["register_"..morpherdef.type](name, morpherdef)
@@ -606,32 +666,36 @@ function morphinggrid.morph_from_morpher(player, morpher, itemstack)
 		if morphinggrid.registered_morphers[morpher] == nil then error("'"..morpher.."' is not a registered morpher.") end
 		morpher = morphinggrid.registered_morphers[morpher]
     end
-  
-    local grid_params = {
-		player = player,
-		pos = player:get_pos(),
-		itemstack = itemstack
-    }
+    
+	--requrment to be a seable morpher
+	if morpher.has_connection then
+		local grid_params = {
+			player = player,
+			pos = player:get_pos(),
+			itemstack = itemstack
+		}
 
-    local grid_args = morphinggrid.call_grid_functions("before_morpher_use", grid_params)
-	itemstack = grid_params.itemstack
-	if not grid_args.cancel then
-	    if morpher.morph_func_override ~= nil then
-			itemstack = morpher.morph_func_override(player, itemstack) or itemstack
-	    elseif morpher.ranger == nil then
-			
-	    else
-			local ranger = morphinggrid.registered_rangers[morpher.ranger]
-			if ranger == nil then
-				error("'"..morpher.ranger.."' is not a registered ranger.")
+		local grid_args = morphinggrid.call_grid_functions("before_morpher_use", grid_params)
+		itemstack = grid_params.itemstack
+		if not grid_args.cancel then
+			if morpher.morph_func_override ~= nil then
+				itemstack = morpher.morph_func_override(player, itemstack) or itemstack
+			elseif morpher.ranger == nil then
+				
+			else
+				local ranger = morphinggrid.registered_rangers[morpher.ranger]
+				if ranger == nil then
+					error("'"..morpher.ranger.."' is not a registered ranger.")
+				end
+				morphinggrid.morph(player, ranger, {morpher=morpher.name,itemstack=itemstack})
 			end
-			morphinggrid.morph(player, ranger, {morpher=morpher.name,itemstack=itemstack})
-	    end
-	else
-		grid_params.canceled = true
+		else
+			grid_params.canceled = true
+		end
+		
+		morphinggrid.call_grid_functions("after_morpher_use", grid_params)
 	end
 	
-	morphinggrid.call_grid_functions("after_morpher_use", grid_params)
     return itemstack
 end
 

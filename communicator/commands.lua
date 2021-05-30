@@ -93,10 +93,10 @@ function communicator.execute_communicator_cmd(name,text,itemstack)
   if cc_args.cancel then
 	cc_params.canceled = true
 	return false, cc_args.description or "Communicator failed to execute command.", itemstack
-  elseif communicatordef.commands[params[1]] ~= nil then
+  elseif communicatordef.communicator_commands[params[1]] ~= nil then
 	local result,message,newitemstack = before_cmd_executed(communicatordef,name,subtext,itemstack)
 	if result then
-	  result,message,newitemstack = communicatordef.commands[params[1]].func(name,subtext,itemstack)
+	  result,message,newitemstack = communicatordef.communicator_commands[params[1]].func(name,subtext,itemstack)
 	end
 	if result == nil then result = true end
 	message = message or ""

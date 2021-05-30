@@ -7,8 +7,8 @@ function communicator.register_communicator(name, def)
   def.groups = def.groups or {}
   def.groups.communicator = def.groups.communicator or 1
   def.channel = def.channel or "unknown"
-  def.commands = def.commands or {}
-  def.command_presets = def.command_presets or {}
+  def.communicator_commands = def.communicator_commands or {}
+  def.communicator_command_presets = def.communicator_command_presets or {}
   
   --Register craft
   if def.craft ~= nil then
@@ -19,26 +19,39 @@ function communicator.register_communicator(name, def)
   def = communicator.apply_cmd_presets(def)
   
   --Add default commands to the communicator.
-  def.commands.help = {
+  def.communicator_commands.help = {
     description = "Lists all commands for the communicator.",
     func = function(name)
       minetest.chat_send_player(name,"Commands for: "..(def.description or ""))
-      for cmd,t in pairs(def.commands) do
+      for cmd,t in pairs(def.communicator_commands) do
         minetest.chat_send_player(name,cmd.." "..(t.params or "").." | "..(t.description or ""))
       end
     end
   }
   
-  minetest.register_tool(name, def)
+  --register it as a communicator
   communicator.registered_communicators[name] = def
+  
+  --register it as a morpher
+  if def.register_morpher == true then
+	def.register_item = false
+	morphinggrid.register_morpher(name, def)
+  elseif def.register_griditem == true then
+    def.register_item = false
+	def.is_griditem = true
+	morphinggrid.register_griditem(name, def)
+  end
+  
+  --register item
+  minetest.register_tool(name, def)
 end
 
 function communicator.apply_cmd_presets(cmc)
-  for pname, p in pairs(cmc.command_presets) do
+  for pname, p in pairs(cmc.communicator_command_presets) do
     if communicator.cmd_presets[pname] ~= nil then
       if p == true then
         for cname, c in pairs(communicator.cmd_presets[pname]) do
-          cmc.commands[cname] = c
+          cmc.communicator_commands[cname] = c
         end
       end
     else
