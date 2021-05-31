@@ -1,13 +1,29 @@
 morphinggrid.register_rangertype("turbo", {
-  description = "Turbo"
+  description = "Turbo",
+  weapons = {
+	"turbo:turbo_auto_blaster",
+	"turbo:turbo_auto_blaster_turbo_mode",
+	"turbo:turbo_blade",
+	"turbo:turbo_turbine_laser",
+	"turbo:turbo_hand_blaster",
+	"turbo:turbo_thunder_cannon",
+	"turbo:turbo_star_chargers",
+	"turbo:turbo_wind_fire",
+	"turbo:turbo_lightning_sword"
+  }
 })
 
 turbo.rangers = {
-  {name = "blue", desc = "Blue", ranger_groups = {}},
-  {name = "green", desc = "Green", ranger_groups = {}},
-  {name = "yellow", desc = "Yellow", ranger_groups = {}},
-  {name = "pink", desc = "Pink", ranger_groups = {}},
-  {name = "red", desc = "Red", ranger_groups = { leader = 1 }}
+  {name = "blue", desc = "Blue", ranger_groups = {}, weapons = {"turbo:turbo_auto_blaster", "turbo:turbo_auto_blaster_turbo_mode",
+															"turbo:turbo_blade", "turbo:turbo_turbine_laser", "turbo:turbo_hand_blaster"}},
+  {name = "green", desc = "Green", ranger_groups = {}, weapons = {"turbo:turbo_auto_blaster", "turbo:turbo_auto_blaster_turbo_mode",
+															"turbo:turbo_blade", "turbo:turbo_turbine_laser", "turbo:turbo_thunder_cannon"}},
+  {name = "yellow", desc = "Yellow", ranger_groups = {}, weapons = {"turbo:turbo_auto_blaster", "turbo:turbo_auto_blaster_turbo_mode",
+															"turbo:turbo_blade", "turbo:turbo_turbine_laser", "turbo:turbo_star_chargers"}},
+  {name = "pink", desc = "Pink", ranger_groups = {}, weapons = {"turbo:turbo_auto_blaster", "turbo:turbo_auto_blaster_turbo_mode",
+															"turbo:turbo_blade", "turbo:turbo_turbine_laser", "turbo:turbo_wind_fire"}},
+  {name = "red", desc = "Red", ranger_groups = { leader = 1 }, weapons = {"turbo:turbo_auto_blaster", "turbo:turbo_auto_blaster_turbo_mode",
+															"turbo:turbo_blade", "turbo:turbo_turbine_laser", "turbo:turbo_lightning_sword"}}
 }
 
 for _, v in ipairs(turbo.rangers) do
@@ -15,7 +31,7 @@ for _, v in ipairs(turbo.rangers) do
       description = v.desc.." Turbo Ranger",
       heal = 100,
       use = 14,
-      weapons = {"turbo:turbo_blade", "turbo:turbo_auto_blaster"},
+      weapons = v.weapons,
       ranger_groups = v.ranger_groups,
       armor_textures = {
         boots = { armor="turbo_boots.png", preview="turbo_boots_preview.png", inventory="turbo_boots_inv.png" }
