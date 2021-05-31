@@ -428,25 +428,46 @@ minetest.register_chatcommand("set_ranger_armor_wear", {
 })
 
 minetest.register_chatcommand("get_weapons", {
-  params = "<search_pattern>",
-  description = "Shows a list of registered weapons based on search pattern. Leave empty for full list.",
-  
-  privs = {
-    interact = true,
-    power_rangers = true,
-  },
-  
-  func = function(name, text)
-    for k, v in pairs(morphinggrid.registered_weapons) do
-      if text ~= nil or text ~= "" then
-        if string.find(v.name, text) then
-          minetest.chat_send_player(name, v.name..", ("..v.description.."); Weapon Key: "..v.weapon_key..", Blelongs To: "..table.concat(get_ranger_descs(v.rangers), ", "))
-        end
-      else
-        minetest.chat_send_player(name, v.name..", ("..v.description.."); Weapon Key: "..v.weapon_key..", Blelongs To: "..table.concat(get_ranger_descs(v.rangers), ", "))
-      end
-    end
-  end
+	params = "<search_pattern> or <ranger_name>",
+	description = "Shows a list of registered weapons based on search pattern, or searches weapons of a specific ranger. Leave empty for full list.",
+
+	privs = {
+		interact = true,
+		power_rangers = true,
+	},
+
+	func = function(name, text)
+		local sorted = {}
+		for k, v in pairs(morphinggrid.registered_weapons) do
+			table.insert(sorted, k)
+		end
+		table.sort(sorted)
+		
+		minetest.chat_send_player(name, "===================================")
+		minetest.chat_send_player(name, "Weapons:")
+		for i, wname in pairs(sorted) do
+			local v = morphinggrid.registered_weapons[wname]
+			if morphinggrid.registered_rangers[text] then
+				local rangers = {}
+				for i, v in ipairs(v.rangers) do
+					rangers[v] = true
+				end
+				
+				if rangers[text] then
+					minetest.chat_send_player(name, v.name..", ("..v.description.."); Weapon Key: "..v.weapon_key..", Blelongs To: "..
+					table.concat(get_ranger_descs(v.rangers), ", "))
+				end
+			elseif text ~= nil or text ~= "" then
+				if string.find(v.name, text) then
+					minetest.chat_send_player(name, v.name..", ("..v.description.."); Weapon Key: "..v.weapon_key..", Blelongs To: "..
+					table.concat(get_ranger_descs(v.rangers), ", "))
+				end
+			else
+				minetest.chat_send_player(name, v.name..", ("..v.description.."); Weapon Key: "..v.weapon_key..", Blelongs To: "..
+				table.concat(get_ranger_descs(v.rangers), ", "))
+			end
+		end
+	end
 })
 
 minetest.register_chatcommand("get_rangers", {
@@ -459,6 +480,8 @@ minetest.register_chatcommand("get_rangers", {
   },
   
   func = function(name, text)
+	minetest.chat_send_player(name, "===================================")
+	minetest.chat_send_player(name, "Rangers:")
     for i, v in ipairs(get_rangers()) do
       if text ~= nil or text ~= "" then
         if string.find(v.name, text) then
