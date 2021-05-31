@@ -57,7 +57,7 @@ function morphinggrid.morpher_slots.formspec(player, morpher)
 	local plrfs = morphinggrid.morpher_slots.formspecdata[player:get_player_name()]
 	local inv = minetest.get_inventory({type="detached", name=player:get_player_name().."_morpher_slots"})
 	local morpherdef = morphinggrid.registered_morphers[morpher]
-	local morpherdef.morpher_slots
+	local slotsdef = morpherdef.morpher_slots
 	local desc = morpherdef.description or morpherdef.name
 	plrfs["morpher"] = morpher
 	
