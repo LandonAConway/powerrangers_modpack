@@ -1,4 +1,4 @@
-local S = armor_i18n.gettext
+--local S = armor_i18n.gettext
 
 morphinggrid.registered_rangertypes = {}
 rangertype = {}
@@ -45,6 +45,21 @@ function morphinggrid.register_ranger(name, rangerdef)
   
   --Register Armor
   register_ranger_armor(rangerdef)
+  
+  
+  --Add command presets
+  rangerdef.ranger_command_presets = rangerdef.ranger_command_presets or {}
+  for pname, p in pairs(rangerdef.ranger_command_presets) do
+	if morphinggrid.ranger_cmd_presets[pname] then
+		if p == true then
+			for cname, c in pairs(rangerdef.ranger_cmd_presets[pname]) do
+			  rangerdef.ranger_commands[cname] = c
+			end
+		end
+	else
+		error("'"..pname.."' is not an existing preset.")
+	end
+  end
   
   --ranger commands
   rangerdef.ranger_commands = rangerdef.ranger_commands or {}
@@ -102,7 +117,8 @@ function register_ranger_armor(rangerdef)
   
   --helmet
   armor:register_armor(modname..":helmet_"..ranger, {
-    description = S(rangerdef.description.." Helmet"),
+    --description = S(rangerdef.description.." Helmet"),
+	description = rangerdef.description.." Helmet",
     texture = rangerdef.armor_textures.helmet.armor,
     preview = rangerdef.armor_textures.helmet.preview,
     inventory_image = rangerdef.armor_textures.helmet.inventory,
@@ -166,7 +182,8 @@ function register_ranger_armor(rangerdef)
   
   --chestplate
   armor:register_armor(modname..":chestplate_"..ranger, {
-    description = S(rangerdef.description.." Chestplate"),
+    --description = S(rangerdef.description.." Chestplate"),
+	description = rangerdef.description.." Chestplate",
     texture = rangerdef.armor_textures.chestplate.armor,
     preview = rangerdef.armor_textures.chestplate.preview,
     inventory_image = rangerdef.armor_textures.chestplate.inventory,
@@ -229,7 +246,8 @@ function register_ranger_armor(rangerdef)
   
   --leggings
   armor:register_armor(modname..":leggings_"..ranger, {
-    description = S(rangerdef.description.." Leggings"),
+    --description = S(rangerdef.description.." Leggings"),
+	description = rangerdef.description.." Leggings",
     texture = rangerdef.armor_textures.leggings.armor,
     preview = rangerdef.armor_textures.leggings.preview,
     inventory_image = rangerdef.armor_textures.leggings.inventory,
@@ -294,7 +312,8 @@ function register_ranger_armor(rangerdef)
   
   --boots
   armor:register_armor(modname..":boots_"..ranger, {
-    description = S(rangerdef.description.." Boots"),
+    --description = S(rangerdef.description.." Boots"),
+	description = rangerdef.description.." Boots",
     texture = rangerdef.armor_textures.boots.armor,
     preview = rangerdef.armor_textures.boots.preview,
     inventory_image = rangerdef.armor_textures.boots.inventory,
@@ -609,6 +628,20 @@ function morphinggrid.register_morpher(name, morpherdef)
 	end
 		
     return itemstack
+  end
+  
+  --Add command presets
+  morpherdef.morpher_command_presets = morpherdef.morpher_command_presets or {}
+  for pname, p in pairs(morpherdef.morpher_command_presets) do
+	if morphinggrid.morpher_cmd_presets[pname] then
+		if p == true then
+			for cname, c in pairs(morpherdef.morpher_cmd_presets[pname]) do
+			  morpherdef.morpher_commands[cname] = c
+			end
+		end
+	else
+		error("'"..pname.."' is not an existing preset.")
+	end
   end
   
   --Add default commands to the morpher.

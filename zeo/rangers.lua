@@ -61,7 +61,15 @@ for i, v in ipairs(zeo.rangers) do
 		end,
 		allow_put = function(morpher, itemstack)
 			return 0
-		end
+		end,
+		grid_doc = {
+			inputs = {
+				{ input = {} },
+			}
+		}
+	  },
+	  grid_doc = {
+		description = "Holds the Zeo Sub Crystal "..i..". A Left Zeonizer is required in a player's inventory to use for morphing." 
 	  }
     }
   })

@@ -1,5 +1,5 @@
 morphinggrid.register_firearm("mighty_morphin:blade_blaster", {
-  description = "Blade Blater",
+  description = "Blade Blaster",
   inventory_image = "mighty_morphin_blade_blaster.png",
   distance = 45,
   particle_texture = "mighty_morphin_blade_blaster_particle.png",

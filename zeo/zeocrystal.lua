@@ -1,4 +1,5 @@
 morphinggrid.register_griditem("zeo:zeo_crystal", {
+	description = "Zeo Crystal",
 	type = "node",
 	tiles = {
 		"zeo_crystal.png",
@@ -32,35 +33,53 @@ morphinggrid.register_griditem("zeo:zeo_crystal", {
 	           rarity = 1
 	       },
 	   },
+	},
+	grid_doc = {
+		description = "The Zeo Crystal holds an immense amount of power, and provides the zeo rangers with their powers."
 	}
 })
 
 morphinggrid.register_griditem("zeo:zeo_crystal_1", {
-  description = "Zeo Crystal 1",
+  description = "Zeo Sub Crystal 1",
   inventory_image = "zeo_crystal_1.png",
   groups = {not_in_creative_inventory=1},
+  grid_doc = {
+	description = "The Zeo Sub Crystal 1 provides powers for Zeo Ranger 1, Pink."
+  }
 })
 
 morphinggrid.register_griditem("zeo:zeo_crystal_2", {
-  description = "Zeo Crystal 2",
+  description = "Zeo Sub Crystal 2",
   inventory_image = "zeo_crystal_2.png",
   groups = {not_in_creative_inventory=1},
+  grid_doc = {
+	description = "The Zeo Sub Crystal 1 provides powers for Zeo Ranger 2, Yellow."
+  }
 })
 
 morphinggrid.register_griditem("zeo:zeo_crystal_3", {
-  description = "Zeo Crystal 3",
+  description = "Zeo Sub Crystal 3",
   inventory_image = "zeo_crystal_3.png",
   groups = {not_in_creative_inventory=1},
+  grid_doc = {
+	description = "The Zeo Sub Crystal 1 provides powers for Zeo Ranger 3, Blue."
+  }
 })
 
 morphinggrid.register_griditem("zeo:zeo_crystal_4", {
-  description = "Zeo Crystal 4",
+  description = "Zeo Sub Crystal 4",
   inventory_image = "zeo_crystal_4.png",
   groups = {not_in_creative_inventory=1},
+  grid_doc = {
+	description = "The Zeo Sub Crystal 1 provides powers for Zeo Ranger 4, Green."
+  }
 })
 
 morphinggrid.register_griditem("zeo:zeo_crystal_5", {
-  description = "Zeo Crystal 5",
+  description = "Zeo Sub Crystal 5",
   inventory_image = "zeo_crystal_5.png",
   groups = {not_in_creative_inventory=1},
+  grid_doc = {
+	description = "The Zeo Sub Crystal 1 provides powers for Zeo Ranger 5, Red."
+  }
 })

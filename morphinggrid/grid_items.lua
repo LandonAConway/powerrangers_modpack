@@ -291,6 +291,21 @@ function morphinggrid.register_griditem(name, def)
 		error("item type '"..def.type.."' is invalid.")
 	end
 	
+	
+	--Add command presets
+	def.griditem_command_presets = def.griditem_command_presets or {}
+	for pname, p in pairs(def.griditem_command_presets) do
+		if morphinggrid.griditem_cmd_presets[pname] then
+			if p == true then
+				for cname, c in pairs(def.griditem_cmd_presets[pname]) do
+				  def.griditem_commands[cname] = c
+				end
+			end
+		else
+			error("'"..pname.."' is not an existing preset.")
+		end
+	end
+	
 	--Add default commands to the griditem.
 	def.griditem_commands.help = {
 		description = "Lists all commands for the griditem.",

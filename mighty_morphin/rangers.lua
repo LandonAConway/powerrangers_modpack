@@ -39,28 +39,36 @@ for i, v in ipairs(mmprrangers) do
     weapons = v[6],
     ranger_groups = v[7],
     morpher = {
-      name = "mighty_morphin:"..v[5].."_morpher",
-      inventory_image = v[5].."_morpher.png",
-      description = mighty_morphin.upper_first_char(v[5]).." Morpher",
-	  morpher_slots = {
-		amount = 1,
-		load_input = function(itemstack)
-			return true, {ItemStack("mighty_morphin:"..v[5].."_powercoin")}
+		name = "mighty_morphin:"..v[5].."_morpher",
+		inventory_image = v[5].."_morpher.png",
+		description = mighty_morphin.upper_first_char(v[5]).." Morpher",
+		grid_doc = {
+			description = "Morphs a player into the Mighty Morphin "..v[2].." Ranger."
+		},
+		morpher_slots = {
+			amount = 1,
+			load_input = function(itemstack)
+				return true, {ItemStack("mighty_morphin:"..v[5].."_powercoin")}
+			end,
+			output = function(itemstack, slots)
+				if slots[1]:get_name() == "" then
+					return true, ItemStack("mighty_morphin:empty_morpher")
+				end
+				return false, itemstack
+			end,
+			allow_put = function()
+				return 0
+			end,
+			grid_doc = {
+			inputs = {
+					{ input = {} }
+				}
+			}
+		},
+		morph_func_override = function(user, itemstack)
+			local ranger = morphinggrid.get_ranger("mighty_morphin:"..v[1])
+			mighty_morphin.morph(user, ranger, "mighty_morphin:"..v[5].."_morpher", itemstack)
 		end,
-		output = function(itemstack, slots)
-			if slots[1]:get_name() == "" then
-				return true, ItemStack("mighty_morphin:empty_morpher")
-			end
-			return false, itemstack
-		end,
-		allow_put = function()
-			return 0
-		end
-	  },
-      morph_func_override = function(user, itemstack)
-        local ranger = morphinggrid.get_ranger("mighty_morphin:"..v[1])
-        mighty_morphin.morph(user, ranger, "mighty_morphin:"..v[5].."_morpher", itemstack)
-      end,
     },
   })
 end

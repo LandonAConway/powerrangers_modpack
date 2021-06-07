@@ -65,7 +65,12 @@ minetest.register_node("morphinggrid:energy_port", {
 	end,
 	allow_metadata_inventory_take = function(pos, listname, index, stack, player)
 		return -1
-	end
+	end,
+	
+	grid_doc = {
+		other_item = true,
+		description = "Allows players to get access to Morphing Grid Energy directly."
+	}
 })
 
 function mod_loaded(str)

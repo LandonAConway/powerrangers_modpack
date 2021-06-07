@@ -2,14 +2,14 @@ minetest.register_craft({
     type = "shapeless",
     output = "zeo:right_zeonizer",
     recipe = {"default:gold_ingot", "default:steel_ingot", "default:copper_ingot", "dye:red", "dye:white",
-			"dye:black", "morphinggrid:standard_morpher_motherboard", "micro_energy_connector_unit"}
+			"dye:black", "morphinggrid:standard_morpher_motherboard", "morphinggrid:micro_energy_reader_unit"}
   })
 
 minetest.register_craft({
     type = "shapeless",
     output = "zeo:left_zeonizer",
     recipe = {"default:gold_ingot", "default:steel_ingot", "default:copper_ingot", "dye:red", "dye:white", 
-				"dye:black", "morphinggrid:standard_morpher_motherboard", "micro_energy_release_unit"}
+				"dye:black", "morphinggrid:standard_morpher_motherboard", "morphinggrid:micro_energy_release_unit"}
   })
   
   minetest.register_craft({

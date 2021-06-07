@@ -36,5 +36,5 @@ minetest.register_craft({
 	output = "mighty_morphin:empty_morpher",
 	recipe = {"default:steel_ingot", "default:steel_ingot", "default:copper_ingot", "dye:red", "dye:white",
 			  "dye:black", "morphinggrid:standard_morpher_motherboard", "morphinggrid:micro_energy_release_unit",
-				"morphinggrid:micro_energy_connector_unit"}
+				"morphinggrid:micro_energy_reader_unit"}
 })

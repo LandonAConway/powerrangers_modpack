@@ -3,10 +3,6 @@ local storage = minetest.get_mod_storage()
 local modname = minetest.get_current_modname()
 local modpath = minetest.get_modpath(modname)
 
--- support for i18n
-armor_i18n = { }
-armor_i18n.gettext, armor_i18n.ngettext = dofile(modpath.."/intllib.lua")
-
 morphinggrid = {}
 morphinggrid.mod_storage = {}
 
@@ -27,6 +23,7 @@ end)
 
 dofile(minetest.get_modpath("morphinggrid") .. "/events.lua")
 dofile(minetest.get_modpath("morphinggrid") .. "/functions.lua")
+dofile(minetest.get_modpath("morphinggrid") .. "/folders.lua")
 dofile(minetest.get_modpath("morphinggrid") .. "/connections.lua")
 dofile(minetest.get_modpath("morphinggrid") .. "/morphing.lua")
 dofile(minetest.get_modpath("morphinggrid") .. "/grid_items.lua")

@@ -1,7 +1,7 @@
 morphinggrid.register_morpher("zeo:gold_staff", {
   type = "tool",
   register_griditem = true,
-  description = "Gold Staff",
+  description = "Gold Zeo Staff",
   inventory_image = "zeo_gold_staff.png",
   ranger_weapon = {
     weapon_key = "zeo_gold_staff",
@@ -25,7 +25,10 @@ morphinggrid.register_morpher("zeo:gold_staff", {
         local ranger = morphinggrid.get_ranger("zeo:gold")
         zeo.morph(user, ranger, itemstack)
       end
-  end
+  end,
+	grid_doc = {
+		description = "The Gold Zeo Staff not only provides the Gold Zeo Ranger powers, but is also the ranger's main weapon when morphed."
+	}
 })
 
 morphinggrid.register_morpher("zeo:right_zeonizer", {
@@ -63,12 +66,29 @@ morphinggrid.register_morpher("zeo:right_zeonizer", {
 				return 1
 			end
 			return 0
-		end
+		end,
+		grid_doc = {
+			inputs = {
+				{ input = {"zeo:zeo_crystal_1"} },
+				{ input = {"zeo:zeo_crystal_2"} },
+				{ input = {"zeo:zeo_crystal_3"} },
+				{ input = {"zeo:zeo_crystal_4"} },
+				{ input = {"zeo:zeo_crystal_5"} },
+			}
+		},
+	},
+	
+	grid_doc = {
+		description = "Holds a zeo crystal using morpher slots. To use morpher slots, type the chat command '/morpher slots' when wielding this item."
 	}
 })
 
-minetest.register_craftitem("zeo:left_zeonizer", {
+morphinggrid.register_morpher("zeo:left_zeonizer", {
   description = "Left Zeonizer",
   inventory_image = "zeo_zeonizer_left.png",
+  has_connection = false,
   groups = {not_in_creative_inventory=1},
+  grid_doc = {
+	description = "Allows a player to morph when using a Right Zeonizer to morph if placed in a player's inventory."
+  }
 })

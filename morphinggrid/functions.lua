@@ -69,3 +69,50 @@ function if_any_of_nodes(pos, nodes)
   end
   return false
 end
+
+function morphinggrid.bond_item_to_player(player, itemstack, force)
+	local meta = itemstack:get_meta()
+	if force then
+		meta:set_string("bond", player:get_player_name())
+		return itemstack
+	else
+		if meta:get_string("bond") == "" then
+			meta:set_string("bond", player:get_player_name())
+			return itemstack
+		end
+	end
+end
+
+function morphinggrid.get_item_bond(player, itemstack, force)
+	return itemstack:get_meta():get_string("bond")
+end
+
+function morphinggrid.lock_item_to_player(player, itemstack, force)
+	local meta = itemstack:get_meta()
+	if force then
+		meta:set_string("lock", player:get_player_name())
+		return itemstack
+	else
+		if meta:get_string("lock") == "" then
+			meta:set_string("lock", player:get_player_name())
+			return itemstack
+		end
+	end
+end
+
+function morphinggrid.unlock_item_from_player(player, itemstack, force)
+	local meta = itemstack:get_meta()
+	if force then
+		meta:set_string("lock", "")
+		return itemstack
+	else
+		if meta:get_string("lock") == player:get_player_name() then
+			meta:set_string("lock", "")
+			return itemstack
+		end
+	end
+end
+
+function morphinggrid.get_item_lock(player, itemstack, force)
+	return itemstack:get_meta():get_string("lock")
+end
