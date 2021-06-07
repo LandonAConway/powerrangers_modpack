@@ -49,6 +49,7 @@ end
 function morphinggrid.grid_doc.formspec(player, selected_type, selected_item)
 	selected_type = selected_type or 1
 	local current = morphinggrid.grid_doc.current[player] or {selected_type=1,selected_item=1,filter=""}
+	current.filter = current.filter or ""
 	local inv = morphinggrid.grid_doc.get_inventory(minetest.get_player_by_name(player))
 	local data = (get_items(selected_type, current.filter)[selected_item] or {}).data
 	table.insert(data or {}, 1, minetest.get_player_by_name(player))

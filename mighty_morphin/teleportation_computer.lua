@@ -44,14 +44,19 @@ minetest.register_node("mighty_morphin:command_center_teleportation_computer", {
 		}
 	},
 	
+	grid_doc = {
+		other_item = true,
+		description = "The Teleportation Computer is used to teleport players to and from the command center."
+	},
+	
 	after_place_node = function(pos, placer, itemstack)
-    local can_place = minetest.check_player_privs(placer:get_player_name(), {power_rangers = true})
-    if not can_place then
-      minetest.remove_node(pos)
-      minetest.chat_send_player(placer:get_player_name(), "You do not have the power_rangers priv.")
-    else
-      teleportation_computer.add_pos(pos,"command_center",pos)
-    end
+		local can_place = minetest.check_player_privs(placer:get_player_name(), {power_rangers = true})
+		if not can_place then
+		  minetest.remove_node(pos)
+		  minetest.chat_send_player(placer:get_player_name(), "You do not have the power_rangers priv.")
+		else
+		  teleportation_computer.add_pos(pos,"command_center",pos)
+		end
   end,
   
   on_rightclick = function(pos, node, clicker, itemstack)

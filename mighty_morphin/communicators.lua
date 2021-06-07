@@ -6,7 +6,7 @@ communicator.register_channel("mighty_morphin", {
 
 for i,v in ipairs(mmprrangers) do
 	communicator.register_communicator("mighty_morphin:wrist_communicator_"..v[1], {
-		description = v[2].." Wrist Communicator",
+		description = v[2].." Wrist Communicator (Mighty Morphin)",
 		inventory_image = "wrist_communicator_"..v[1]..".png",
 		channel = "mighty_morphin",
 		ranger = "mighty_morphin:"..v[1],
@@ -16,6 +16,11 @@ for i,v in ipairs(mmprrangers) do
 		communicator_command_presets = {
 			basic = true,
 			teleportation = true
+		},
+		
+		grid_doc = {
+			description = "Used to communicate with other players who have another Mighty Morphin communicator. Use chat command '/communicator help' "..
+					"to see a list of commands."
 		}
 	})
 
@@ -34,7 +39,7 @@ for i,v in ipairs(mmprrangers) do
 	else
 		minetest.register_craft({
 		type = "shapeless",
-		output = "zeo:wrist_communicator_"..v[1],
+		output = "mighty_morphin:wrist_communicator_"..v[1],
 		recipe = {
 			"default:copper_ingot", "default:steel_ingot", "morphinggrid:standard_morpher_motherboard", "dye:"..v[1], "dye:white", 
 			"dye:black", "mighty_morphin:"..v[5].."_powercoin"

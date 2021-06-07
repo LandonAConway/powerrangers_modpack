@@ -1,3 +1,10 @@
+function mod_loaded(str)
+	if minetest.get_modpath(str) ~= nil then
+		return true
+	end
+	return false
+end
+
 minetest.register_node("mighty_morphin:zordon_tube", {
 		description = "Zordon Tube",
 		tiles = {"glass_no_edge.png", "zordon_tube.png"},
@@ -12,6 +19,11 @@ minetest.register_node("mighty_morphin:zordon_tube", {
     		groups = {cracky = 3, oddly_breakable_by_hand = 3},
 			use_texture_alpha = true,
     		sounds = default.node_sound_glass_defaults(),
+			
+			grid_doc = {
+				other_item = true,
+				description = "Zordon Tube is a decorative node which can be used to build a command center."
+			}
 })
 
 minetest.register_node("mighty_morphin:command_center_tube", {
@@ -28,27 +40,80 @@ minetest.register_node("mighty_morphin:command_center_tube", {
     		groups = {cracky = 3, oddly_breakable_by_hand = 3},
 			use_texture_alpha = true,
     		sounds = default.node_sound_glass_defaults(),
+			grid_doc = {
+				other_item = true,
+				description = "Tube (Aka 'Command Center Tube') is a decorative node which can be used to build a command center."
+			}
 })
 
-minetest.register_node("mighty_morphin:powercoin_detector_off", {
-		description = "Power Coin Detector",
-		tiles = {"^[colorize:#ff0000"},
-    	paramtype = "light",
-    	is_ground_content = false,
-    	groups = {cracky = 3, stone=2, oddly_breakable_by_hand = 3},
-})
 
-minetest.register_node("mighty_morphin:powercoin_detector_on", {
-		description = "Power Coin Detector",
-		tiles = {"^[colorize:#00ff00"},
-    	paramtype = "light",
-		light_source = 14,
-    	is_ground_content = false,
-		drop = {
-			items = { { items = {'mighty_morphin:powercoin_detector_off'} } }
-		},
-    	groups = {cracky = 3, stone=2, oddly_breakable_by_hand = 3, not_in_creative_inventory = 1},
-})
+if mod_loaded("mesecons") then
+
+	minetest.register_node("mighty_morphin:powercoin_detector_off", {
+			description = "Power Coin Detector",
+			tiles = {"^[colorize:#ff0000"},
+			paramtype = "light",
+			is_ground_content = false,
+			groups = {cracky = 3, stone=2, oddly_breakable_by_hand = 3},
+			grid_doc = {
+				other_item = true,
+				description = "Power Coin Detector is a node that turns on when it detects a player with a power coin nearby. It can be used with Mesecons."
+			},
+			
+			mesecons = {
+				receptor = {
+					state = mesecon.state.off,
+					rules = mesecon.rules
+				}
+			}
+	})
+
+	minetest.register_node("mighty_morphin:powercoin_detector_on", {
+			description = "Power Coin Detector",
+			tiles = {"^[colorize:#00ff00"},
+			paramtype = "light",
+			light_source = 14,
+			is_ground_content = false,
+			drop = {
+				items = { { items = {'mighty_morphin:powercoin_detector_off'} } }
+			},
+			groups = {cracky = 3, stone=2, oddly_breakable_by_hand = 3, not_in_creative_inventory = 1},
+			
+			mesecons = {
+				receptor = {
+					state = mesecon.state.on,
+					rules = mesecon.rules
+				}
+			}
+	})
+	
+else
+	
+	minetest.register_node("mighty_morphin:powercoin_detector_off", {
+			description = "Power Coin Detector",
+			tiles = {"^[colorize:#ff0000"},
+			paramtype = "light",
+			is_ground_content = false,
+			groups = {cracky = 3, stone=2, oddly_breakable_by_hand = 3},
+			grid_doc = {
+				other_item = true,
+				description = "Power Coin Detector is a node that turns on when it detects a player with a power coin nearby. Install Mesecons for best experience."
+			},
+	})
+
+	minetest.register_node("mighty_morphin:powercoin_detector_on", {
+			description = "Power Coin Detector",
+			tiles = {"^[colorize:#00ff00"},
+			paramtype = "light",
+			light_source = 14,
+			is_ground_content = false,
+			drop = {
+				items = { { items = {'mighty_morphin:powercoin_detector_off'} } }
+			},
+			groups = {cracky = 3, stone=2, oddly_breakable_by_hand = 3, not_in_creative_inventory = 1},
+	})
+	
+end
 
 minetest.register_node("mighty_morphin:command_center_wall_light", {
 		description = "Command Center Wall Light",
@@ -58,6 +123,10 @@ minetest.register_node("mighty_morphin:command_center_wall_light", {
 		light_source = 10,
     	is_ground_content = false,
     	groups = {cracky = 3, oddly_breakable_by_hand = 3},
+		grid_doc = {
+			other_item = true,
+			description = "Command Center Wall Light is a decorative node used to lighten things up."
+		}
 })
 
 minetest.register_node("mighty_morphin:command_center_rail", {
@@ -85,6 +154,10 @@ minetest.register_node("mighty_morphin:command_center_rail", {
 			{-0.5, 0.4375, 0.4375, 0.5, 0.5, 0.5},
 			{-0.5, 0, 0.4375, 0.5, 0.0625, 0.5},
 		}
+	},
+	grid_doc = {
+		other_item = true,
+		description = "Command Center Rail is a decorative node which can be used to build a command center."
 	}
 })
 
@@ -110,6 +183,10 @@ minetest.register_node("mighty_morphin:command_center_counter", {
 		fixed = {
 			{-0.5, -0.5, -0.5, 0.5, -0.4375, 0.5},
 		}
+	},
+	grid_doc = {
+		other_item = true,
+		description = "Command Center Counter is a decorative node which can be used to build a command center."
 	}
 })
 
@@ -141,6 +218,10 @@ minetest.register_node("mighty_morphin:command_center_rail_corner", {
 			{-0.5, 0.4375, -0.5, -0.4375, 0.5, 0.5},
 			{-0.5, 0, -0.5, -0.4375, 0.0625, 0.5},
 		}
+	},
+	grid_doc = {
+		other_item = true,
+		description = "Command Center Rail Corner is a decorative node which can be used to build a command center."
 	}
 })
 
