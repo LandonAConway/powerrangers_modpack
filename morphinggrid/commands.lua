@@ -34,14 +34,23 @@ minetest.register_chatcommand("morph", {
       return false, "You don't have permission to run this command (Missing Privileges: morphinggrid)"
     else
       local player = minetest.get_player_by_name(name)
-      local inv = player:get_inventory()
-      if not inv:is_empty("morphers_main") then
-        local stack = inv:get_stack("morphers_main", 1)
+      local inv = morphinggrid.morphers.get_inventory(player)
+      if not inv:is_empty("single") then
+        local stack = inv:get_stack("single", 1)
         local stackname = stack:get_name()
         if morphinggrid.registered_morphers[stackname] ~= nil then
-          local itemstack = morphinggrid.morph_from_morpher(player, stackname, stack) or stack
-          inv:set_stack("morphers_main", 1, itemstack)
-          return true
+			local itemstack = morphinggrid.morph_from_morpher(player, stackname, stack) or stack
+			inv:set_stack("single", 1, itemstack)
+			return true
+		elseif morphinggrid.registered_griditems[stackname] ~= nil then
+			local def = morphinggrid.registered_griditems[stackname]
+			local result, itemstack = def.morph_behavior(player, stack)
+			inv:set_stack("single", 1, itemstack or stack)
+			if result then
+				return true
+			end
+			return false, "The item placed in the single morpher slot is a grid item but is not capeable of "..
+					"morphing a player without a morpher. Use the chat command '/morphers'"
         end
         return false, "The item placed in the single morpher slot is not a morpher. Use the chat command '/morphers'"
       end

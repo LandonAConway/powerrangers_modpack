@@ -233,8 +233,20 @@ function mighty_morphin.check_if_string_contains(str, value)
 	return result
 end
 
-function mighty_morphin.upper_first_char(text)
-  local firstletter = string.sub(text, 1,1)
-  local therest = string.sub(text, 2)
-  return firstletter:upper()..therest
+function mighty_morphin.upper_first_char(text, each)
+	if each then
+	  local _text = text:gsub("_", " ")
+	  local _list = mighty_morphin.split_string(_text, " ")
+	  local _newlist = {}
+	  for i, v in ipairs(_list) do
+		local firstletter = string.sub(v, 1,1):upper()
+		local therest = string.sub(v, 2)
+		table.insert(_newlist, firstletter..therest)
+	  end
+	  return table.concat(_newlist, " ")
+	else
+	  local firstletter = string.sub(text, 1,1)
+	  local therest = string.sub(text, 2)
+	  return (firstletter:upper()..therest):gsub("_", " ")
+	end
 end

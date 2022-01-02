@@ -3,19 +3,21 @@ morphinggrid.morpher_slots.formspecdata = {}
 
 local function get_morpher(player)
 	local inv = player:get_inventory()
+	local _inv = morphinggrid.morphers.get_inventory(player)
 	if player:get_wielded_item():get_name() ~= "" then
 		return player:get_wielded_item()
     else
-		inv:get_stack("morphers_main", 1)
+		return _inv:get_stack("single", 1)
 	end
 end
 
 local function set_morpher(player, itemstack)
 	local inv = player:get_inventory()
+	local _inv = morphinggrid.morphers.get_inventory(player)
 	if morphinggrid.registered_morphers[player:get_wielded_item():get_name()] then
 		player:set_wielded_item(itemstack)
     else
-		inv:set_stack("morphers_main", 1, itemstack)
+		_inv:set_stack("single", 1, itemstack)
 	end
 end
 

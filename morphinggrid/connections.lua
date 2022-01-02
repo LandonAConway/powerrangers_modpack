@@ -44,6 +44,90 @@ function morphinggrid.create_connection(ranger_name, player_name)
   morphinggrid.connections[ranger_name].players[player_name].armor_wear = 0
 end
 
+function morphinggrid.configure_connection(ranger_name, player_name)
+	morphinggrid.connections[ranger_name] = morphinggrid.connections[ranger_name] or { players = {} }
+	local r = morphinggrid.connections[ranger_name]
+	
+	r.players[player_name] = r.players[player_name] or {}
+	local p = r.players[player_name]
+	
+	p.timer = p.timer or 0
+	p.armor_wear = p.armor_wear or 0
+	if p.in_use == nil then p.in_use = false end
+end
+
+--save pos where died
+minetest.register_on_dieplayer(function(player)
+	local pos = player:get_pos()
+	local pos_string = 
+		"("..pos.x..", "..pos.y..", "..pos.z..")"
+		
+	local meta = player:get_meta()
+	meta:set_string("griditem_savepos", pos_string)
+end)
+
+-- teleport player back after respawn
+minetest.register_on_mods_loaded(function()
+	minetest.register_on_respawnplayer(function(player)
+		--save inventory to storage
+		morphinggrid.morphers.save_inventory(player)
+		
+		--get other needed data
+		local meta = player:get_meta()
+		local pos = minetest.string_to_pos(meta:get_string("griditem_savepos"))
+		
+		--don't respawn player if conditions are met
+		local _inv = morphinggrid.morphers.get_inventory(player)
+		local cancel_respawn = false
+		local item_desc = "Unknown"
+		
+		for i, stack in ipairs(_inv:get_list("main")) do
+			local def = minetest.registered_items[stack:get_name()]
+			if def ~= nil and item_is_valid(stack:get_name()) then
+				if def.prevents_respawn then
+					if def.allow_prevent_respawn(player, stack)
+						item_desc = def.description or stack:get_name()
+						cancel_respawn = true
+					end
+				end
+			end
+		end
+		
+		local stack = _inv:get_stack("single", 1)
+		local def = minetest.registered_items[stack:get_name()]
+		if def ~= nil and item_is_valid(stack:get_name()) then
+			if def.prevents_respawn then
+				if def.allow_prevent_respawn(player, stack)
+					if not cancel_respawn then
+						item_desc = def.description or stack:get_name()
+					end
+					cancel_respawn = true
+				end
+			end
+		end
+		
+		local text
+		if cancel_respawn then
+			player:set_pos(pos)
+		end
+		
+		local message = "You were not respawned because you were protected by a Grid Item. ("..item_desc..")"
+		return cancel_respawn
+	end)
+end)
+
+-- functions
+
+function item_is_valid(itemstring)
+	if morphinggrid.registered_griditems[itemstring] then
+		return true
+	elseif morphinggrid.registered_morphers[itemstring] then
+		return true
+	end
+	
+	return false
+end
+
 function higher_to(a, b)
   if a < b then
     return b

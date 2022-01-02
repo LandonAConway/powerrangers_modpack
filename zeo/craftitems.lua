@@ -3,6 +3,8 @@ morphinggrid.register_morpher("zeo:gold_staff", {
   register_griditem = true,
   description = "Gold Zeo Staff",
   inventory_image = "zeo_gold_staff.png",
+  prevents_respawn = true,
+  rangers = { "zeo:gold" },
   ranger_weapon = {
     weapon_key = "zeo_gold_staff",
     rangers = { "zeo:gold" },

@@ -154,207 +154,209 @@ function pr_villians.register_henchman(name, def)
     
     on_step = function(self, dtime)
       if self.object ~= nil then
-        -- updating the mob each 0.5s is enough and makes it not lag
-        self.time = self.time + dtime
-        self.lifetime = self.lifetime -dtime
-        self.damageinterval_time = self.damageinterval_time + dtime
-        if self.lifetime <= 0 then -- removing the mob after a time, or there will be too many
-          self.object:remove()
-          return
-        elseif self.target and self.time < 0.1 or not self.target and self.time < 0.5 then
-          return self
-        end
-        self.time = 0
+		pcall(function()
+			-- updating the mob each 0.5s is enough and makes it not lag
+			self.time = self.time + dtime
+			self.lifetime = self.lifetime -dtime
+			self.damageinterval_time = self.damageinterval_time + dtime
+			if self.lifetime <= 0 then -- removing the mob after a time, or there will be too many
+			  self.object:remove()
+			  return
+			elseif self.target and self.time < 0.1 or not self.target and self.time < 0.5 then
+			  return self
+			end
+			self.time = 0
+			
+			if self.object == nil then
+			  return
+			end
+		
+			local pos = self.object:get_pos()
+			
+			--kill the mob if it is in water and cannot swim
+			if not self.can_swim then
+			  if pr_villians.check_if_any_group(self.object:get_pos(), { "water" }) then
+				self.object:punch(self.object,1,{full_punch_interval=1,damage_groups={fleshy=self.water_damage}})
+				for k, v in pairs(pr_villians.henchmen.registered_callbacks.on_punch) do
+				   v(self, puncher, 1, {full_punch_interval=1,damage_groups={fleshy=self.damage}}, nil, "drowning")
+				end
+			  end
+			end
         
-        if self.object == nil then
-          return
-        end
+			if self.object == nil then
+			  return
+			end
+			
+			--swimming in water
+			local swim_pos = self.object:get_pos()
+			local swim_pos_above = {x=swim_pos.x,y=swim_pos.y+1,z=swim_pos.z}
+			if pr_villians.check_if_any_group(self.object:get_pos(), { "water" }) then
+			  self.is_swimming = true
+			  if self.can_swim then
+				local vel = self.object:get_velocity() or {x=0,y=0,z=0}
+				if not pr_villians.check_if_any_group(swim_pos_above, { "water" }) then
+				  self.object:set_acceleration({x=0,y=0,z =0})
+				  self.object:add_velocity({x=0,y=0-vel.y,z=0})
+				else
+				  self.object:set_acceleration({x=0,y=4,z =0})
+				  self.object:add_velocity({x=0,y=0-vel.y,z=0})
+				end
+			  else
+				self.object:set_acceleration({x=0,y=-2,z =0})
+			  end
+			else
+			  self.is_swimming = false
+			  self.object:set_acceleration({x=0,y=-10,z =0}) --set back to normal gravity.
+			end
+			
+			if self.object == nil then
+			  return
+			end
     
-        local pos = self.object:get_pos()
+			--rnd walking
+			if self.target == nil then
+			  local r = math.random(1,4)
+			  local v = self.object:get_velocity() or {x=0,y=0,z=0}
+			  if r == 1 then-- walk randomly
+				self.object:set_yaw(math.random(0,6.28))
+				walk(self)
+			  elseif r == 2 then
+				stand(self)
+			  else
+				walk(self)
+			  end
+			end
+			
+			if self.object == nil then
+			  return
+			end
+			
+			--punch after free fall
+			self.max_free_fall = self.max_free_fall or 4
+			local line_of_sight = minetest.line_of_sight(self.object:get_pos(), {x=self.object:get_pos().x,y=self.object:get_pos().y-self.max_free_fall,z=self.object:get_pos().z})
+			if line_of_sight == true then
+			  local top_pos = self.object:get_pos()
+			  local raycast = Raycast(top_pos, {x=top_pos.x,y=top_pos.y-(self.max_free_fall+100),z=top_pos.z})
+			  local bottom_pos = get_node_pos_raycast(raycast)
+			  self.fall_distance = vector.distance(top_pos,bottom_pos)
+			  self.falling_to_punch = true
+			end
         
-        --kill the mob if it is in water and cannot swim
-        if not self.can_swim then
-          if pr_villians.check_if_any_group(self.object:get_pos(), { "water" }) then
-            self.object:punch(self.object,1,{full_punch_interval=1,damage_groups={fleshy=self.water_damage}})
-            for k, v in pairs(pr_villians.henchmen.registered_callbacks.on_punch) do
-               v(self, puncher, 1, {full_punch_interval=1,damage_groups={fleshy=self.damage}}, nil, "drowning")
-            end
-          end
-        end
-        
-        if self.object == nil then
-          return
-        end
-        
-        --swimming in water
-        local swim_pos = self.object:get_pos()
-        local swim_pos_above = {x=swim_pos.x,y=swim_pos.y+1,z=swim_pos.z}
-        if pr_villians.check_if_any_group(self.object:get_pos(), { "water" }) then
-          self.is_swimming = true
-          if self.can_swim then
-            local vel = self.object:get_velocity() or {x=0,y=0,z=0}
-            if not pr_villians.check_if_any_group(swim_pos_above, { "water" }) then
-              self.object:set_acceleration({x=0,y=0,z =0})
-              self.object:add_velocity({x=0,y=0-vel.y,z=0})
-            else
-              self.object:set_acceleration({x=0,y=4,z =0})
-              self.object:add_velocity({x=0,y=0-vel.y,z=0})
-            end
-          else
-            self.object:set_acceleration({x=0,y=-2,z =0})
-          end
-        else
-          self.is_swimming = false
-          self.object:set_acceleration({x=0,y=-10,z =0}) --set back to normal gravity.
-        end
-        
-        if self.object == nil then
-          return
-        end
+			if self.object == nil then
+			  return
+			end
+			
+			if self.falling_to_punch then
+			  local node_under = {x=self.object:get_pos().x,y=self.object:get_pos().y-1,z=self.object:get_pos().z}
+			  if not pr_villians.check_if_any_group(node_under, {"water"}) then
+				local velocity = self.object:get_velocity() or {x=0,y=0,z=0}
+				if velocity.y > -0.2 and velocity.y < 0.2  then
+				  local damage = (self.weight*0.047)*self.fall_distance
+				  self.object:punch(self.object,1,{full_punch_interval=1,damage_groups={fleshy=damage}})
+				  self.falling_to_punch = false
+				end
+			  end
+			end
+			
+			if self.object == nil then
+			  return
+			end
     
-        --rnd walking
-        if self.target == nil then
-          local r = math.random(1,4)
-          local v = self.object:get_velocity() or {x=0,y=0,z=0}
-          if r == 1 then-- walk randomly
-            self.object:set_yaw(math.random(0,6.28))
-            walk(self)
-          elseif r == 2 then
-            stand(self)
-          else
-            walk(self)
-          end
-        end
+			--look for targets
+			if self.target == nil then
+			  local rnd_target
+			  for _, ob in pairs(minetest.get_objects_inside_radius(pos, 10)) do
+				local en = ob:get_luaentity() -- players do not have this property
+				local obp = ob:get_pos()
+		  
+				if is_enemy(self,ob) then
+				  if (en == nil or en and en.id ~= self.id) and visible(self,obp) and viewfield(self,obp) then
+					rnd_target = ob
+					if math.random(1,3) == 1 then --choosing random targets
+					  break
+					end
+				  end
+				end
+			  end
+			  self.target = rnd_target
+			end
+			
+			if self.object == nil then
+			  return
+			end
         
-        if self.object == nil then
-          return
-        end
+			-- attack target
+			if self.target then
+			  local tarp = self.target:get_pos()
+			  if tarp == nil or visible(self,tarp) == false or viewfield(self,tarp) == false and self.target ~= self.last_punched_by then -- sometimes the object is gone but not the object
+				self.target = nil
+				return
+			  end
+			  
+			  lookat(self,tarp)
+			  
+			  if self.kickback == true then
+				if not slow_velocity(self) then
+				  return
+				end
+				self.kickback = false
+			  end
+			  
+			  walk(self,2)
+			  self.lifetime = 120 -- resets lifetime
+		
+			  if vector.distance(pos,tarp) <= 3 then
+				anim(self,"attack")
+				if self.damageinterval_time >= self.damageinterval then
+				  if self.target:is_player() then
+					if core.setting_getbool("enable_damage") then
+					  self.target:punch(self.object,1,{full_punch_interval=1,damage_groups={fleshy=self.damage}})
+					end
+				  else
+					self.target:punch(self.object,1,{full_punch_interval=1,damage_groups={fleshy=self.damage}})
+				  end
+				  if self.benefits_on_attack then
+					self.hp = self.hp + def.benefit
+					if self.hp > self.hp_max then
+					  self.hp = self.hp_max
+					end
+					self.object:set_properties({nametag=self.hp.." / "..self.hp_max ,nametag_color="#00ff00"})
+				  end
+				  for k, v in pairs(pr_villians.henchmen.registered_callbacks.on_attack) do
+					v(self, 1, {full_punch_interval=1,damage_groups={fleshy=self.damage}})
+				  end
+				end
+				if self.target:get_hp() <= 0 then
+				  self.target = nil
+				end
+			  end
+			end
         
-        --punch after free fall
-        self.max_free_fall = self.max_free_fall or 4
-        local line_of_sight = minetest.line_of_sight(self.object:get_pos(), {x=self.object:get_pos().x,y=self.object:get_pos().y-self.max_free_fall,z=self.object:get_pos().z})
-        if line_of_sight == true then
-          local top_pos = self.object:get_pos()
-          local raycast = Raycast(top_pos, {x=top_pos.x,y=top_pos.y-(self.max_free_fall+100),z=top_pos.z})
-          local bottom_pos = get_node_pos_raycast(raycast)
-          self.fall_distance = vector.distance(top_pos,bottom_pos)
-          self.falling_to_punch = true
-        end
-        
-        if self.object == nil then
-          return
-        end
-        
-        if self.falling_to_punch then
-          local node_under = {x=self.object:get_pos().x,y=self.object:get_pos().y-1,z=self.object:get_pos().z}
-          if not pr_villians.check_if_any_group(node_under, {"water"}) then
-            local velocity = self.object:get_velocity() or {x=0,y=0,z=0}
-            if velocity.y > -0.2 and velocity.y < 0.2  then
-              local damage = (self.weight*0.047)*self.fall_distance
-              self.object:punch(self.object,1,{full_punch_interval=1,damage_groups={fleshy=damage}})
-              self.falling_to_punch = false
-            end
-          end
-        end
-        
-        if self.object == nil then
-          return
-        end
-    
-        --look for targets
-        if self.target == nil then
-          local rnd_target
-          for _, ob in pairs(minetest.get_objects_inside_radius(pos, 10)) do
-            local en = ob:get_luaentity() -- players do not have this property
-            local obp = ob:get_pos()
-      
-            if is_enemy(self,ob) then
-              if (en == nil or en and en.id ~= self.id) and visible(self,obp) and viewfield(self,obp) then
-                rnd_target = ob
-                if math.random(1,3) == 1 then --choosing random targets
-                  break
-                end
-              end
-            end
-          end
-          self.target = rnd_target
-        end
-        
-        if self.object == nil then
-          return
-        end
-        
-        -- attack target
-        if self.target then
-          local tarp = self.target:get_pos()
-          if tarp == nil or visible(self,tarp) == false or viewfield(self,tarp) == false and self.target ~= self.last_punched_by then -- sometimes the object is gone but not the object
-            self.target = nil
-            return
-          end
-          
-          lookat(self,tarp)
-          
-          if self.kickback == true then
-            if not slow_velocity(self) then
-              return
-            end
-            self.kickback = false
-          end
-          
-          walk(self,2)
-          self.lifetime = 120 -- resets lifetime
-    
-          if vector.distance(pos,tarp) <= 3 then
-            anim(self,"attack")
-            if self.damageinterval_time >= self.damageinterval then
-              if self.target:is_player() then
-                if core.setting_getbool("enable_damage") then
-                  self.target:punch(self.object,1,{full_punch_interval=1,damage_groups={fleshy=self.damage}})
-                end
-              else
-                self.target:punch(self.object,1,{full_punch_interval=1,damage_groups={fleshy=self.damage}})
-              end
-              if self.benefits_on_attack then
-                self.hp = self.hp + def.benefit
-                if self.hp > self.hp_max then
-                  self.hp = self.hp_max
-                end
-                self.object:set_properties({nametag=self.hp.." / "..self.hp_max ,nametag_color="#00ff00"})
-              end
-              for k, v in pairs(pr_villians.henchmen.registered_callbacks.on_attack) do
-                v(self, 1, {full_punch_interval=1,damage_groups={fleshy=self.damage}})
-              end
-            end
-            if self.target:get_hp() <= 0 then
-              self.target = nil
-            end
-          end
-        end
-        
-        if self.object == nil then
-          return
-        end
-        
-        --reset damage interval time
-        if self.damageinterval_time >= self.damageinterval then
-          self.damageinterval_time = 0
-        end
-        
-        if self.object == nil then
-          return
-        end
-        
-        if self.can_swim then
-          if pr_villians.check_if_any_group({x=pos.x,y=pos.y-1,z=pos.z}, { "cracky", "soil", "stone", "crumbly", "wood" }) and
-          not pr_villians.check_if_any_group(posinfront(self, 1), { "water" }) and
-          not pr_villians.check_if_any_group(posinfront(self, 2), { "water" }) then
-            jump(self)
-          end
-        else
-          if pr_villians.check_if_any_group({x=pos.x,y=pos.y-1,z=pos.z}, { "cracky", "soil", "stone", "crumbly", "wood" }) then
-            jump(self)
-          end
-        end
+			if self.object == nil then
+			  return
+			end
+			
+			--reset damage interval time
+			if self.damageinterval_time >= self.damageinterval then
+			  self.damageinterval_time = 0
+			end
+			
+			if self.object == nil then
+			  return
+			end
+			
+			if self.can_swim then
+			  if pr_villians.check_if_any_group({x=pos.x,y=pos.y-1,z=pos.z}, { "cracky", "soil", "stone", "crumbly", "wood" }) and
+			  not pr_villians.check_if_any_group(posinfront(self, 1), { "water" }) and
+			  not pr_villians.check_if_any_group(posinfront(self, 2), { "water" }) then
+				jump(self)
+			  end
+			else
+			  if pr_villians.check_if_any_group({x=pos.x,y=pos.y-1,z=pos.z}, { "cracky", "soil", "stone", "crumbly", "wood" }) then
+				jump(self)
+			  end
+			end
+        end)
       end
     end
   })
@@ -413,7 +415,7 @@ function anim(self,type)
   if self.visual ~= "mesh" or type == self.anim or not self.animation then return end
   local a=self.animation[type]
   if not a then return end
-  self.object:set_animation({x=a.x, y=a.y,},a.speed,false,a.loop)
+  self.object:set_animation({x=a.x, y=a.y,},a.speed,0,a.loop)
   self.anim=type
 end
 

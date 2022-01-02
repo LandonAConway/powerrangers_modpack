@@ -44,6 +44,8 @@ for i, v in ipairs(zeo.rangers) do
       name = "zeo:right_zeonizer_"..v[1],
       inventory_image = "zeo_zeonizer_right.png",
       description = "Right Zeonizer (Zeo Ranger "..i..")",
+	  griditems = { "zeo:zeo_crystal_"..i },
+	  prevents_respawn = true,
       morph_func_override = function(user, itemstack)
         local ranger = morphinggrid.get_ranger("zeo:"..v[1])
         zeo.morph(user, ranger)

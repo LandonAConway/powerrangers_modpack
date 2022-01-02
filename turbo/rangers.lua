@@ -19,7 +19,7 @@ turbo.rangers = {
   {name = "green", desc = "Green", ranger_groups = {}, weapons = {"turbo:turbo_auto_blaster", "turbo:turbo_auto_blaster_turbo_mode",
 															"turbo:turbo_blade", "turbo:turbo_turbine_laser", "turbo:turbo_thunder_cannon"}},
   {name = "yellow", desc = "Yellow", ranger_groups = {}, weapons = {"turbo:turbo_auto_blaster", "turbo:turbo_auto_blaster_turbo_mode",
-															"turbo:turbo_blade", "turbo:turbo_turbine_laser", "turbo:turbo_star_chargers"}},
+															"turbo:turbo_blade", "turbo:turbo_turbine_laser", "turbo:turbo_laser_star_chargers"}},
   {name = "pink", desc = "Pink", ranger_groups = {}, weapons = {"turbo:turbo_auto_blaster", "turbo:turbo_auto_blaster_turbo_mode",
 															"turbo:turbo_blade", "turbo:turbo_turbine_laser", "turbo:turbo_wind_fire"}},
   {name = "red", desc = "Red", ranger_groups = { leader = 1 }, weapons = {"turbo:turbo_auto_blaster", "turbo:turbo_auto_blaster_turbo_mode",
@@ -40,13 +40,15 @@ for _, v in ipairs(turbo.rangers) do
   
   morphinggrid.register_griditem("turbo:"..v.name.."_morpher_key", {
 		inventory_image = "turbo_morpher_key.png",
-		description = v.desc.." Turbo Key"
+		description = v.desc.." Turbo Key",
+		rangers = { "turbo:"..v.name }
   })
   
   morphinggrid.register_morpher("turbo:"..v.name.."_morpher", {
 		inventory_image = "turbo_morpher_activated.png",
 		description = v.desc.." Turbo Morpher",
 		ranger = "turbo:"..v.name,
+		griditems = { "turbo:"..v.name.."_morpher_key" },
 		
 		morpher_slots = {
 			amount = 1,

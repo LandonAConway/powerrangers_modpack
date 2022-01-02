@@ -35,10 +35,11 @@ function morphinggrid.register_ranger(name, rangerdef)
   rangerdef.name = name
   
   --make sure fields are not nil
-  rangerdef.hide_identity = rangerdef.hide_identity or true
-  rangerdef.hide_player = rangerdef.hide_player or false
   rangerdef.ranger_groups = rangerdef.ranger_groups or {}
   rangerdef.abilities = rangerdef.abilities or {}
+  
+  if rangerdef.hide_identity == nil then rangerdef.hide_identity = true end
+  if rangerdef.hide_player == nil then rangerdef.hide_player = false end
   
   --textures
   rangerdef.armor_textures = morphinggrid.correct_armor_textures(rangerdef)
@@ -565,6 +566,11 @@ function morphinggrid.register_morpher(name, morpherdef)
   morpherdef.morpher_commands = morpherdef.morpher_commands or {}
   morpherdef.groups = morpherdef.groups or {}
   morpherdef.groups.morpher = morpherdef.groups.morpher or 1
+  morpherdef.griditems = morpherdef.griditems or {}
+  
+  morpherdef.allow_prevent_respawn = morpherdef.allow_prevent_respawn or function(player, itemstack)
+	return default_allow_prevent_respawn(player, itemstack)
+  end
   
   --configure if the morpher is supposed to morph a player. This should be false if a morpher does not have a connection to the morphinggrid.
   --This is set to 'true' by default. If the morpher has no connection, the 'morphing' functionality will not be registered.
@@ -738,4 +744,9 @@ end
 
 function morphinggrid.get_morphers()
   return morphinggrid.registered_morphers
+end
+
+--default morpher functions
+function default_allow_prevent_respawn(player, itemstack)
+	return true
 end

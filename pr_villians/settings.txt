@@ -1,0 +1,1 @@
+pr_villians.settings.armor_damage = false

@@ -284,7 +284,17 @@ function morphinggrid.register_griditem(name, def)
 	def.name = name
 	def.exclude_callbacks = def.exclude_callbacks or {}
 	def.griditem_commands = def.griditem_commands or {}
+	def.rangers = def.rangers or {}
+	def.morph_chance = def.morph_chance or 0
 	def.callbacks = get_callbacks(def.exclude_callbacks)
+	
+	def.morph_behavior = def.morph_behavior or function(player, itemstack)
+		return default_morph_behavior(player, itemstack)
+	end
+	
+	def.allow_prevent_respawn = def.allow_prevent_respawn or function(player, itemstack)
+		return default_allow_prevent_respawn(player, itemstack)
+	end
 	
 	local allowed_item_types = {tool=true,craftitem=true,node=true}
 	if not allowed_item_types[def.type] then
@@ -359,5 +369,70 @@ function morphinggrid.register_griditem(name, def)
 	
 	if def.register_item == true then
 		minetest["register_"..def.type](name, def)
+	end
+end
+
+function default_morph_behavior(player, itemstack)
+	local def = morphinggrid.registered_griditems[itemstack:get_name()]
+	local r = round(math.random(0, def.morph_chance))
+	minetest.chat_send_all(r..", "..def.morph_chance)
+	
+	--get ranger index
+	local ranger_count = 0
+	for i, _ in ipairs(def.rangers) do
+		ranger_count = ranger_count + 1
+	end
+	local ranger_index = round(math.random(1, ranger_count))
+	
+	--attempt to morph
+	if def.morph_chance == 0 then
+		return false
+	end
+	
+	if r == 1 then
+		morphinggrid.morph(player, def.rangers[ranger_index])
+	else
+		minetest.chat_send_player(player:get_player_name(), "The grid item could not execute a successful morph. "..
+			"Try again or use one of the listed morphers to eliminate this problem. ")
+			
+		for k, v in pairs(search_for_morphers(itemstack:get_name())) do
+			minetest.chat_send_player(player:get_player_name(), (v.description or v.name)..", ["..k.."]")
+		end
+	end
+	
+	return true
+end
+
+function default_allow_prevent_respawn(player, itemstack)
+	return true
+end
+
+function search_for_morphers(griditem_name)
+	local morphers_found = {}
+	for morpher, morpherdef in pairs(morphinggrid.registered_morphers) do
+		if contains_value(morpherdef.griditems, griditem_name) then
+			morphers_found[morpher] = morpherdef
+		end
+	end
+	
+	return morphers_found
+end
+
+function contains_value(t, value)
+	local values_to_keys = {}
+	for i, v in ipairs(t) do
+		values_to_keys[v] = true
+	end
+	
+	return values_to_keys[value] ~= nil 
+end
+
+function round(number)
+	local floored = math.floor(number)
+	local remainder = number - floored
+	if remainder < 0.5 then
+		return floored
+	else
+		return floored + 1
 	end
 end

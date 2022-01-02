@@ -41,7 +41,9 @@ for i, v in ipairs(mmprrangers) do
     morpher = {
 		name = "mighty_morphin:"..v[5].."_morpher",
 		inventory_image = v[5].."_morpher.png",
-		description = mighty_morphin.upper_first_char(v[5]).." Morpher",
+		description = mighty_morphin.upper_first_char(v[5], true).." Morpher",
+		griditems = { "mighty_morphin:"..v[5].."_powercoin" },
+		prevents_respawn = true,
 		grid_doc = {
 			description = "Morphs a player into the Mighty Morphin "..v[2].." Ranger."
 		},
