@@ -1,4 +1,4 @@
-Mighty Morphin Power Rangers v2.6
+Mighty Morphin Power Rangers v2.7
 
 
 DESCRIPTION
