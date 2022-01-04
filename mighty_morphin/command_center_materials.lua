@@ -57,7 +57,7 @@ if mod_loaded("mesecons") then
 			groups = {cracky = 3, stone=2, oddly_breakable_by_hand = 3},
 			grid_doc = {
 				other_item = true,
-				description = "Power Coin Detector is a node that turns on when it detects a player with a power coin nearby. It can be used with Mesecons."
+				description = "Power Coin Detector is a Mesecons receptor node that turns on when it detects a player with a power coin nearby."
 			},
 			
 			mesecons = {

@@ -17,7 +17,7 @@ if minetest.get_modpath("electronic_materials") then
   minetest.register_craft({
     type = "shapeless",
     output = "morphinggrid:standard_morpher_motherboard",
-    recipe = {"electronic_materials:small_circuit_board", "morphinggrid:micro_energy_connector_release_unit", "electronic_materials:bios_chip",
+    recipe = {"electronic_materials:small_circuit_board", "morphinggrid:micro_energy_release_unit", "electronic_materials:bios_chip",
               "electronic_materials:sd_card_32gb", "default:diamond" }
   })
   
@@ -44,7 +44,7 @@ else
 		type = "shapeless",
 		output = "morphinggrid:standard_morpher_motherboard",
 		recipe = {
-			"default:copper_ingot", "default:copper_ingot", "dye:green", "dye:white", "default:mese_crystal"
+			"default:copper_ingot", "default:copper_ingot", "dye:dark_green", "dye:white", "default:mese_crystal"
 		}
 	})
 	
