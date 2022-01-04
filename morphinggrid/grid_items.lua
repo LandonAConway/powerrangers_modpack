@@ -289,11 +289,11 @@ function morphinggrid.register_griditem(name, def)
 	def.callbacks = get_callbacks(def.exclude_callbacks)
 	
 	def.morph_behavior = def.morph_behavior or function(player, itemstack)
-		return default_morph_behavior(player, itemstack)
+		return morphinggrid.default_callbacks.griditem.morph_behavior(player, itemstack)
 	end
 	
 	def.allow_prevent_respawn = def.allow_prevent_respawn or function(player, itemstack)
-		return default_allow_prevent_respawn(player, itemstack)
+		return morphinggrid.default_callbacks.griditem.allow_prevent_respawn(player, itemstack)
 	end
 	
 	local allowed_item_types = {tool=true,craftitem=true,node=true}
@@ -372,7 +372,10 @@ function morphinggrid.register_griditem(name, def)
 	end
 end
 
-function default_morph_behavior(player, itemstack)
+--default callbacks
+morphinggrid.default_callbacks.griditem = {}
+
+function morphinggrid.default_callbacks.griditem.morph_behavior(player, itemstack)
 	local def = morphinggrid.registered_griditems[itemstack:get_name()]
 	local r = round(math.random(0, def.morph_chance))
 	minetest.chat_send_all(r..", "..def.morph_chance)
@@ -403,8 +406,24 @@ function default_morph_behavior(player, itemstack)
 	return true
 end
 
-function default_allow_prevent_respawn(player, itemstack)
-	return true
+function morphinggrid.default_callbacks.griditem.allow_prevent_respawn(player, itemstack)
+	local def = morphinggrid.registered_griditems[itemstack:get_name()]
+	local count = 0
+	for _, _ in ipairs(def.rangers) do
+		count = count + 1
+	end
+	
+	if count < 1 then
+		return true
+	end
+	
+	for k, ranger in ipairs(def.rangers) do
+		local connection = morphinggrid.get_connection(player, ranger)
+		if connection.timer <= 0 then
+			return true
+		end
+	end
+	return false
 end
 
 function search_for_morphers(griditem_name)

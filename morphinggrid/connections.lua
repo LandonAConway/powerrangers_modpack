@@ -44,6 +44,26 @@ function morphinggrid.create_connection(ranger_name, player_name)
   morphinggrid.connections[ranger_name].players[player_name].armor_wear = 0
 end
 
+function morphinggrid.get_connection(player, ranger)
+	if type(ranger) == "table" then
+		ranger = ranger.name
+	end
+	
+	if type(player) ~= "string" then
+		player = player:get_player_name()
+	end
+	
+	morphinggrid.connections[ranger].players[player] = 
+		morphinggrid.connections[ranger].players[player] or {
+			timer = 0,
+			wear = 0,
+			in_use = false
+		}
+		
+	local connection = morphinggrid.connections[ranger].players[player]
+	return connection
+end
+
 function morphinggrid.configure_connection(ranger_name, player_name)
 	morphinggrid.connections[ranger_name] = morphinggrid.connections[ranger_name] or { players = {} }
 	local r = morphinggrid.connections[ranger_name]
@@ -85,7 +105,7 @@ minetest.register_on_mods_loaded(function()
 			local def = minetest.registered_items[stack:get_name()]
 			if def ~= nil and item_is_valid(stack:get_name()) then
 				if def.prevents_respawn then
-					if def.allow_prevent_respawn(player, stack)
+					if def.allow_prevent_respawn(player, stack) then
 						item_desc = def.description or stack:get_name()
 						cancel_respawn = true
 					end
@@ -97,7 +117,7 @@ minetest.register_on_mods_loaded(function()
 		local def = minetest.registered_items[stack:get_name()]
 		if def ~= nil and item_is_valid(stack:get_name()) then
 			if def.prevents_respawn then
-				if def.allow_prevent_respawn(player, stack)
+				if def.allow_prevent_respawn(player, stack) then
 					if not cancel_respawn then
 						item_desc = def.description or stack:get_name()
 					end

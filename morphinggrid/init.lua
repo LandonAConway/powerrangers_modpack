@@ -4,6 +4,7 @@ local modname = minetest.get_current_modname()
 local modpath = minetest.get_modpath(modname)
 
 morphinggrid = {}
+morphinggrid.default_callbacks = {}
 morphinggrid.mod_storage = {}
 
 function morphinggrid.mod_storage.get_string(key)

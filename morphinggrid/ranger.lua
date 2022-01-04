@@ -569,7 +569,7 @@ function morphinggrid.register_morpher(name, morpherdef)
   morpherdef.griditems = morpherdef.griditems or {}
   
   morpherdef.allow_prevent_respawn = morpherdef.allow_prevent_respawn or function(player, itemstack)
-	return default_allow_prevent_respawn(player, itemstack)
+	return morphinggrid.default_callbacks.morpher.allow_prevent_respawn(player, itemstack)
   end
   
   --configure if the morpher is supposed to morph a player. This should be false if a morpher does not have a connection to the morphinggrid.
@@ -747,6 +747,41 @@ function morphinggrid.get_morphers()
 end
 
 --default morpher functions
-function default_allow_prevent_respawn(player, itemstack)
-	return true
+morphinggrid.default_callbacks.morpher = {}
+
+function morphinggrid.default_callbacks.morpher.allow_prevent_respawn(player, itemstack)
+	local def = morphinggrid.registered_morphers[itemstack:get_name()]
+	
+	--if item is a grid item, use it's default callback
+	if def.is_griditem then
+		return morphinggrid.default_callbacks.griditem.allow_prevent_respawn(player, itemstack)
+	end
+	
+	--if not, continue
+	local count = 0
+	local rangers = {}
+	for i, griditem in ipairs(def.griditems) do
+		local griditemdef = morphinggrid.registered_griditems[griditem] or { rangers = {} }
+		
+		-- minetest.chat_send_all("["..def.name.."].griditems["..(griditem or "(nil)").."]")
+		for _, ranger in ipairs(griditemdef.rangers) do
+			-- minetest.chat_send_all("["..def.name.."].griditems["..(griditem or "(nil)")..
+				-- "].rangers["..(ranger or "(nil)").."]")
+		
+			count = count + 1
+			table.insert(rangers, ranger)
+		end
+	end
+	
+	if count < 1 then
+		return true
+	end
+	
+	for k, ranger in ipairs(rangers) do
+		local connection = morphinggrid.get_connection(player, ranger)
+		if connection.timer <= 0 then
+			return true
+		end
+	end
+	return false
 end
