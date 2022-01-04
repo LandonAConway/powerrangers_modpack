@@ -55,7 +55,7 @@ minetest.register_node("mighty_morphin:command_center_teleportation_computer", {
 		  minetest.remove_node(pos)
 		  minetest.chat_send_player(placer:get_player_name(), "You do not have the power_rangers priv.")
 		else
-		  teleportation_computer.add_pos(pos,"command_center",pos)
+			teleportation_computer.initialize(pos)
 		end
   end,
   
@@ -92,7 +92,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
       elseif (event.type == "CHG") then
         local pos = minetest.string_to_pos(player:get_meta():get_string("teleportation_computer:node_pos"))
         local choosen_location = teleportation_computer.get_key_list(pos)[event.index]
-        local choosen_pos = teleportation_computer.get_pos(pos, choosen_location)
+        local choosen_pos = minetest.pos_to_string(teleportation_computer.get_pos(pos, choosen_location))
         minetest.show_formspec(player:get_player_name(), "mighty_morphin:teleportation_computer_formspec", mighty_morphin.teleportation_computer(pos, choosen_location, choosen_pos))
       end
     end
@@ -173,70 +173,49 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
   end
 end)
 
+function teleportation_computer.initialize(node_pos)
+	local meta = minetest.get_meta(node_pos)
+	meta:set_string(minetest.serialize({command_center = node_pos}))
+end
+
 function teleportation_computer.add_pos(node_pos, key, pos)
-  local meta = minetest.get_meta(node_pos)
-  if not string.find(key, "|") and not string.find(key, "=") then
-    local data = meta:get_string("position_list")
-    if data ~= nil and data ~= "" then
-      local list = splitstr(data, "|")
-      local exists = teleportation_computer.get_pos(node_pos, key)
-      if exists ~= nil then
-        teleportation_computer.remove_pos(node_pos, key)
-        table.insert(list, key.."="..minetest.pos_to_string(pos))
-      else
-        table.insert(list, key.."="..minetest.pos_to_string(pos))
-      end
-      meta:set_string("position_list", table.concat(list, "|"))
-    else
-      meta:set_string("position_list", key.."="..minetest.pos_to_string(pos))
-    end
-    return true
-  end
-  return false
+	local meta = minetest.get_meta(node_pos)
+	local positions = minetest.deserialize(meta:get_string("positions"))
+	
+	--add pos
+	positions[key] = node_pos
+	
+	meta:set_string("positions", minetest.serialize(positions))
 end
 
 function teleportation_computer.remove_pos(node_pos, key)
   local meta = minetest.get_meta(node_pos)
-  local data = meta:get_string("position_list")
-  if data ~= nil and data ~= "" then
-    local list = splitstr(data, "|")
-    for i, v in ipairs(list) do
-      local pos = splitstr(v, "=")
-      if pos[1] == key then
-        table.remove(list, i)
-        meta:set_string("position_list", table.concat(list, "|"))
-        return true
-      end
-    end
-   end
-   return false
+  local positions = minetest.deserialize(meta:get_string("positions"))
+  
+  --remove key
+  positions[key] = nil
+  
+  meta:set_string("positions", minetest.serialize(positions))
 end
 
 function teleportation_computer.get_pos(node_pos, key)
   local meta = minetest.get_meta(node_pos)
-  local data = meta:get_string("position_list")
-  if data ~= nil and data ~= "" then
-    local list = splitstr(data, "|")
-    for i, v in ipairs(list) do
-      local pos = splitstr(v, "=")
-      if pos[1] == key then
-        return pos[2]
-      end
-    end
-  end
-  return nil
+  local positions = minetest.deserialize(meta:get_string("positions"))
+  
+  --get key
+  return positions[key]
 end
 
 function teleportation_computer.get_key_list(node_pos)
   local meta = minetest.get_meta(node_pos)
-  local data = meta:get_string("position_list")
+  local positions = minetest.deserialize(meta:get_string("positions"))
   local keys = {}
-  if data ~= nil and data ~= "" then
-    local list = splitstr(data, "|")
-    for li, v in ipairs(list) do
-      table.insert(keys, splitstr(v, "=")[1])
-    end
+  
+  --get keys
+  for key, pos in pairs(positions) do
+	table.insert(keys, key)
   end
+  
   return keys
 end
 
