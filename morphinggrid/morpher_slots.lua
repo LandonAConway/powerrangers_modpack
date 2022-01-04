@@ -51,7 +51,7 @@ minetest.register_on_joinplayer(function(player)
 	morphinggrid.morpher_slots.formspecdata[player:get_player_name()] = {}
 end)
 
-function morphinggrid.morpher_slots.formspec(player, morpher)
+function morphinggrid.morpher_slots.formspec(player, morpher, inventory_option)
 	if type(player) == "string" then
 		player = minetest.get_player_by_name(player)
 	end
@@ -71,10 +71,33 @@ function morphinggrid.morpher_slots.formspec(player, morpher)
 		end
 	end
 	
+	--inventory option configuration
+	if inventory_option == nil then
+		inventory_option = plrfs.inventory_option or "main"
+	end
+	
+	plrfs.inventory_option = inventory_option
+	
+	local size = "size[10.5,14]"
+	local inventory = "list[current_player;main;0.4,7.9;8,4;0]"
+	local inv_btn_name = "inv_morphers"
+	local inv_btn_text = "Morphers Inventory"
+	local btn_x_offset = 0
+	
+	if inventory_option == "morphers" then
+		size = "size[20,14]"
+		inventory = "list[detached:morphers_"..player:get_player_name()..";main;1.39,7.9;14,4;]"
+		inv_btn_name = "inv_main"
+		inv_btn_text = "Main Inventory"
+		btn_x_offset = 4.76
+	end
+	
+	--formspec
 	local formspec = "formspec_version[4]"..
-	"size[10.5,12]"..
-	"list[current_player;main;0.4,5.9;8,4;0]"..
-	"button_exit[7.3,11;3,0.8;exit;Exit]"..
+	size..
+	inventory..
+	"button["..(1+btn_x_offset)..",13;5,0.8;"..inv_btn_name..";"..inv_btn_text.."]"..
+	"button_exit["..(6.5+btn_x_offset)..",13;3,0.8;exit;Exit]"..
 	"label[0.2,0.4;Slots for "..desc..":]"..
 	"list[detached:"..player:get_player_name().."_morpher_slots;"..morpher..";0.4,0.7;"..slotsdef.amount..",1;0]"
 	
@@ -90,6 +113,14 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 		local pinv = player:get_inventory()
 		for i, v in ipairs(inv:get_list(plrfs.morpher)) do
 			inv:remove_item(plrfs.morpher, v)
+		end
+		
+		if fields.inv_main then
+			minetest.show_formspec(player:get_player_name(), "morphinggrid:morpher_slots",
+				morphinggrid.morpher_slots.formspec(player, plrfs.morpher, "main"))
+		elseif fields.inv_morphers then
+			minetest.show_formspec(player:get_player_name(), "morphinggrid:morpher_slots",
+				morphinggrid.morpher_slots.formspec(player, plrfs.morpher, "morphers"))
 		end
 	end
 end)
