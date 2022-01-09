@@ -37,7 +37,10 @@ morphinggrid.grid_doc.register_type("arsenal", {
 	get_items = function()
 		local t = {}
 		for k, v in pairs(morphinggrid.registered_weapons) do
-			table.insert(t, {desc=v.description, name=k, data={k}})
+			local grid_doc = v.grid_doc or {}
+			if not grid_doc.hidden then
+				table.insert(t, {desc=v.description or k, name=k, data={k}})
+			end
 		end
 		table.sort(t, function(a,b) return a.name < b.name end)
 		return t

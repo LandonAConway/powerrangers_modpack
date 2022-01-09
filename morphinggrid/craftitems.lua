@@ -1,5 +1,6 @@
 morphinggrid.register_griditem("morphinggrid:energy", {
 	description = "Morphing Grid Energy",
+	stack_max = 65535,
 	inventory_image = "morphinggrid_energy.png",
 	groups = {not_in_creative_inventory=1},
 	grid_doc = {

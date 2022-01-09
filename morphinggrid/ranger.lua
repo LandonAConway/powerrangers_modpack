@@ -40,6 +40,7 @@ function morphinggrid.register_ranger(name, rangerdef)
   
   if rangerdef.hide_identity == nil then rangerdef.hide_identity = true end
   if rangerdef.hide_player == nil then rangerdef.hide_player = false end
+  if rangerdef.create_rangerdata == nil then rangerdef.create_rangerdata = true end
   
   --textures
   rangerdef.armor_textures = morphinggrid.correct_armor_textures(rangerdef)
@@ -110,6 +111,16 @@ function morphinggrid.register_ranger(name, rangerdef)
   morphinggrid.connections[name] = morphinggrid.connections[name] or {}
   morphinggrid.connections[name].name = name
   morphinggrid.connections[name].players = morphinggrid.connections[name].players or {}
+  
+  --register rangerdata
+  morphinggrid.register_griditem(name.."_rangerdata", {
+	inventory_image = "rangerdata.png",
+	description = (rangerdef.description or name).." Ranger Data",
+	groups = { not_in_creative_inventory = 1 },
+	grid_doc = {
+		hidden = true
+	}
+  })
 end
 
 function register_ranger_armor(rangerdef)

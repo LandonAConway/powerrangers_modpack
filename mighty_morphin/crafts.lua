@@ -38,3 +38,23 @@ minetest.register_craft({
 			  "dye:black", "morphinggrid:standard_morpher_motherboard", "morphinggrid:micro_energy_release_unit",
 				"morphinggrid:micro_energy_reader_unit"}
 })
+
+--power coins
+local powercoins = {
+	dragonzord = { "green" },
+	tigerzord = { "white" },
+	mastodon = { "black" },
+	pterodactyl = { "pink" },
+	triceratops = { "blue" },
+	saber_toothed_tiger = { "yellow" },
+	tyrannosaurus = { "red" }
+}
+
+for k, r in pairs(powercoins) do
+	minetest.register_craft({
+		type = "shapeless",
+		output = "mighty_morphin:"..k.."_powercoin",
+		recipe = {"default:gold_ingot", "default:gold_ingot", "default:copper_ingot",
+				  "morphinggrid:energy", "mighty_morphin:"..r[1].."_rangerdata" }
+	})
+end

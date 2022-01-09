@@ -81,6 +81,7 @@ for i, v in ipairs(mmprrangers_shields) do
     heal = v[3],
     use = v[4],
     weapons = v[5],
-    ranger_groups = v[6]
+    ranger_groups = v[6],
+	create_rangerdata = false
   })
 end

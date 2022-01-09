@@ -78,6 +78,7 @@ morphinggrid.register_morpher("turbo:morpher", {
 		load_input = function(morpher)
 			return true, {}
 		end,
+		
 		output = function(morpher, slots)
 			local name = slots[1]:get_name()
 			if name == "turbo:blue_morpher_key" then
@@ -93,6 +94,7 @@ morphinggrid.register_morpher("turbo:morpher", {
 			end
 			return false, morpher
 		end,
+		
 		allow_put = function(morpher, stack)
 			local name = stack:get_name()
 			if name == "turbo:blue_morpher_key" or
@@ -103,6 +105,16 @@ morphinggrid.register_morpher("turbo:morpher", {
 				return 1
 			end
 			return 0
-		end
+		end,
+		
+		grid_doc = {
+			inputs = {
+				{ input = {"turbo:blue_morpher_key"} },
+				{ input = {"turbo:green_morpher_key"} },
+				{ input = {"turbo:yellow_morpher_key"} },
+				{ input = {"turbo:pink_morpher_key"} },
+				{ input = {"turbo:red_morpher_key"} }
+			}
+		}
 	}
 })

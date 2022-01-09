@@ -41,37 +41,3 @@ minetest.register_chatcommand("dragon_shield", {
 		mighty_morphin.summon_dragon_shield(player)
 	end,
 })
-
-minetest.register_chatcommand("make_powercoin", {
-	params = "<coin_name> Itemstring of coin without the mods name.",
-	description = "Gets the wanted power coin.",
-	
-	privs = {
-		interact = true,
-		power_rangers = true,
-		powercoin_maker = true,
-	},
-	
-	func = function(name, text)
-		if text == "mastodon_powercoin" or
-		text == "pterodactyl_powercoin" or
-		text == "triceratops_powercoin" or
-		text == "saber_toothed_tiger_powercoin" or
-		text == "tyrannosaurus_powercoin" or
-		text == "dragonzord_powercoin" or
-		text == "tigerzord_powercoin" then
-			local powercoinname = "mighty_morphin:"..text
-			local player = minetest.get_player_by_name(name)
-			
-			local inv = player:get_inventory()
-			local stack = ItemStack(powercoinname.." 1")
-			local leftover = inv:add_item("main", stack)
-			if leftover:get_count() > 0 then
-				return false, "Could not make power coin becuase inventory is full"
-			else
-				return true, "Power coin is in inventory."
-			end
-		end
-		return false, "'"..text.."' is not a power coin."
-	end,
-})
