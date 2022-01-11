@@ -37,7 +37,9 @@ morphinggrid.register_griditem("zeo:zeo_crystal", {
 	   },
 	},
 	grid_doc = {
-		description = "The Zeo Crystal holds an immense amount of power, and provides the zeo rangers with their powers."
+		description = "The Zeo Crystal holds an immense amount of power, and provides the zeo rangers with their powers. "..
+			"The Zeo Crystal can only be broken (dug) by certian items/weapons. Digging it will provide the Zeo "..
+			"Sub Crystals while crafting the Zeo Sub Crystals will create the Zeo Crystal again."
 	}
 })
 

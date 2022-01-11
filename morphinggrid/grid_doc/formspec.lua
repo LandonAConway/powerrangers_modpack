@@ -46,13 +46,33 @@ local get_item_descs = function(selected_type, filter)
 	return t
 end
 
+local function get_items_details(selected_type, filter)
+	local t = {}
+	local func = morphinggrid.grid_doc.types[get_types()[selected_type].name].get_details
+	if func then
+		local items = get_items(selected_type, filter)
+		for i, v in ipairs(items) do
+			table.insert(t, func(v.name))
+		end
+	else
+		return nil
+	end
+	return t
+end
+
 function morphinggrid.grid_doc.formspec(player, selected_type, selected_item)
 	selected_type = selected_type or 1
 	local current = morphinggrid.grid_doc.current[player] or {selected_type=1,selected_item=1,filter=""}
 	current.filter = current.filter or ""
+	current.items_details = get_items_details(selected_type, current.filter)
 	local inv = morphinggrid.grid_doc.get_inventory(minetest.get_player_by_name(player))
-	local data = (get_items(selected_type, current.filter)[selected_item] or {}).data
+	local data = (get_items(selected_type, current.filter)[selected_item] or {}).data --
 	table.insert(data or {}, 1, minetest.get_player_by_name(player))
+	
+	local details_btn = ""
+	if current.items_details then
+		details_btn = "button[12.3,13;4,0.8;details;Details]"
+	end
 	
 	local part2 = ""
 	if data then
@@ -66,6 +86,7 @@ function morphinggrid.grid_doc.formspec(player, selected_type, selected_item)
 	"textarea[0.2,3.4;3.3,0.8;search;;"..current.filter.."]"..
 	"button[3.7,3.4;1.5,0.8;searchbtn;Search]"..
 	"button_exit[16.8,13;3,0.8;exit;Exit]"..
+	details_btn..
 	part2
 	
 	
@@ -121,6 +142,8 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 		elseif fields.searchbtn then
 			current.filter = fields.search
 			show_formspec(player:get_player_name(), current.selected_type, current.selected_item)
+		elseif fields.details then
+			morphinggrid.grid_doc.show_list_dialog_formspec(player, "Details", current.items_details[current.selected_item])
 		end
 	end
 end)
@@ -185,5 +208,74 @@ minetest.register_on_joinplayer(function(player)
 	
 	for k, v in pairs(morphinggrid.grid_doc.registered_inventories) do
 		inv:set_size(k, v.size)
+	end
+end)
+
+--list dialog
+local function build_textlist(items)
+	local t = {}
+	for i, v in pairs(items) do
+		table.insert(t, "1,"..
+				(v.title or "") .. "," ..
+				(v.value or "nil") )
+	end
+	return table.concat(t, ",")
+end
+
+morphinggrid.grid_doc.current_list_dialog = {}
+function morphinggrid.grid_doc.list_dialog_formspec(player, listdesc, items, index)
+	items = items or {
+		{ title = "", desc = "" }
+	}
+	index = index or 1
+	
+	if items[1] == nil then
+		items = {{title="",desc=""}}
+	end
+	
+	morphinggrid.grid_doc.current_list_dialog[player:get_player_name()] = { 
+		listdesc = listdesc,
+		items = items
+	}
+	
+	local titles = {}
+	for i, v in ipairs(items) do
+		table.insert(titles, v.title)
+	end
+	
+	local formspec = "formspec_version[4]"..
+	"size[10.5,11]"..
+	"label[0.2,0.4;"..listdesc..":]"..
+	"label[0.2,8.5;Description:]"..
+	-- "textlist[0.2,0.6;10.1,7.5;list;"..table.concat(titles, ",")..";"..index..";]"..
+	"tablecolumns[tree;text;text]"..
+	"table[0.2,0.6;10.1,7.5;list;"..build_textlist(items).."]"..
+	"textarea[0.2,8.8;10.1,2;description;;"..items[index].desc or "".."]"
+	
+	return formspec
+end
+
+function morphinggrid.grid_doc.show_list_dialog_formspec(player, listdesc, items, index)
+	minetest.show_formspec(player:get_player_name(), "morphinggrid:grid_doc_list_dialog",
+		morphinggrid.grid_doc.list_dialog_formspec(player, listdesc, items, index))
+end
+
+local function show_list_dialog_formspec(player, listdesc, items, index)
+	morphinggrid.grid_doc.show_list_dialog_formspec(player, listdesc, items, index)
+end
+
+minetest.register_on_player_receive_fields(function(player, formname, fields)
+	if formname == "morphinggrid:grid_doc_list_dialog" then
+		local current = morphinggrid.grid_doc.current_list_dialog[player:get_player_name()]
+		if fields.list then
+			-- local e = minetest.explode_textlist_event(fields.list)
+			-- if e.type == "CHG" then
+				-- show_list_dialog_formspec(player, current.listdesc, current.items, e.index)
+			-- end
+			local e = minetest.explode_table_event(fields.list)
+			if(e.type == "CHG") then
+				show_list_dialog_formspec(player, current.listdesc, current.items, e.row)
+			end
+		end
 	end
 end)

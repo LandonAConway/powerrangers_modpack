@@ -52,5 +52,23 @@ morphinggrid.grid_doc.register_type("griditems", {
 			return true
 		end
 		return false
+	end,
+	
+	get_details = function(itemstring)
+		local def = morphinggrid.registered_griditems[itemstring]
+		local grid_doc = def.grid_doc or {}
+		
+		--prevents respawning
+		local prevents_respawn = "No"
+		if def.prevents_respawn then
+			prevents_respawn = "Yes"
+		end
+		
+		return {
+			{ title = "Prevents Respawning     ", value = prevents_respawn,
+				desc = grid_doc.prevents_respawn_desc or 
+					"Prevents a player from respawning if placed in the Morphers Inventory." },
+		}
 	end
 })
+

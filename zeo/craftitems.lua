@@ -1,33 +1,39 @@
 morphinggrid.register_morpher("zeo:gold_staff", {
-  type = "tool",
-  register_griditem = true,
-  description = "Gold Zeo Staff",
-  inventory_image = "zeo_gold_staff.png",
-  prevents_respawn = true,
-  rangers = { "zeo:gold" },
-  ranger_weapon = {
-    weapon_key = "zeo_gold_staff",
-    rangers = { "zeo:gold" },
-  },
-  tool_capabilities = {
-    full_punch_interval = 0.1,
-    max_drop_level=1,
-    groupcaps={
-      snappy={times={[1]=1.90, [2]=0.90, [3]=0.30}, uses=1, maxlevel=3},
-      cracky={times={[50]=0.10}, uses=1, maxlevel=50},
-    },
-    damage_groups = {fleshy=100},
-  },
-  sound = {breaks = "default_tool_breaks"},
-  groups = {sword = 1, morpher=1},
-  
-  morph_func_override = function(user, itemstack)
-      local morphstate = morphinggrid.get_morph_status(user)
-      if morphstate ~= "zeo:gold" then
-        local ranger = morphinggrid.get_ranger("zeo:gold")
-        zeo.morph(user, ranger, itemstack)
-      end
-  end,
+	type = "tool",
+	register_griditem = true,
+	description = "Gold Zeo Staff",
+	inventory_image = "zeo_gold_staff.png",
+	prevents_respawn = true,
+	rangers = { "zeo:gold" },
+	ranger_weapon = {
+	weapon_key = "zeo_gold_staff",
+	rangers = { "zeo:gold" },
+	},
+		tool_capabilities = {
+			full_punch_interval = 0.1,
+			max_drop_level=1,
+			groupcaps={
+				snappy={times={[1]=1.90, [2]=0.90, [3]=0.30}, uses=1, maxlevel=3},
+				cracky={times={[50]=0.10}, uses=1, maxlevel=50},
+		},
+		damage_groups = {fleshy=100},
+	},
+	sound = {breaks = "default_tool_breaks"},
+	groups = {sword = 1, morpher=1},
+
+	morph_func_override = function(user, itemstack, pointed_thing)
+		local morphstate = morphinggrid.get_morph_status(user)
+		if morphstate ~= "zeo:gold" then
+			local ranger = morphinggrid.get_ranger("zeo:gold")
+			zeo.morph(user, ranger, itemstack)
+		else
+			if pointed_thing.ref ~= nil then
+				local tool_capabilities = morphinggrid.registered_morphers[itemstack:get_name()].tool_capabilities
+				pointed_thing.ref:punch(user, 0, tool_capabilities, nil)
+			end
+		end
+	end,
+	
 	grid_doc = {
 		description = "The Gold Zeo Staff not only provides the Gold Zeo Ranger powers, but is also the ranger's main weapon when morphed."
 	}

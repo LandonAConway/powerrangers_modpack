@@ -1,0 +1,10 @@
+cheetah-claws | red
+cheetah-beast-blaster | red
+beast-x-ultra-cannon | all; combined: beast-x-ultra-blaster, beast-x-ultra-bow
+beast-x-ultra-blaster | all; combined: beast-x-blaster
+beast-x-ultra-bow | all
+beast-x-spin-saber | all
+beast-x-cannon | all; combined: beast-x-blaster, beast-x-saber
+beast-x-blaster | all
+beast-x-saber | all
+striker-saber | gold, silver

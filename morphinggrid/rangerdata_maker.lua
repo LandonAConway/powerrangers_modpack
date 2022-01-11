@@ -164,7 +164,8 @@ end)
 
 function rangerdata_maker_effect(player)
 	local look_dir = player:get_look_dir()
-	player:add_velocity({x=(0-look_dir.x)*50 ,y=(0-look_dir.y)*50 ,z=(0-look_dir.z)*50})
+	local v = 100
+	player:add_velocity({x=(0-look_dir.x)*v ,y=(0-look_dir.y)*v ,z=(0-look_dir.z)*v})
 	
 	minetest.chat_send_player(player:get_player_name(), "Creation failed, please carefully try again.")
 	minetest.chat_send_player(player:get_player_name(), "Adding more Morphing Grid Energy will increase your chances "..

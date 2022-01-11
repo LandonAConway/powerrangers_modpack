@@ -603,7 +603,7 @@ function morphinggrid.register_morpher(name, morpherdef)
 		itemstack = grid_params.itemstack
 		if not grid_args.cancel then
 			if morpherdef.morph_func_override ~= nil then
-			  itemstack = morpherdef.morph_func_override(user, itemstack)
+			  itemstack = morpherdef.morph_func_override(user, itemstack, pointed_thing)
 			elseif morpherdef.ranger == nil then
 			  --nothing happens. This must be checked to prevent errors but allow for custom modding.
 			else
