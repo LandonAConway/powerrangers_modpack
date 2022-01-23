@@ -52,5 +52,27 @@ morphinggrid.grid_doc.register_type("arsenal", {
 			return true
 		end
 		return false
+	end,
+	
+	get_details = function(itemstring)
+		local def = minetest.registered_items[itemstring]
+		local wdef = morphinggrid.registered_weapons[itemstring]
+		local grid_doc = def.grid_doc or {}
+		local details = {}
+		
+		-- firearm distance
+		if morphinggrid.registered_firearms[itemstring] then
+			table.insert(details, { title = "Distance     ", value = def.distance or "Unknown",
+					desc = "The longest shot distance." })
+		end
+		
+		-- custom details
+		local custom_details = grid_doc.custom_details or {}
+		for _, v in pairs(custom_details) do
+			table.insert(details, v)
+		end
+		
+		-- return
+		return details
 	end
 })

@@ -143,7 +143,12 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 			current.filter = fields.search
 			show_formspec(player:get_player_name(), current.selected_type, current.selected_item)
 		elseif fields.details then
-			morphinggrid.grid_doc.show_list_dialog_formspec(player, "Details", current.items_details[current.selected_item])
+			local go_back = function()
+				show_formspec(player:get_player_name(), current.selected_type, current.selected_item)
+			end
+			
+			morphinggrid.grid_doc.show_list_dialog_formspec(player, "Details", current.items_details[current.selected_item],
+				nil, go_back)
 		end
 	end
 end)
@@ -223,7 +228,7 @@ local function build_textlist(items)
 end
 
 morphinggrid.grid_doc.current_list_dialog = {}
-function morphinggrid.grid_doc.list_dialog_formspec(player, listdesc, items, index)
+function morphinggrid.grid_doc.list_dialog_formspec(player, listdesc, items, index, go_back)
 	items = items or {
 		{ title = "", desc = "" }
 	}
@@ -233,9 +238,11 @@ function morphinggrid.grid_doc.list_dialog_formspec(player, listdesc, items, ind
 		items = {{title="",desc=""}}
 	end
 	
+	--data
 	morphinggrid.grid_doc.current_list_dialog[player:get_player_name()] = { 
 		listdesc = listdesc,
-		items = items
+		items = items,
+		go_back = go_back
 	}
 	
 	local titles = {}
@@ -243,11 +250,19 @@ function morphinggrid.grid_doc.list_dialog_formspec(player, listdesc, items, ind
 		table.insert(titles, v.title)
 	end
 	
+	local size = "10.5,11"
+	local go_back_btn = ""
+	
+	if type(go_back) == "function" then
+		size = "10.5,14"
+		go_back_btn = "button[3.75,12.8;3,0.8;go_back;Go Back]"
+	end
+	
 	local formspec = "formspec_version[4]"..
-	"size[10.5,11]"..
+	"size["..size.."]"..
+	go_back_btn..
 	"label[0.2,0.4;"..listdesc..":]"..
 	"label[0.2,8.5;Description:]"..
-	-- "textlist[0.2,0.6;10.1,7.5;list;"..table.concat(titles, ",")..";"..index..";]"..
 	"tablecolumns[tree;text;text]"..
 	"table[0.2,0.6;10.1,7.5;list;"..build_textlist(items).."]"..
 	"textarea[0.2,8.8;10.1,2;description;;"..items[index].desc or "".."]"
@@ -255,26 +270,26 @@ function morphinggrid.grid_doc.list_dialog_formspec(player, listdesc, items, ind
 	return formspec
 end
 
-function morphinggrid.grid_doc.show_list_dialog_formspec(player, listdesc, items, index)
+function morphinggrid.grid_doc.show_list_dialog_formspec(player, listdesc, items, index, go_back)
 	minetest.show_formspec(player:get_player_name(), "morphinggrid:grid_doc_list_dialog",
-		morphinggrid.grid_doc.list_dialog_formspec(player, listdesc, items, index))
+		morphinggrid.grid_doc.list_dialog_formspec(player, listdesc, items, index, go_back))
 end
 
-local function show_list_dialog_formspec(player, listdesc, items, index)
-	morphinggrid.grid_doc.show_list_dialog_formspec(player, listdesc, items, index)
+local function show_list_dialog_formspec(player, listdesc, items, index, go_back)
+	morphinggrid.grid_doc.show_list_dialog_formspec(player, listdesc, items, index, go_back)
 end
 
 minetest.register_on_player_receive_fields(function(player, formname, fields)
 	if formname == "morphinggrid:grid_doc_list_dialog" then
 		local current = morphinggrid.grid_doc.current_list_dialog[player:get_player_name()]
 		if fields.list then
-			-- local e = minetest.explode_textlist_event(fields.list)
-			-- if e.type == "CHG" then
-				-- show_list_dialog_formspec(player, current.listdesc, current.items, e.index)
-			-- end
 			local e = minetest.explode_table_event(fields.list)
 			if(e.type == "CHG") then
-				show_list_dialog_formspec(player, current.listdesc, current.items, e.row)
+				show_list_dialog_formspec(player, current.listdesc, current.items, e.row, current.go_back)
+			end
+		elseif fields.go_back then
+			if type(current.go_back) == "function" then
+				current.go_back(player)
 			end
 		end
 	end

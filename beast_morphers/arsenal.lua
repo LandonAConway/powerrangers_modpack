@@ -132,6 +132,29 @@ morphinggrid.register_firearm("beast_morphers:beast_x_cannon", {
 	end
 })
 
+morphinggrid.register_firearm("beast_morphers:beast_x_blaster", {
+	description = "Beast-X Blaster",
+	inventory_image = "beast_morphers_beast_x_blaster.png",
+	distance = 40,
+	ranger_weapon = {
+		weapon_key = "beast_x_blaster",
+		rangers = { 
+			"beast_morphers:red",
+			"beast_morphers:yellow",
+			"beast_morphers:blue",
+			"beast_morphers:silver",
+			"beast_morphers:gold"  }
+	},
+	tool_capabilities = {
+		full_punch_interval = 0.1,
+		max_drop_level = 1,
+		damage_groups = { fleshy = 80 }
+	},
+	particle_override = function(player, ranger)
+		beast_morphers.fire_weapon(player, 55)
+	end
+})
+
 minetest.register_tool("beast_morphers:beast_x_saber", {
 	description = "Beast-X Saber",
 	inventory_image = "beast_morphers_beast_x_saber.png",

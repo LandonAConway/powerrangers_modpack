@@ -57,18 +57,25 @@ morphinggrid.grid_doc.register_type("griditems", {
 	get_details = function(itemstring)
 		local def = morphinggrid.registered_griditems[itemstring]
 		local grid_doc = def.grid_doc or {}
+		local details = {}
 		
-		--prevents respawning
+		-- prevents respawning
 		local prevents_respawn = "No"
 		if def.prevents_respawn then
 			prevents_respawn = "Yes"
 		end
 		
-		return {
-			{ title = "Prevents Respawning     ", value = prevents_respawn,
+		table.insert(details, { title = "Prevents Respawning     ", value = prevents_respawn,
 				desc = grid_doc.prevents_respawn_desc or 
-					"Prevents a player from respawning if placed in the Morphers Inventory." },
-		}
+					"Prevents a player from respawning if placed in the Morphers Inventory." })
+		
+		-- custom details
+		local custom_details = grid_doc.custom_details or {}
+		for _, v in pairs(custom_details) do
+			table.insert(details, v)
+		end
+		
+		-- return
+		return details
 	end
 })
-
