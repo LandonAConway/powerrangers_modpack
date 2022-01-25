@@ -60,3 +60,37 @@ minetest.register_craft({
 	recipe = {"mighty_morphin:command_center_counter", "morphinggrid:energy",
 	"default:steel_ingot"},
 })
+
+minetest.register_craft({
+	type = "shaped",
+	output = "mighty_morphin:metal_grid_floor_1_4",
+	recipe = {
+			{"default:copper_ingot", "default:steel_ingot", "default:copper_ingot"},
+			{"default:steel_ingot", "", "default:steel_ingot"},
+			{"default:copper_ingot", "default:steel_ingot", "default:copper_ingot"}
+		}
+})
+
+minetest.register_craft({
+	type = "shapeless",
+	output = "mighty_morphin:metal_grid_floor_1_4",
+	recipe = { "mighty_morphin:metal_grid_floor_4_4" }
+})
+
+minetest.register_craft({
+	type = "shapeless",
+	output = "mighty_morphin:metal_grid_floor_2_4",
+	recipe = { "mighty_morphin:metal_grid_floor_1_4" }
+})
+
+minetest.register_craft({
+	type = "shapeless",
+	output = "mighty_morphin:metal_grid_floor_3_4",
+	recipe = { "mighty_morphin:metal_grid_floor_2_4" }
+})
+
+minetest.register_craft({
+	type = "shapeless",
+	output = "mighty_morphin:metal_grid_floor_4_4",
+	recipe = { "mighty_morphin:metal_grid_floor_3_4" }
+})

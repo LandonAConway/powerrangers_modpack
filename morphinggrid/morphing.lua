@@ -14,6 +14,26 @@ end
 --morph functions
 dofile(minetest.get_modpath("morphinggrid").."/grid_functions.lua")
 
+local check_privs = function(player, ranger)
+	if type(ranger) == "string" then
+		ranger = morphinggrid.registered_rangers[ranger]
+	end
+	
+	local privs_to_check = { power_rangers = true }
+	for _, p in pairs(ranger.privs or {}) do
+		privs_to_check[p] = true
+	end
+	
+	local missing_privs = {}
+	for p, v in pairs(privs_to_check) do
+		if not minetest.check_player_privs(player:get_player_name(), { p = v }) then
+			table.insert(missing_privs, p)
+		end
+	end
+	
+	return minetest.check_player_privs(player:get_player_name(), privs_to_check), missing_privs
+end
+
 function morphinggrid.morph(player, ranger, morph_settings)
   if type (player) == "string" then
     player = minetest.get_player_by_name(player)
@@ -29,7 +49,7 @@ function morphinggrid.morph(player, ranger, morph_settings)
   local morph_info = {}
   
   local player_name = player:get_player_name()
-  local can_use = minetest.check_player_privs(player_name, { power_rangers=true })
+  local can_use, _ = check_privs(player, ranger)
   
   local rangername_split = morphinggrid.split_string(ranger.name, ":")
   local rangertype = morphinggrid.get_rangertype(rangername_split[1])
@@ -68,10 +88,10 @@ function morphinggrid.morph(player, ranger, morph_settings)
   --if mfunc_args.force_recheck_privs is true, then override can_use regardless.
   if mfunc_args.recheck_privs == true then
 	if not morph_settings.priv_bypass then
-		can_use = minetest.check_player_privs(player_name, { power_rangers=true })
+		can_use, _ = check_privs(player, ranger)
 	end
   elseif mfunc_args.force_recheck_privs == true then
-	can_use = minetest.check_player_privs(player_name, { power_rangers=true })
+	can_use, _ = check_privs(player, ranger)
   end
   
   if can_use == true then
@@ -145,9 +165,10 @@ function morphinggrid.morph(player, ranger, morph_settings)
 		result = true
 	end
   else
+	local _, missing_privs = check_privs(player, ranger)
     morph_info.reason = mfunc_args.reason or "no_permission"
     morph_settings.log_this = false
-    minetest.chat_send_player(player_name, mfunc_args.description or "You don't have permisson to morph (Missing Privileges: power_rangers)")
+    minetest.chat_send_player(player_name, mfunc_args.description or "You don't have permisson to morph (Missing Privileges: "..table.concat(missing_privs, ", ").." )")
   end
   
   --call after-morph functions

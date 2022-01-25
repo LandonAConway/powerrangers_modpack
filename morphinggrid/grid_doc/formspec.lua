@@ -66,7 +66,8 @@ function morphinggrid.grid_doc.formspec(player, selected_type, selected_item)
 	current.filter = current.filter or ""
 	current.items_details = get_items_details(selected_type, current.filter)
 	local inv = morphinggrid.grid_doc.get_inventory(minetest.get_player_by_name(player))
-	local data = (get_items(selected_type, current.filter)[selected_item] or {}).data --
+	local data = (get_items(selected_type, current.filter)[selected_item] or {}).data
+	local typedef = morphinggrid.grid_doc.types[get_types()[selected_type].name]
 	table.insert(data or {}, 1, minetest.get_player_by_name(player))
 	
 	local details_btn = ""
@@ -87,6 +88,7 @@ function morphinggrid.grid_doc.formspec(player, selected_type, selected_item)
 	"button[3.7,3.4;1.5,0.8;searchbtn;Search]"..
 	"button_exit[16.8,13;3,0.8;exit;Exit]"..
 	details_btn..
+	
 	part2
 	
 	
@@ -163,15 +165,15 @@ end
 morphinggrid.grid_doc.register_inventory("item", {
 	size = 1*1,
 	allow_move = function() return 0 end,
-	allow_put = function() return 0 end,
-	allow_take = function() return 0 end
+	allow_put = function() return -1 end,
+	allow_take = function() return -1 end
 })
 
 morphinggrid.grid_doc.register_inventory("recipe", {
 	size = 3*3,
 	allow_move = function() return 0 end,
-	allow_put = function() return 0 end,
-	allow_take = function() return 0 end
+	allow_put = function() return -1 end,
+	allow_take = function() return -1 end
 })
 
 minetest.register_on_joinplayer(function(player)

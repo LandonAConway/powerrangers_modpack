@@ -225,3 +225,115 @@ minetest.register_node("mighty_morphin:command_center_rail_corner", {
 	}
 })
 
+minetest.register_node("mighty_morphin:metal_grid_floor_1_4", {
+	description = "Metal Grid Floor 1/4",
+	tiles = {
+		"metal_grid_floor_top.png",
+		"metal_grid_floor_top.png",
+		"metal_grid_floor_side.png",
+		"metal_grid_floor_side.png",
+		"metal_grid_floor_side.png",
+		"metal_grid_floor_side.png"
+	},
+	drawtype = "nodebox",
+	use_texture_alpha = true,
+	paramtype = "light",
+	paramtype2 = "facedir",
+	groups = {cracky = 3, stone = 2},
+	sounds = default.node_sound_metal_defaults(),
+	node_box = {
+		type = "fixed",
+		fixed = {
+			{-0.5, 0.25, -0.5, 0.5, 0.5, 0.5},
+		}
+	},
+	grid_doc = {
+		other_item = true,
+		description = "Metal Grid Floor pieces are used as part of the flooring of the command center."
+	}
+})
+
+minetest.register_node("mighty_morphin:metal_grid_floor_2_4", {
+	description = "Metal Grid Floor 2/4",
+	tiles = {
+		"metal_grid_floor_top.png",
+		"metal_grid_floor_top.png",
+		"metal_grid_floor_side.png",
+		"metal_grid_floor_side.png",
+		"metal_grid_floor_side.png",
+		"metal_grid_floor_side.png"
+	},
+	drawtype = "nodebox",
+	use_texture_alpha = true,
+	paramtype = "light",
+	paramtype2 = "facedir",
+	groups = {cracky = 3, stone = 2},
+	sounds = default.node_sound_metal_defaults(),
+	node_box = {
+		type = "fixed",
+		fixed = {
+			{-0.5, 0, -0.5, 0.5, 0.25, 0.5},
+		}
+	},
+	grid_doc = {
+		other_item = true,
+		description = "Metal Grid Floor pieces are used as part of the flooring of the command center."
+	}
+})
+
+minetest.register_node("mighty_morphin:metal_grid_floor_3_4", {
+	description = "Metal Grid Floor 3/4",
+	tiles = {
+		"metal_grid_floor_top.png",
+		"metal_grid_floor_top.png",
+		"metal_grid_floor_side.png",
+		"metal_grid_floor_side.png",
+		"metal_grid_floor_side.png",
+		"metal_grid_floor_side.png"
+	},
+	drawtype = "nodebox",
+	use_texture_alpha = true,
+	paramtype = "light",
+	paramtype2 = "facedir",
+	groups = {cracky = 3, stone = 2},
+	sounds = default.node_sound_metal_defaults(),
+	node_box = {
+		type = "fixed",
+		fixed = {
+			{-0.5, -0.25, -0.5, 0.5, 0, 0.5},
+		}
+	},
+	grid_doc = {
+		other_item = true,
+		description = "Metal Grid Floor pieces are used as part of the flooring of the command center."
+	}
+})
+
+minetest.register_node("mighty_morphin:metal_grid_floor_4_4", {
+	description = "Metal Grid Floor 4/4",
+	tiles = {
+		"metal_grid_floor_top.png",
+		"metal_grid_floor_top.png",
+		"metal_grid_floor_side.png",
+		"metal_grid_floor_side.png",
+		"metal_grid_floor_side.png",
+		"metal_grid_floor_side.png"
+	},
+	drawtype = "nodebox",
+	use_texture_alpha = true,
+	paramtype = "light",
+	paramtype2 = "facedir",
+	groups = {cracky = 3, stone = 2},
+	sounds = default.node_sound_metal_defaults(),
+	node_box = {
+		type = "fixed",
+		fixed = {
+			{-0.5, -0.5, -0.5, 0.5, -0.25, 0.5},
+		}
+	},
+	grid_doc = {
+		other_item = true,
+		description = "Metal Grid Floor pieces are used as part of the flooring of the command center."
+	}
+})
+

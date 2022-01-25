@@ -1,5 +1,6 @@
 morphinggrid.grid_doc.register_type("griditems", {
 	description = "Grid Items",
+	inv_drop = true,
 	
 	formspec = function(player, itemstring)
 		local itemdef = minetest.registered_items[itemstring]
