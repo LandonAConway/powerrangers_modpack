@@ -1,6 +1,6 @@
 morphinggrid.register_rangertype("morphin_masters", {
 	description = "Morphin Masters",
-	weapons = { "morphin_masters:blaster", "morphin_masters:master_staff" }
+	weapons = { "morphin_masters:blaster", "morphin_masters:laser_digger", "morphin_masters:master_staff" }
 })
 
 local rangers = {
@@ -20,7 +20,7 @@ for k, v in pairs(rangers) do
 		description = v.desc.." Morphin Master",
 		heal = 100,
 		use = 0,
-		weapons = { "morphin_masters:blaster", "morphin_masters:master_staff" },
+		weapons = { "morphin_masters:blaster", "morphin_masters:laser_digger", "morphin_masters:master_staff" },
 		colors = { k },
 		ranger_groups = v.rgroups or {},
 		privs = { "morphinggrid" },

@@ -180,7 +180,7 @@ end
 
 function teleportation_computer.add_pos(node_pos, key, pos)
 	local meta = minetest.get_meta(node_pos)
-	local positions = minetest.deserialize(meta:get_string("positions"))
+	local positions = minetest.deserialize(meta:get_string("positions")) or {}
 	
 	--add pos
 	positions[key] = node_pos
@@ -190,7 +190,7 @@ end
 
 function teleportation_computer.remove_pos(node_pos, key)
   local meta = minetest.get_meta(node_pos)
-  local positions = minetest.deserialize(meta:get_string("positions"))
+  local positions = minetest.deserialize(meta:get_string("positions")) or {}
   
   --remove key
   positions[key] = nil
@@ -200,7 +200,7 @@ end
 
 function teleportation_computer.get_pos(node_pos, key)
   local meta = minetest.get_meta(node_pos)
-  local positions = minetest.deserialize(meta:get_string("positions"))
+  local positions = minetest.deserialize(meta:get_string("positions")) or {}
   
   --get key
   return positions[key]
@@ -208,7 +208,7 @@ end
 
 function teleportation_computer.get_key_list(node_pos)
   local meta = minetest.get_meta(node_pos)
-  local positions = minetest.deserialize(meta:get_string("positions"))
+  local positions = minetest.deserialize(meta:get_string("positions")) or {}
   local keys = {}
   
   --get keys

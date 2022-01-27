@@ -1,3 +1,7 @@
+local add_velocity = function(player, vel)
+	player:add_velocity(vel)
+end
+
 morphinggrid.register_on_player_control(function(player, pos, ctrl)
     local morph_status = morphinggrid.get_morph_status(player)
 	local morphin_masters = {
@@ -17,29 +21,29 @@ morphinggrid.register_on_player_control(function(player, pos, ctrl)
 		if ctrl.aux1 and ctrl.LMB then
 			local vel = player:get_player_velocity()
 			if vel.x < 32 and vel.z < 32 then
-				player:add_player_velocity({x = vel.x*0.5, y = 0, z = vel.y*0.5})
+				add_velocity(player, {x = vel.x*0.8, y = 0, z = vel.y*0.8})
 			end
 		end
 		
 		if ctrl.sneak then
 			local vel = player:get_player_velocity()
 			if vel.y < 0 then
-				player:add_player_velocity({x = 0, y = (0-vel.y)*0.5, z = 0})
+				add_velocity(player, {x = 0, y = (0-vel.y)*0.5, z = 0})
 			end
 		end
 		
 		if ctrl.LMB and ctrl.RMB then
 			local look_dir = player:get_look_dir()
-			player:add_player_velocity({x = look_dir.x*3.5, y = look_dir.y*3.5, z = look_dir.z*3.5})
+			add_velocity(player, {x = look_dir.x*5, y = look_dir.y*5, z = look_dir.z*5})
 		end
 		
 		if not ctrl.LMB and ctrl.RMB then
 			local oldpos = minetest.string_to_pos(player:get_meta():get_string("pr_jump_pos"))
 			if oldpos ~= nil then
 				if pos.y > oldpos.y + 0.3 then
-					player:add_player_velocity({x=0,y=2.5,z=0})
+					add_velocity(player, {x=0,y=3.5,z=0})
 				elseif get_node_name(vector.new(pos.x, pos.y-1, pos.z)) == "air" or is_node_group(vector.new(pos.x, pos.y-1, pos.z), "water") then
-					player:add_player_velocity({x=0,y=2.5,z=0})
+					add_velocity(player, {x=0,y=3.5,z=0})
 				end
 			end
 		elseif ctrl.right or ctrl.left or ctrl.up or ctrl.down then
