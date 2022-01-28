@@ -18,6 +18,7 @@ local function set_morpher(player, itemstack)
 		player:set_wielded_item(itemstack)
     else
 		_inv:set_stack("single", 1, itemstack)
+		morphinggrid.morphers.save_inventory(player)
 	end
 end
 
