@@ -36,6 +36,7 @@ for i, v in ipairs(mmprrangers) do
     description = v[2].." Mighty Morphin Ranger",
     heal = v[3],
     use = v[4],
+	color = v[1],
     weapons = v[6],
     ranger_groups = v[7],
     morpher = {

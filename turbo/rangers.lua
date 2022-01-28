@@ -31,6 +31,7 @@ for _, v in ipairs(turbo.rangers) do
       description = v.desc.." Turbo Ranger",
       heal = 100,
       use = 14,
+	  color = v.name,
       weapons = v.weapons,
       ranger_groups = v.ranger_groups,
       armor_textures = {

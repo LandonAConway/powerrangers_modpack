@@ -25,6 +25,7 @@ for i, v in ipairs(zeo.rangers) do
     description = v[2].." Zeo Ranger",
     heal = v[3],
     use = v[4],
+	color = v[1],
     weapons = v[6],
     ranger_groups = v[5],
     abilities = {
@@ -81,6 +82,7 @@ morphinggrid.register_ranger("zeo:gold", {
     description = "Gold Zeo Ranger",
     heal = 100,
     use = 4,
+	color = "gold",
     weapons = {},
     ranger_groups = {},
     abilities = {

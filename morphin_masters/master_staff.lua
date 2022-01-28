@@ -20,6 +20,7 @@ morphinggrid.register_griditem("morphin_masters:master_staff", {
 	type = "tool",
 	description = "Master Staff",
 	inventory_image = "morphin_masters_master_staff.png",
+	prevents_respawn = true,
 	tool_capabilities = {
 		damage_groups = { fleshy = 700 }
 	},

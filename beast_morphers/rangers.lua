@@ -105,6 +105,7 @@ for i, v in ipairs(beast_morphers.rangers) do
     description = v[2].." Beast Morphers Ranger",
     heal = v[3],
     use = v[4],
+	color = v[1],
     weapons = v.weapons,
     abilities = { strength=beast_morphers.get_strength(v[1]) },
     ranger_groups = v[5],
