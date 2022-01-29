@@ -1,9 +1,19 @@
 teleportation_computer = {}
+tpc_data = {}
+
+minetest.register_on_joinplayer(function(player)
+	tpc_data[player:get_player_name()] = {}
+end)
 
 function mighty_morphin.teleportation_computer(pos, selected_key, selected_pos)
   local players = table.concat(get_players(), ",")
-  if selected_key == nil then selected_key = "" end
-  if selected_pos == nil then selected_pos = "" end
+  selected_key = selected_key or ""
+  selected_pos = selected_pos or ""
+  
+  if type(selected_pos) == "table" then
+	selected_pos = minetest.pos_to_string(selected_pos)
+  end
+  
   local formspec = "size[16.5,10.5]"..
     "button_exit[13.5,0;3,0.8;exit;Exit]"..
     "button[13.5,1;3,0.8;teleport;Teleport]"..
@@ -59,72 +69,74 @@ minetest.register_node("mighty_morphin:command_center_teleportation_computer", {
 		end
   end,
   
-  on_rightclick = function(pos, node, clicker, itemstack)
-    local can_use = minetest.check_player_privs(clicker:get_player_name(), {power_rangers = true})
-    if can_use == true then
-      clicker:get_meta():set_string("teleportation_computer:node_pos", minetest.pos_to_string(pos))
-      minetest.show_formspec(clicker:get_player_name(), "mighty_morphin:teleportation_computer_formspec", mighty_morphin.teleportation_computer(pos))
-    else
-      minetest.chat_send_player(clicker:get_player_name(), "You do not have the power_rangers priv.")
-    end
-  end,
-  
-  can_dig = function(pos, player)
-    local can_dig = minetest.check_player_privs(player:get_player_name(), {power_rangers = true})
-    if can_dig == true then
-      return true
-    else
-      minetest.chat_send_player(player:get_player_name(), "You do not have the power_rangers priv.")
-      return false
-    end
-  end,
+	on_rightclick = function(pos, node, clicker, itemstack)
+		local can_use = minetest.check_player_privs(clicker:get_player_name(), {power_rangers = true})
+		if can_use == true then
+			tpc_data[clicker:get_player_name()].pos = {x=pos.x,y=pos.y,z=pos.z}
+			minetest.show_formspec(clicker:get_player_name(), "mighty_morphin:teleportation_computer_formspec",
+				mighty_morphin.teleportation_computer(pos))
+		else
+			minetest.chat_send_player(clicker:get_player_name(), "You do not have the power_rangers priv.")
+		end
+	end,
+
+	can_dig = function(pos, player)
+		local can_dig = minetest.check_player_privs(player:get_player_name(), {power_rangers = true})
+		if can_dig == true then
+			return true
+		else
+			minetest.chat_send_player(player:get_player_name(), "You do not have the power_rangers priv.")
+			return false
+		end
+	end,
 })
 
 minetest.register_on_player_receive_fields(function(player, formname, fields)
   if formname == "mighty_morphin:teleportation_computer_formspec" then
+	local clicked_node_pos = tpc_data[player:get_player_name()].pos
+  
     if fields.positions then
       local event = minetest.explode_textlist_event(fields.positions)
       if (event.type == "DCL") then
-        local pos = minetest.string_to_pos(player:get_meta():get_string("teleportation_computer:node_pos"))
-        local choosen_location = teleportation_computer.get_key_list(pos)[event.index]
-        teleportation_computer.remove_pos(pos, choosen_location)
-        minetest.show_formspec(player:get_player_name(), "mighty_morphin:teleportation_computer_formspec", mighty_morphin.teleportation_computer(pos))
+        local choosen_location = teleportation_computer.get_key_list(clicked_node_pos)[event.index]
+        teleportation_computer.remove_pos(clicked_node_pos, choosen_location)
+        minetest.show_formspec(player:get_player_name(), "mighty_morphin:teleportation_computer_formspec", mighty_morphin.teleportation_computer(clicked_node_pos))
       elseif (event.type == "CHG") then
-        local pos = minetest.string_to_pos(player:get_meta():get_string("teleportation_computer:node_pos"))
-        local choosen_location = teleportation_computer.get_key_list(pos)[event.index]
-        local choosen_pos = minetest.pos_to_string(teleportation_computer.get_pos(pos, choosen_location))
-        minetest.show_formspec(player:get_player_name(), "mighty_morphin:teleportation_computer_formspec", mighty_morphin.teleportation_computer(pos, choosen_location, choosen_pos))
+        local choosen_location = teleportation_computer.get_key_list(clicked_node_pos)[event.index]
+        local choosen_pos = teleportation_computer.get_pos(clicked_node_pos, choosen_location)
+        minetest.show_formspec(player:get_player_name(), "mighty_morphin:teleportation_computer_formspec", mighty_morphin.teleportation_computer(clicked_node_pos,
+			choosen_location, choosen_pos))
       end
     end
     if fields.players then
       local event = minetest.explode_textlist_event(fields.players)
       if (event.type == "DCL") then
         local choosen_player = get_players()[event.index]
-        local pos = minetest.string_to_pos(player:get_meta():get_string("teleportation_computer:node_pos"))
-        teleportation_computer.add_player(pos, choosen_player)
-        minetest.show_formspec(player:get_player_name(), "mighty_morphin:teleportation_computer_formspec", mighty_morphin.teleportation_computer(pos))
+        teleportation_computer.add_player(clicked_node_pos, choosen_player)
+        minetest.show_formspec(player:get_player_name(), "mighty_morphin:teleportation_computer_formspec",
+			mighty_morphin.teleportation_computer(clicked_node_pos))
       end
     end
     if fields.selected_players then
       local event = minetest.explode_textlist_event(fields.selected_players)
       if (event.type == "DCL") then
         local choosen_player = get_players()[event.index]
-        local pos = minetest.string_to_pos(player:get_meta():get_string("teleportation_computer:node_pos"))
-        teleportation_computer.remove_player(pos, choosen_player)
-        minetest.show_formspec(player:get_player_name(), "mighty_morphin:teleportation_computer_formspec", mighty_morphin.teleportation_computer(pos))
+        teleportation_computer.remove_player(clicked_node_pos, choosen_player)
+        minetest.show_formspec(player:get_player_name(), "mighty_morphin:teleportation_computer_formspec",
+			mighty_morphin.teleportation_computer(clicked_node_pos))
       end
     end
     if fields.add_pos then
-      local add_pos = minetest.string_to_pos(fields.pos)
-      if add_pos ~= nil then
-        local pos = minetest.string_to_pos(player:get_meta():get_string("teleportation_computer:node_pos"))
-        teleportation_computer.add_pos(pos,fields.key,add_pos)
-        minetest.show_formspec(player:get_player_name(), "mighty_morphin:teleportation_computer_formspec", mighty_morphin.teleportation_computer(pos))
-      end
+		local add_pos = minetest.string_to_pos(fields.pos)
+		if not add_pos then
+			add_pos = player:get_pos()
+		end
+		teleportation_computer.add_pos(clicked_node_pos,fields.key,add_pos)
+		minetest.show_formspec(player:get_player_name(), "mighty_morphin:teleportation_computer_formspec",
+			mighty_morphin.teleportation_computer(clicked_node_pos))
     end
     
-    local pos = minetest.string_to_pos(player:get_meta():get_string("teleportation_computer:node_pos"))
-    local selected_players = teleportation_computer.get_players(pos)
+    local selected_players = teleportation_computer.get_players(clicked_node_pos)
     if fields.teleport then
       if minetest.string_to_pos(fields.pos) ~= nil then
         local player_count = 0
@@ -189,34 +201,36 @@ function teleportation_computer.add_pos(node_pos, key, pos)
 end
 
 function teleportation_computer.remove_pos(node_pos, key)
-  local meta = minetest.get_meta(node_pos)
-  local positions = minetest.deserialize(meta:get_string("positions")) or {}
-  
-  --remove key
-  positions[key] = nil
-  
-  meta:set_string("positions", minetest.serialize(positions))
+	local meta = minetest.get_meta(node_pos)
+	local positions = minetest.deserialize(meta:get_string("positions")) or {}
+
+	--remove key
+	if positions[key] then
+		positions[key] = nil
+	end
+
+	meta:set_string("positions", minetest.serialize(positions))
 end
 
 function teleportation_computer.get_pos(node_pos, key)
-  local meta = minetest.get_meta(node_pos)
-  local positions = minetest.deserialize(meta:get_string("positions")) or {}
-  
-  --get key
-  return positions[key]
+	local meta = minetest.get_meta(node_pos)
+	local positions = minetest.deserialize(meta:get_string("positions")) or {}
+
+	--get key
+	return positions[key]
 end
 
-function teleportation_computer.get_key_list(node_pos)
-  local meta = minetest.get_meta(node_pos)
-  local positions = minetest.deserialize(meta:get_string("positions")) or {}
-  local keys = {}
-  
-  --get keys
-  for key, pos in pairs(positions) do
-	table.insert(keys, key)
-  end
-  
-  return keys
+function teleportation_computer.get_key_list(pos)
+	local meta = minetest.get_meta(pos)
+	local positions = minetest.deserialize(meta:get_string("positions")) or {}
+	local keys = {}
+
+	--get keys
+	for key, pos in pairs(positions) do
+		table.insert(keys, key)
+	end
+
+	return keys
 end
 
 function teleportation_computer.add_player(node_pos, player_name)
