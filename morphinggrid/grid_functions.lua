@@ -23,12 +23,14 @@ morphinggrid.register_grid_function_type("before_morph", "before-morph", {
 		{"player", "<Player>", "A reference to the player who is morphing or has morphed."},
 		{"pos", "<table>", "The position of the player who is morphing or has morphed."},
 		{"ranger", "<string>", "The name of the ranger associated with the morph."},
+		{"morph_settings", "<table>", "A morph_settings table. See morphinggrid API documentation for more info." },
 		{"itemstack", "<ItemStack>", "A reference to the ItemStack of the morpher involved with the morph. This will be nil if there was no morpher."},
 		{"timestamp", "<string>", "The time of the action."}
 	},
 	
 	args = {
 		{"cancel", "<boolean>", "If true, the morph will be canceled."},
+		{"morph_settings", "<table>", "A morph_settings table. See morphinggrid API documentation for more info." },
 		{"recheck_privs", "<boolean>", "If true, privs will be re-checked, unless morph_settings overrides the need for privs."},
 		{"force_recheck_privs", "<boolean>", "If true, privs will be re-checked regardless of morph_settings."},
 		{"reason", "<string>", "A reason for cancelation."},
@@ -56,12 +58,14 @@ morphinggrid.register_grid_function_type("before_demorph", "before-demorph", {
 		{"player", "<Player>", "A reference to the player who is demorphing or has demorphed."},
 		{"pos", "<table>", "The position of the player who is demorphing or has demorphed."},
 		{"ranger", "<string>", "The name of the ranger associated with the demorph."},
+		{"demorph_settings", "<table>", "A morph_settings table. See morphinggrid API documentation for more info." },
 		{"timestamp", "<string>", "The time of the action."},
 		{"morphed", "<boolean>", "Returns true if the player is already morphed."}
 	},
 	
 	args = {
 		{"cancel", "<boolean>", "If true, the demorph will be canceled."},
+		{"demorph_settings", "<table>", "A morph_settings table. See morphinggrid API documentation for more info." },
 		{"recheck_privs", "<boolean>", "If true, privs will be re-checked, unless demorph_settings overrides the need for privs."},
 		{"force_recheck_privs", "<boolean>", "If true, privs will be re-checked regardless of demorph_settings."},
 		{"reason", "<string>", "A reason for cancelation."},

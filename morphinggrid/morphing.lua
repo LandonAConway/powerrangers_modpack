@@ -77,6 +77,7 @@ function morphinggrid.morph(player, ranger, morph_settings)
   local morph_params = {
 	player = morph_info.player,
 	ranger = morph_info.ranger.name,
+	morph_settings = morph_settings,
 	pos = morph_info.pos,
 	timestamp = morph_info.timestamp,
 	itemstack = morph_info.itemstack
@@ -92,6 +93,11 @@ function morphinggrid.morph(player, ranger, morph_settings)
 	end
   elseif mfunc_args.force_recheck_privs == true then
 	can_use, _ = check_privs(player, ranger)
+  end
+  
+  --override morph_settings if it is not nil
+  if type(mfunc_args.morph_settings) == "table" then
+	morph_settings = morphinggrid.configure_morph_settings(mfunc_args.morph_settings)
   end
   
   if can_use == true then
@@ -130,8 +136,14 @@ function morphinggrid.morph(player, ranger, morph_settings)
 			armor:set_player_armor(player)
 		  end
 		end
-    
-		if ranger.hide_identity then
+		
+		--overriding hide_identity
+		local hide_identity = ranger.hide_identity
+		if type(morph_settings.hide_identity) == "boolean" then
+			hide_identity = morph_settings.hide_identity
+		end
+		
+		if hide_identity
 		  player:set_nametag_attributes({text = " "})
 		end
 		
@@ -238,6 +250,7 @@ function morphinggrid.demorph(player, demorph_settings, is_morphing)
   local demorph_params = {
 	player = demorph_info.player,
 	ranger = getranger.name,
+	demorph_settings = demorph_settings,
 	pos = demorph_info.pos,
 	timestamp = demorph_info.timestamp
   }
@@ -261,6 +274,11 @@ function morphinggrid.demorph(player, demorph_settings, is_morphing)
 	end
   elseif dmfunc_args.force_recheck_privs == true then
 	can_use = minetest.check_player_privs(player_name, { power_rangers=true })
+  end
+  
+  --override demorph_settings if it is not nil
+  if type(dmfunc_args.demorph_settings) == "table" then
+	demorph_settings = morphinggrid.configure_demorph_settings(dmfunc_args.demorph_settings)
   end
   
   if ranger ~= nil then

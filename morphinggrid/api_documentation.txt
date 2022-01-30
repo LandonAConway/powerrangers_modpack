@@ -17,6 +17,7 @@ I. Required setup for a Power Rangers mod
 			description = "Red Ranger",
 			heal = 100, --The amount that the armor heals
 			use = 100, --The number used to calculate the amount of times the armor can be hit before your armor gets destroyed. hit times = 65535 / use.
+			color = "red", Defines which color the ranger is. Can currently choose from green, white, black, pink, blue, yellow, red, silver, and gold.
 			weapons = {"modname:weaponone", "modname:weapontwo"}, --A list of weapons that belongs to the specified ranger.
 			ranger_groups = {}, --Add leader if the specified ranger is the leader.
 		
@@ -38,6 +39,8 @@ I. Required setup for a Power Rangers mod
 		--More options for registering a ranger
 			
 			--Additional Fields
+				has_connection = <bool> --Determines wether the morpher is connected to the morphing grid. An empty morpher's definition would have this set to false.
+				prevents_respawn = <bool> --By default, it is false. Setting it to true will prevent the player from respawning if killed.
 				after_morph = <function(player, morph_info)> --do something when a player morphs into this ranger.
 				after_demorph = <function(player, demorph_info)> --do something when a player demorphs from being this ranger.
 				
@@ -265,6 +268,7 @@ IV. Table Examples
 	morph_settings = {
 		morpher = <morpher_item_string> --So morph_info will know what morpher was used to morph the player. This can be empty. (*Deprecated. Use 'itemstack' instead)
 		itemstack = <ItemStack> --Allows morph_info to know the ItemStack used, and for other features. This is highly reccomended but not required.
+		hide_identity = <bool> --Set to true or false to show or hide the player's nametag.
 		priv_bypass = <bool> --Set to true to bypass the requirment for the 'power_rangers' priv.
 		chat_messages = <bool>, --If false, no chat messages will be shown.
 		log_this = <bool> --if false, this morph will not be logged.
