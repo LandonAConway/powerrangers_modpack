@@ -143,7 +143,7 @@ function morphinggrid.morph(player, ranger, morph_settings)
 			hide_identity = morph_settings.hide_identity
 		end
 		
-		if hide_identity
+		if hide_identity then
 		  player:set_nametag_attributes({text = " "})
 		end
 		
