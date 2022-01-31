@@ -96,7 +96,7 @@ local callback_data = {
 	},
 	
 	on_punch = {
-		default_func = function(pos, node, puncher, pointed_thing) minetest.node_punch(pos, node, punch, pointed_thing) end,
+		default_func = function(pos, node, puncher, pointed_thing) minetest.node_punch(pos, node, puncher, pointed_thing) end,
 		args = {
 			{"pos", "<table>", ""}, {"node", "<table>", ""}, {"puncher", "<Player>", ""}, {"pointed_thing", "<table>", ""}
 		}

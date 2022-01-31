@@ -27,8 +27,8 @@ morphinggrid.register_griditem("beast_morphers:morphx_source", {
   },
   paramtype = "light",
   walkable = false,
-  pointable = true,
-  diggable = false,
+  pointable = false,
+  diggable = true,
   buildable_to = true,
   is_ground_content = false,
   light_source = 7,
@@ -44,27 +44,11 @@ morphinggrid.register_griditem("beast_morphers:morphx_source", {
   groups = {liquid = 3},
   sounds = default.node_sound_water_defaults(),
   grid_doc = {
-	description = "Morph-X is Morphing Grid Energy that is converted into liguid."
+	  description = "Morph-X is Morphing Grid Energy that is converted into liquid."
   },
   
-  on_punch = function(pos, node, player, pointed_thing)
-    local wielded_item = player:get_wielded_item()
-    if wielded_item:get_name() == "beast_morphers:morphx_drum" then
-      local amount = tonumber(wielded_item:get_meta():get_string("morphx_amount")) or 0
-      
-      wielded_item:get_meta():set_string("description", "Morph-X Drum. Contains 200 litres of Morph-X.")
-      wielded_item:get_meta():set_string("morphx_amount", "200")
-      player:get_inventory():set_stack(player:get_wield_list(), player:get_wield_index(), wielded_item)
-      
-      if wielded_item:get_meta():get_string("morphx_amount") == "" then
-        minetest.remove_node(pos)
-      else 
-        if amount < 100 then
-          minetest.remove_node(pos)
-        end
-      end
-    end
-  end,
+  -- on_punch = function(pos, node, player, pointed_thing)
+  -- end,
   
   mesecons = {receptor = {
           state = mesecon.state.on,
@@ -103,8 +87,8 @@ morphinggrid.register_griditem("beast_morphers:morphx_flowing", {
   paramtype = "light",
   paramtype2 = "flowingliquid",
   walkable = false,
-  pointable = true,
-  diggable = false,
+  pointable = false,
+  diggable = true,
   buildable_to = true,
   is_ground_content = false,
   light_source = 7,
@@ -120,27 +104,27 @@ morphinggrid.register_griditem("beast_morphers:morphx_flowing", {
   groups = {liquid = 3, not_in_creative_inventory = 1},
   sounds = default.node_sound_water_defaults(),
   grid_doc = {
-	hidden = true
+	  hidden = true
   },
   
-  on_punch = function(pos, node, player, pointed_thing)
-    local wielded_item = player:get_wielded_item()
-    if wielded_item:get_name() == "beast_morphers:morphx_drum" then
-      local amount = tonumber(wielded_item:get_meta():get_string("morphx_amount")) or 0
+  -- on_punch = function(pos, node, player, pointed_thing)
+  --   local wielded_item = player:get_wielded_item()
+  --   if wielded_item:get_name() == "beast_morphers:morphx_drum" then
+  --     local amount = tonumber(wielded_item:get_meta():get_string("morphx_amount")) or 0
       
-      wielded_item:get_meta():set_string("description", "Morph-X Drum. Contains 200 litres of Morph-X.")
-      wielded_item:get_meta():set_string("morphx_amount", "200")
-      player:get_inventory():set_stack(player:get_wield_list(), player:get_wield_index(), wielded_item)
+  --     wielded_item:get_meta():set_string("description", "Morph-X Drum. Contains 200 litres of Morph-X.")
+  --     wielded_item:get_meta():set_string("morphx_amount", "200")
+  --     player:get_inventory():set_stack(player:get_wield_list(), player:get_wield_index(), wielded_item)
       
-      if wielded_item:get_meta():get_string("morphx_amount") == "" then
-        minetest.remove_node(pos)
-      else 
-        if amount < 100 then
-          minetest.remove_node(pos)
-        end
-      end
-    end
-  end,
+  --     if wielded_item:get_meta():get_string("morphx_amount") == "" then
+  --       minetest.remove_node(pos)
+  --     else 
+  --       if amount < 100 then
+  --         minetest.remove_node(pos)
+  --       end
+  --     end
+  --   end
+  -- end,
   
   mesecons = {receptor = {
           state = mesecon.state.on,
@@ -170,10 +154,18 @@ morphinggrid.register_griditem("beast_morphers:morphx_drum", {
       {-0.125, -0.5, -0.3125, 0.125, 0.5, 0.3125},
     }
   },
+  liquids_pointable = true,
+  tool_capabilities = {
+    full_punch_interval = 0.4,
+    max_drop_level=1,
+    groupcaps={
+      liquid={times={[1]=1.90, [2]=0.90, [3]=0.30}, uses=1, maxlevel=3},
+    }
+  },
   groups = { cracky = 1 },
   drop = {},
   grid_doc = {
-	description = "Contains Morph-X. Can be refilled by wielding and clicking a Morph-X source node."
+	  description = "Contains Morph-X. Can be refilled by wielding and clicking a Morph-X source node."
   },
   
   after_place_node = function(pos, placer, itemstack)
@@ -231,6 +223,21 @@ morphinggrid.register_griditem("beast_morphers:morphx_drum", {
     local meta = minetest.get_meta(pos)
     local amount = tonumber(meta:get_string("morphx_amount"))
     player:get_meta():set_string("last_punched_morphx_drum_amount", amount)
+  end,
+
+  on_use = function(itemstack, user, pointed_thing)
+    if pointed_thing.type == "node" then
+      local node = minetest.get_node(pointed_thing.under)
+      if node.name == "beast_morphers:morphx_source" then
+        local amount = tonumber(itemstack:get_meta():get_string("morphx_amount")) or 0
+        itemstack:get_meta():set_string("description", "Morph-X Drum. Contains 200 litres of Morph-X.")
+        itemstack:get_meta():set_string("morphx_amount", "200")
+        minetest.remove_node(pointed_thing.under)
+        return itemstack
+      elseif node.name == "beast_morphers:morphx_flowing" then
+        minetest.chat_send_all("Yeah you can do that!")
+      end
+    end
   end,
   
   on_dig = function(pos, node, player)
