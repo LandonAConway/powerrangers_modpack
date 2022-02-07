@@ -4,7 +4,13 @@ morphinggrid.register_rangertype("mighty_morphin", {
   description = "Mighty Morphin",
   weapons = {"mighty_morphin:power_axe", "mighty_morphin:power_bow", "mighty_morphin:power_lance", "mighty_morphin:power_daggers",
             "mighty_morphin:power_sword", "mighty_morphin:dragon_dagger", "mighty_morphin:saba", "mighty_morphin:blade_blaster",
-            "mighty_morphin:power_blaster"}
+            "mighty_morphin:power_blaster"},
+  grid_doc = {
+    description = "The Mighty Morphin Power Rangers (MMPR) is a team of rangers that uses Power Coins to obtain their powers."..
+    "Power Coins are placed inside of an empty morpher using morpher slots. The green ranger (via Dragonzord Powercoin) "..
+    "has a special shield that makes him stronger. The shield can be removed, and given to other rangers of the same team."..
+    "When the green ranger was destroyed, the white ranger (via Tigerzord Powercoin) took the green ranger's place."
+  }
 })
 
 mmprrangers = {

@@ -10,6 +10,10 @@ morphinggrid.register_rangertype("turbo", {
 	"turbo:turbo_star_chargers",
 	"turbo:turbo_wind_fire",
 	"turbo:turbo_lightning_sword"
+  },
+  grid_doc = {
+	  description = "Turbo is a team of rangers that use keys to get powers. Placing a Turbo Key inside of a Turbo Morpher "..
+	  "using morpher slots, will activate the morpher and you can use it to morph into a ranger."
   }
 })
 

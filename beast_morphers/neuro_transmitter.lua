@@ -41,7 +41,8 @@ minetest.register_node("beast_morphers:neuro_transmitter", {
   groups = { cracky = 2 },
   grid_doc = {
 	description = "The Neuro Transmitter is capable of giving players the right DNA to become a ranger. Right click the "..
-	"node to place the DNA inside, and stand under it when it is on using mesecon."
+    "node to place a Morph-X Drum inside, and stand under it when it is on using mesecon. While standing under it "..
+    "You wull also need to wield a test tube of DNA."
   },
   
   after_place_node = function(pos, placer, itemstack)

@@ -9,7 +9,13 @@ morphinggrid.register_rangertype("zeo", {
               "zeo:zeo_iii_power_tonfas",
               "zeo:zeo_iv_power_hatchets",
               "zeo:zeo_v_power_sword",
-              "zeo:advanced_zeo_laser_pistol"}
+              "zeo:advanced_zeo_laser_pistol"},
+  grid_doc = {
+    description = "Zeo is a team of rangers that uses the power of the Zeo Crystal to get their powers. The Zeo Crystal is "..
+    "made of 5 sub crystals. Each crystal can be placed inside of a Right Zeonizer using morpher slots to get the "..
+    "morpher desired. The only ranger that does not use a Zeo Sub Crystal is the Gold Zeo Ranger which uses the Gold "..
+    "Zeo Staff. The Gold Zeo Staff is also the Gold Zeo Ranger's primary weapon when morphed."
+  }
 })
 
 zeo.rangers = {
@@ -45,35 +51,35 @@ for i, v in ipairs(zeo.rangers) do
       name = "zeo:right_zeonizer_"..v[1],
       inventory_image = "zeo_zeonizer_right.png",
       description = "Right Zeonizer (Zeo Ranger "..i..")",
-	  griditems = { "zeo:zeo_crystal_"..i },
-	  prevents_respawn = true,
-      morph_func_override = function(user, itemstack)
-        local ranger = morphinggrid.get_ranger("zeo:"..v[1])
-        zeo.morph(user, ranger)
-      end,
-	  morpher_slots = {
-		amount = 1,
-		load_input = function(morpher)
-			return true, {ItemStack("zeo:zeo_crystal_"..i)}
-		end,
-		output = function(morpher, slots)
-			if slots[1]:get_name() == "" then
-				return true, ItemStack("zeo:right_zeonizer")
-			end
-			return false, morpher
-		end,
-		allow_put = function(morpher, itemstack)
-			return 0
-		end,
-		grid_doc = {
-			inputs = {
-				{ input = {} },
-			}
-		}
-	  },
-	  grid_doc = {
-		description = "Holds the Zeo Sub Crystal "..i..". A Left Zeonizer is required in a player's inventory to use for morphing." 
-	  }
+      griditems = { "zeo:zeo_crystal_"..i },
+      prevents_respawn = true,
+        morph_func_override = function(user, itemstack)
+          local ranger = morphinggrid.get_ranger("zeo:"..v[1])
+          zeo.morph(user, ranger)
+        end,
+      morpher_slots = {
+        amount = 1,
+        load_input = function(morpher)
+          return true, {ItemStack("zeo:zeo_crystal_"..i)}
+        end,
+        output = function(morpher, slots)
+          if slots[1]:get_name() == "" then
+            return true, ItemStack("zeo:right_zeonizer")
+          end
+          return false, morpher
+        end,
+        allow_put = function(morpher, itemstack)
+          return 0
+        end,
+        grid_doc = {
+          inputs = {
+            { input = {} },
+          }
+        }
+      },
+      grid_doc = {
+        description = "Holds the Zeo Sub Crystal "..i..". A Left Zeonizer is required in a player's inventory to use for morphing." 
+      }
     }
   })
 end

@@ -3,7 +3,12 @@ morphinggrid.register_rangertype("beast_morphers", {
   weapons = { "beast_morphers:cheetah_claws", "beast_morphers:cheetah_beast_blaster",
 				"beast_morphers:beast_x_ultra_blaster", "beast_morphers:beast_x_ultra_bow", "beast_morphers:beast_x_spin_saber",
 				"beast_morphers:beast_x_cannon", "beast_morphers:beast_x_blaster", "beast_morphers:beast_x_saber",
-				"beast_morphers:striker_saber" }
+				"beast_morphers:striker_saber" },
+  grid_doc = {
+	  description = "Beast Morphers is a team of rangers that use a combination of dna and morph-x (morphing grid energy "..
+	    "refined into a liquid) to get their powers. To use a morpher, a players needs to have the dna of a specific animal. "..
+	    "More information about how to do this is found in the documentation of the the Neuro Transmitter in 'Other Items'. "
+  }
 })
 
 local blue_strength = {
