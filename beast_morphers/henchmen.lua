@@ -6,6 +6,8 @@ pr_villians.register_henchman("beast_morphers:tronic", {
   damage = 3,
   damageinterval = 1,
   can_swim = false,
+  swimmingspeed = 0.5,
+  water_damage = 50,
   benefits_on_attack = true,
   movingspeed = 3,
   lifetime = 900,

@@ -5,4 +5,5 @@ basic_materials
 mesecons
 mesecons_extrawires
 morphinggrid
+communicator
 pr_villians

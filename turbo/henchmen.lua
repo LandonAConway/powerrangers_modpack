@@ -6,8 +6,10 @@ pr_villians.register_henchman("turbo:piranhatron", {
   damage = 2,
   damageinterval = 2.5,
   can_swim = true,
+  swimmingspeed = 7,
   benefits_on_attack = true,
   movingspeed = 3,
+  teleports_around_player = true,
   lifetime = 900,
   
   spawner = {

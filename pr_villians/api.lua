@@ -21,6 +21,7 @@ function pr_villians.register_henchman(name, def)
   def.damageinterval = def.damageinterval or 0
   def.weight = def.weight or 155
   def.movingspeed = def.movingspeed or 2
+  def.swimmingspeed = def.swimmingspeed or def.movingspeed
   def.max_free_fall = def.max_free_fall or 4
   def.benefit = def.benefit or 1
   def.killed_particle = def.killed_particle or "henchmen_killed_particle.png"
@@ -31,6 +32,7 @@ function pr_villians.register_henchman(name, def)
   if def.description_is_plural == nil then def.description_is_plural = false end
   if def.benefits_on_attack == nil then def.benefits_on_attack = false end
   if def.can_swim == nil then def.can_swim = true end
+  if def.teleports_around_player == nil then def.teleports_around_player = false end
   
   def.name = name
   pr_villians.henchmen[name] = def
@@ -88,6 +90,7 @@ function pr_villians.register_henchman(name, def)
     attacks_own_kind = def.attacks_own_kind,
     benefits_on_attack = def.benefits_on_attack,
     benefit = def.benefit,
+    teleports_around_player = def.teleports_around_player,
     killed_particle = def.killed_particle,
     
     -- called while the entity is activate and deactivated, the string will be saved in the entity
@@ -108,6 +111,8 @@ function pr_villians.register_henchman(name, def)
       self.falling_to_punch = false
       self.fall_distance = 0
       self.kickback = false
+      self.tap_time = 0
+      self.tap_interval = math.random(2, 15)
       anim(self,"stand")
       
       for k, v in pairs(pr_villians.henchmen.registered_callbacks.on_activate) do
@@ -335,6 +340,18 @@ function pr_villians.register_henchman(name, def)
 			if self.object == nil then
 			  return
 			end
+
+      --teleport around player
+      if self.teleports_around_player then
+        self.tap_time = self.tap_time + dtime
+        if self.tap_time > self.tap_interval then
+          if self.target then
+            self.object:set_pos(find_pos_near(self.target:get_pos()))
+          end
+          self.tap_interval = math.random(2, 15)
+          self.tap_time = 0
+        end
+      end
 			
 			--reset damage interval time
 			if self.damageinterval_time >= self.damageinterval then
@@ -592,4 +609,18 @@ function get_node_pos_raycast(raycast)
     end
   end
   return {x=0,y=0,z=0}
+end
+
+function find_pos_near(pos)
+  local max_dist = 8
+  local max_x = pos.x + (max_dist / 2)
+  local min_x = pos.x - (max_dist / 2)
+  local max_z = pos.z + (max_dist / 2)
+  local min_z = pos.z - (max_dist / 2)
+
+  local x = math.random(min_x, max_x)
+  local y = pos.y + 1
+  local z = math.random(min_z, max_z)
+
+  return {x=x,y=y,z=z}
 end
