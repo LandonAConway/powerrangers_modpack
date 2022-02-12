@@ -155,6 +155,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 				if r == 1 then
 					inv:set_stack("output", 1, ItemStack(fields.rangers.."_rangerdata"))
 				else
+					minetest.close_formspec(player:get_player_name(), "morphinggrid:rangerdata_maker_formspec")
 					rangerdata_maker_effect(player)
 				end
 			end
@@ -164,7 +165,8 @@ end)
 
 function rangerdata_maker_effect(player)
 	local look_dir = player:get_look_dir()
-	local v = 100
+	local v = 150
+	player:punch(player, 0.1, {damage_groups={fleshy=2}})
 	player:add_velocity({x=(0-look_dir.x)*v ,y=(0-look_dir.y)*v ,z=(0-look_dir.z)*v})
 	
 	minetest.chat_send_player(player:get_player_name(), "Creation failed, please carefully try again.")
