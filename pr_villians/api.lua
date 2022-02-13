@@ -103,21 +103,23 @@ function pr_villians.register_henchman(name, def)
   
   
     on_activate=function(self, staticdata)
-      self.storage = minetest.deserialize(staticdata) or {} --load storage or a new
-      self.hp = self.storage.hp
-      self.object:set_velocity({x=0,y=-1,z=0})
-      self.object:set_acceleration({x=0,y=-10,z =0})    -- set the entity gravity.
-      self.id = math.random(1,9999)     --so the mob can determine difference from other mobs
-      self.falling_to_punch = false
-      self.fall_distance = 0
-      self.kickback = false
-      self.tap_time = 0
-      self.tap_interval = math.random(2, 15)
-      anim(self,"stand")
-      
-      for k, v in pairs(pr_villians.henchmen.registered_callbacks.on_activate) do
-        v(self, staticdata)
-      end
+      pcall(function()
+        self.storage = minetest.deserialize(staticdata) or {} --load storage or a new
+        self.hp = self.storage.hp
+        self.object:set_velocity({x=0,y=-1,z=0})
+        self.object:set_acceleration({x=0,y=-10,z =0})    -- set the entity gravity.
+        self.id = math.random(1,9999)     --so the mob can determine difference from other mobs
+        self.falling_to_punch = false
+        self.fall_distance = 0
+        self.kickback = false
+        self.tap_time = 0
+        self.tap_interval = math.random(2, 15)
+        anim(self,"stand")
+        
+        for k, v in pairs(pr_villians.henchmen.registered_callbacks.on_activate) do
+          v(self, staticdata)
+        end
+      end)
     end,
     
     on_punch=function(self, puncher, time_from_last_punch, tool_capabilities, dir)
