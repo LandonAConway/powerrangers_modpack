@@ -10,7 +10,7 @@ end
 function beast_morphers.can_morph(player)
   local wielded_item = player:get_wielded_item()
   local next_item = player:get_inventory():get_stack(player:get_wield_list(), player:get_wield_index()+1)
-  local morphers_first_item = morphinggrid.morphers.get_stack(player,1)
+  local morphers_first_item = morphinggrid.morphers.get_inventory(player):get_stack("main",1)
   local is_key_1 = minetest.get_item_group(morphers_first_item:get_name(), "bm_key")
   local is_key_2 = minetest.get_item_group(next_item:get_name(),  "bm_key")
   if is_key_1 > 0 then

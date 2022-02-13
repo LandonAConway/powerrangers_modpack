@@ -165,15 +165,15 @@ end
 morphinggrid.grid_doc.register_inventory("item", {
 	size = 1*1,
 	allow_move = function() return 0 end,
-	allow_put = function() return -1 end,
-	allow_take = function() return -1 end
+	allow_put = function() return 0 end,
+	allow_take = function() return 0 end
 })
 
 morphinggrid.grid_doc.register_inventory("recipe", {
 	size = 3*3,
 	allow_move = function() return 0 end,
-	allow_put = function() return -1 end,
-	allow_take = function() return -1 end
+	allow_put = function() return 0 end,
+	allow_take = function() return 0 end
 })
 
 minetest.register_on_joinplayer(function(player)
