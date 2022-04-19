@@ -289,6 +289,11 @@ function morphinggrid.demorph(player, demorph_settings, is_morphing)
   
   if can_use == true then
     if is_morphing == true then
+      --only remove the hud if the player is already morphed
+      if demorph_settings.hide_hud and morphinggrid.get_morph_status(player) ~= nil then
+        morphinggrid.hide_hud(player)
+      end
+
       local inv = minetest.get_inventory({
         type="detached", name=player_name.."_armor"})
       
@@ -324,10 +329,6 @@ function morphinggrid.demorph(player, demorph_settings, is_morphing)
         
         morphinggrid.remove_ranger_abilities(player, ranger)
         morphinggrid.remove_weapons(player, rangertype.weapons)
-      end
-      
-      if demorph_settings.hide_hud then
-        morphinggrid.hide_hud(player)
       end
       
       demorph_info.reason = "successful_durring_morph"
@@ -506,6 +507,13 @@ morphinggrid.huds = {}
 --        -- Z index : lower z-index HUDs are displayed behind higher z-index HUDs
 --    }
 
+local hudbars_loaded = function()
+  if minetest.get_modpath("hudbars") then
+    return true
+  end
+  return false
+end
+
 minetest.after(0, function()
   local storage = morphinggrid.mod_storage.get_string("morphinggrid_huds")
   if storage ~= "" then
@@ -514,12 +522,19 @@ minetest.after(0, function()
 end)
 
 minetest.register_on_joinplayer(function(player)
-  if morphinggrid.huds[player:get_player_name()] ~= nil then
-    local ranger = morphinggrid.get_morph_status(player)
-    if ranger ~= nil then
-      morphinggrid.show_hud(player, ranger, true)
-    end
+  hb.init_hudbar(player, "morphinggrid_power_usage", 0, 100, true)
+
+  morphinggrid.huds[player:get_player_name()] = nil
+  local ranger = morphinggrid.get_morph_status(player)
+  if ranger then
+    morphinggrid.show_hud(player, ranger, true)
   end
+  -- if morphinggrid.huds[player:get_player_name()] ~= nil then
+  --   local ranger = morphinggrid.get_morph_status(player)
+  --   if ranger ~= nil then
+  --     morphinggrid.show_hud(player, ranger, true)
+  --   end
+  -- end
 end)
 
 function morphinggrid.show_hud(player, ranger, startup)
@@ -533,8 +548,9 @@ function morphinggrid.show_hud(player, ranger, startup)
   
   local wear = morphinggrid.connections[ranger.name].players[player:get_player_name()].armor_wear or 0
   local power_usage = ((((65535-wear)/65535)*10)*2)
+  local power_usage_as_percent = ((65535-wear)/65535)*100
   
-  local position = {x=0.5,y=0.8}
+  local position = {x=0.5,y=0.7}
   local hud = {
     title = {
       hud_elem_type = "text",
@@ -560,7 +576,6 @@ function morphinggrid.show_hud(player, ranger, startup)
   }
   
   if startup then
-    local _, err = pcall(morphinggrid.hide_hud,player)
     morphinggrid.huds[player:get_player_name()] = nil
   end
   
@@ -568,7 +583,14 @@ function morphinggrid.show_hud(player, ranger, startup)
     morphinggrid.huds[player:get_player_name()] = {}
     morphinggrid.huds[player:get_player_name()].title = player:hud_add(hud.title)
     morphinggrid.huds[player:get_player_name()].ranger = player:hud_add(hud.ranger)
-    morphinggrid.huds[player:get_player_name()].status = player:hud_add(hud.status)
+
+    --
+    if hudbars_loaded then
+      hb.unhide_hudbar(player, "morphinggrid_power_usage")
+      hb.change_hudbar(player, "morphinggrid_power_usage", power_usage_as_percent)
+    else
+      morphinggrid.huds[player:get_player_name()].status = player:hud_add(hud.status)
+    end
   end
   
   morphinggrid.mod_storage.set_string("morphinggrid_huds",minetest.serialize(morphinggrid.huds))
@@ -583,7 +605,14 @@ function morphinggrid.hide_hud(player)
   if huds ~= nil then
     player:hud_remove(huds.title)
     player:hud_remove(huds.ranger)
-    player:hud_remove(huds.status)
+
+    --
+    if hudbars_loaded() then
+      hb.hide_hudbar(player, "morphinggrid_power_usage")
+    else
+      player:hud_remove(huds.status)
+    end
+    
     morphinggrid.huds[player:get_player_name()] = nil
   end
 end
@@ -596,7 +625,14 @@ function morphinggrid.hud_update_power_usage(player)
   if morphinggrid.hud_is_visible(player) then
     local current = morphinggrid.get_current_ranger_wear(player)
     local amount = ((((65535-current)/65535)*10)*2)
-    player:hud_change(morphinggrid.huds[player:get_player_name()].status,"number",math.floor(amount))
+    local power_usage_as_percent = ((65535-current)/65535)*100
+
+    --
+    if hudbars_loaded() then
+      hb.change_hudbar(player, "morphinggrid_power_usage", power_usage_as_percent)
+    else
+      player:hud_change(morphinggrid.huds[player:get_player_name()].status,"number",math.floor(amount))
+    end
   end
 end
 

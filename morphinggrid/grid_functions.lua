@@ -473,54 +473,56 @@ morphinggrid.mff = {}
 
 minetest.register_on_player_receive_fields(function(player, formname, fields)
 	if formname == "morphinggrid:grid_functions" then
-		local name = player:get_player_name()
-		local selection = morphinggrid.mff[name].selection
-		local index = morphinggrid.mff[name].index
-		
-		local selection_name = get_func_type_name(selection)
-		
-		if fields.selection then
-			local event = minetest.explode_textlist_event(fields.selection)
-			if(event.type == "CHG") then
-				morphinggrid.mff[name].selection = event.index
-				morphinggrid.mff[name].index = 1
+		if minetest.check_player_privs(player:get_player_name(), {server=true,morphinggrid=true}) then
+			local name = player:get_player_name()
+			local selection = morphinggrid.mff[name].selection
+			local index = morphinggrid.mff[name].index
+			
+			local selection_name = get_func_type_name(selection)
+			
+			if fields.selection then
+				local event = minetest.explode_textlist_event(fields.selection)
+				if(event.type == "CHG") then
+					morphinggrid.mff[name].selection = event.index
+					morphinggrid.mff[name].index = 1
+				end
+			
+				minetest.show_formspec(name, "morphinggrid:grid_functions", morphinggrid.grid_functions_formspec(selection, index, name))
+			elseif fields.functions then
+				local event = minetest.explode_textlist_event(fields.functions)
+				if(event.type == "CHG") then
+					morphinggrid.mff[name].index = event.index
+				end
+				
+				minetest.show_formspec(name, "morphinggrid:grid_functions", morphinggrid.grid_functions_formspec(selection, index, name))
+			elseif fields.save then
+				if type(morphinggrid.grid_functions[selection_name][index]) == "table" then
+					morphinggrid.grid_functions[selection_name][index].func = fields.code:gsub("/]","]"):gsub("/[","[")
+					morphinggrid.grid_functions[selection_name][index].name = fields.name
+				else
+					morphinggrid.register_grid_function(selection_name, {
+						name = fields.name,
+						func = fields.code:gsub("/]","]"):gsub("/[","[")
+					})
+				end
+				
+				morphinggrid.mff[name].name = fields.name
+				morphinggrid.mff[name].code = fields.code:gsub("/]","]"):gsub("/[","[")
+				
+				save_grid_functions()
+				minetest.show_formspec(name, "morphinggrid:grid_functions", morphinggrid.grid_functions_formspec(selection, index, name))
+			elseif fields.remove then
+				if type(morphinggrid.grid_functions[selection_name][index]) == "table" then
+					table.remove(morphinggrid.grid_functions[selection_name], index)
+					index = index - 1
+					if index < 1 then index = 1 end
+				end
+				
+				save_grid_functions()
+				minetest.show_formspec(name, "morphinggrid:grid_functions", morphinggrid.grid_functions_formspec(selection, index, name))
+			elseif fields.help then
+				minetest.show_formspec(name, "morphinggrid:grid_functions_help", morphinggrid.grid_functions_help_formspec(selection_name))
 			end
-			
-			minetest.show_formspec(name, "morphinggrid:grid_functions", morphinggrid.grid_functions_formspec(selection, index, name))
-		elseif fields.functions then
-			local event = minetest.explode_textlist_event(fields.functions)
-			if(event.type == "CHG") then
-				morphinggrid.mff[name].index = event.index
-			end
-			
-			minetest.show_formspec(name, "morphinggrid:grid_functions", morphinggrid.grid_functions_formspec(selection, index, name))
-		elseif fields.save then
-			if type(morphinggrid.grid_functions[selection_name][index]) == "table" then
-				morphinggrid.grid_functions[selection_name][index].func = fields.code:gsub("/]","]"):gsub("/[","[")
-				morphinggrid.grid_functions[selection_name][index].name = fields.name
-			else
-				morphinggrid.register_grid_function(selection_name, {
-					name = fields.name,
-					func = fields.code:gsub("/]","]"):gsub("/[","[")
-				})
-			end
-			
-			morphinggrid.mff[name].name = fields.name
-			morphinggrid.mff[name].code = fields.code:gsub("/]","]"):gsub("/[","[")
-			
-			save_grid_functions()
-			minetest.show_formspec(name, "morphinggrid:grid_functions", morphinggrid.grid_functions_formspec(selection, index, name))
-		elseif fields.remove then
-			if type(morphinggrid.grid_functions[selection_name][index]) == "table" then
-				table.remove(morphinggrid.grid_functions[selection_name], index)
-				index = index - 1
-				if index < 1 then index = 1 end
-			end
-			
-			save_grid_functions()
-			minetest.show_formspec(name, "morphinggrid:grid_functions", morphinggrid.grid_functions_formspec(selection, index, name))
-		elseif fields.help then
-			minetest.show_formspec(name, "morphinggrid:grid_functions_help", morphinggrid.grid_functions_help_formspec(selection_name))
 		end
 	end
 end)

@@ -18,6 +18,7 @@ end
 dofile(minetest.get_modpath("morphinggrid") .. "/events.lua")
 dofile(minetest.get_modpath("morphinggrid") .. "/functions.lua")
 dofile(minetest.get_modpath("morphinggrid") .. "/folders.lua")
+dofile(minetest.get_modpath("morphinggrid") .. "/hudbars.lua")
 dofile(minetest.get_modpath("morphinggrid") .. "/connections.lua")
 dofile(minetest.get_modpath("morphinggrid") .. "/morphing.lua")
 dofile(minetest.get_modpath("morphinggrid") .. "/grid_items.lua")

@@ -2,3 +2,4 @@ default
 dye
 3d_armor
 electronic_materials?
+hudbars?
