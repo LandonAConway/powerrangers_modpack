@@ -550,8 +550,9 @@ function morphinggrid.show_hud(player, ranger, startup)
   local power_usage = ((((65535-wear)/65535)*10)*2)
   local power_usage_as_percent = ((65535-wear)/65535)*100
   
+  --this will be used if [hudbars] is not installed
   local position = {x=0.5,y=0.7}
-  local hud = {
+  local hud_standard = {
     title = {
       hud_elem_type = "text",
       position = position,
@@ -574,6 +575,49 @@ function morphinggrid.show_hud(player, ranger, startup)
       number = power_usage
     }
   }
+
+  --for [hudbars]
+  local hb_position = {x=0.5,y=0.8}
+
+  local bg_width = 324
+  local helmet_bg_width = 20
+  local margin = 8
+
+  local helmet_offset_x = -((bg_width/2)+(margin/2))
+  local main_offset_x = (margin/2)+(helmet_bg_width/2)
+  local hud_hb = {
+      helmet_bg = {
+          hud_elem_type = "image",
+          position = hb_position,
+          scale = {x=1,y=1},
+          text = "morphinggrid_ranger_helmet_hud_bar.png",
+          alignment = {x=1,y=1},
+          offset = {x=-8+helmet_offset_x,y=-10}
+      },
+      bg = {
+          hud_elem_type = "image",
+          position = hb_position,
+          scale = {x=1,y=1},
+          text = "morphinggrid_ranger_hud_bar.png",
+          alignment = {x=1,y=1},
+          offset = {x=-162+main_offset_x,y=-10}
+      },
+      helmet = {
+          hud_elem_type = "image",
+          position = hb_position,
+          scale = {x=1,y=1},
+          text = ranger.armor_textures.helmet.inventory,
+          alignment = {x=1,y=1},
+          offset = {x=-8+helmet_offset_x+2,y=-8}
+      },
+      ranger = {
+          hud_elem_type = "text",
+          position = hb_position,
+          offset = {x=main_offset_x,y=0},
+          text = "Ranger: "..ranger.description,
+          number = "0xFFFFFF"
+      },
+  }
   
   if startup then
     morphinggrid.huds[player:get_player_name()] = nil
@@ -581,15 +625,17 @@ function morphinggrid.show_hud(player, ranger, startup)
   
   if morphinggrid.huds[player:get_player_name()] == nil then
     morphinggrid.huds[player:get_player_name()] = {}
-    morphinggrid.huds[player:get_player_name()].title = player:hud_add(hud.title)
-    morphinggrid.huds[player:get_player_name()].ranger = player:hud_add(hud.ranger)
-
-    --
     if hudbars_loaded then
+      morphinggrid.huds[player:get_player_name()].helmet_bg = player:hud_add(hud_hb.helmet_bg)
+      morphinggrid.huds[player:get_player_name()].bg = player:hud_add(hud_hb.bg)
+      morphinggrid.huds[player:get_player_name()].helmet = player:hud_add(hud_hb.helmet)
+      morphinggrid.huds[player:get_player_name()].ranger = player:hud_add(hud_hb.ranger)
       hb.unhide_hudbar(player, "morphinggrid_power_usage")
       hb.change_hudbar(player, "morphinggrid_power_usage", power_usage_as_percent)
     else
-      morphinggrid.huds[player:get_player_name()].status = player:hud_add(hud.status)
+      morphinggrid.huds[player:get_player_name()].title = player:hud_add(hud_standard.title)
+      morphinggrid.huds[player:get_player_name()].ranger = player:hud_add(hud_standard.ranger)
+      morphinggrid.huds[player:get_player_name()].status = player:hud_add(hud_standard.status)
     end
   end
   
@@ -603,13 +649,15 @@ function morphinggrid.hide_hud(player)
   
   local huds = morphinggrid.huds[player:get_player_name()]
   if huds ~= nil then
-    player:hud_remove(huds.title)
-    player:hud_remove(huds.ranger)
-
-    --
     if hudbars_loaded() then
+      player:hud_remove(huds.helmet_bg)
+      player:hud_remove(huds.bg)
+      player:hud_remove(huds.helmet)
+      player:hud_remove(huds.ranger)
       hb.hide_hudbar(player, "morphinggrid_power_usage")
     else
+      player:hud_remove(huds.title)
+      player:hud_remove(huds.ranger)
       player:hud_remove(huds.status)
     end
     
