@@ -12,10 +12,10 @@ communicator.cmd_presets.basic.message = {
   
   func = function(name, text)
     local player = minetest.get_player_by_name(name)
-    local inv = player:get_inventory()
-    local stack = inv:get_stack("communicators_main", 1)
+    local inv = communicator.get_inventory(player)
+    local stack = inv:get_stack("single", 1)
   
-    if inv:is_empty("communicators_main") == false then
+    if inv:is_empty("single") == false then
       if communicator.registered_communicators[stack:get_name()] ~= nil then
         if text ~= nil and text ~= "" then
           local player = minetest.get_player_by_name(name)
@@ -44,10 +44,10 @@ communicator.cmd_presets.basic.message_player = {
   func = function(name, text)
     local player = minetest.get_player_by_name(name)
     local sendto, message = text:match("^(%S+)%s(.+)$")
-    local inv = player:get_inventory()
-    local stack = inv:get_stack("communicators_main", 1)
+    local inv = communicator.get_inventory(player)
+    local stack = inv:get_stack("single", 1)
     
-    if inv:is_empty("communicators_main") == false then
+    if inv:is_empty("single") == false then
       if communicator.registered_communicators[stack:get_name()] ~= nil then
         if message ~= nil and message ~= "" then
           if minetest.player_exists(sendto) then
@@ -81,10 +81,10 @@ communicator.cmd_presets.basic.message_all = {
   
   func = function(name, text)
     local player = minetest.get_player_by_name(name)
-    local inv = player:get_inventory()
-    local stack = inv:get_stack("communicators_main", 1)
+    local inv = communicator.get_inventory(player)
+    local stack = inv:get_stack("single", 1)
     
-    if inv:is_empty("communicators_main") == false then
+    if inv:is_empty("single") == false then
       if communicator.registered_communicators[stack:get_name()] ~= nil then
         if text ~= nil and text ~= "" then
           local player = minetest.get_player_by_name(name)
@@ -110,15 +110,15 @@ communicator.cmd_presets.basic.set_nickname = {
   
   func = function(name, text)
     local player = minetest.get_player_by_name(name)
-    local inv = player:get_inventory()
-    local stack = inv:get_stack("communicators_main", 1)
+    local inv = communicator.get_inventory(player)
+    local stack = inv:get_stack("single", 1)
     
-    if inv:is_empty("communicators_main") == false then
+    if inv:is_empty("single") == false then
       if communicator.registered_communicators[stack:get_name()] ~= nil then
         if text ~= nil and text ~= "" then
           local meta = stack:get_meta()
           meta:set_string("communicator_nickname", text)
-          inv:set_stack("communicators_main", 1, stack)
+          inv:set_stack("single", 1, stack)
           return true, "Nickname set to '"..text.."'.", stack
         else
           return false, "Enter a nickname."
@@ -142,14 +142,14 @@ communicator.cmd_presets.basic.clear_nickname = {
   
   func = function(name, text)
     local player = minetest.get_player_by_name(name)
-    local inv = player:get_inventory()
-    local stack = inv:get_stack("communicators_main", 1)
+    local inv = communicator.get_inventory(player)
+    local stack = inv:get_stack("single", 1)
     
-    if inv:is_empty("communicator_main") == false then
+    if inv:is_empty("single") == false then
       if communicator.registered_communicators[stack:get_name()] ~= nil then
         local meta = stack:get_meta()
         meta:set_string("communicator_nickname", "")
-        inv:set_stack("communicators_main", 1, stack)
+        inv:set_stack("single", 1, stack)
         return true, "Nickname cleared.", stack
       end
     end
@@ -163,7 +163,6 @@ function communicator.message_rangers(player, text, stack)
   local channel = communicator.registered_channels[cmc.channel]
   
   for _, plr in ipairs(minetest.get_connected_players()) do
-    --if minetest.check_player_privs(plr:get_player_name(), { communicator=true }) then
     if communicator.can_communicate(player, plr) then
       minetest.chat_send_player(plr:get_player_name(), "<"..player:get_player_name().."@"..channel.private_call_sign.."> "..text)
     end
@@ -224,8 +223,8 @@ function communicator.message_world(player, text, stack)
 end
 
 function communicator.player_has_communicator(player)
-  local inv = player:get_inventory()
-  local stack = inv:get_stack("communicators_main", 1)
+  local inv = communicator.get_inventory(player)
+  local stack = inv:get_stack("single", 1)
   local cmc = communicator.registered_communicators[stack:get_name()]
   
   if cmc ~= nil then
@@ -235,14 +234,14 @@ function communicator.player_has_communicator(player)
 end
 
 function communicator.can_communicate(player1, player2)
-  local inv1 = player1:get_inventory()
-  local stack1 = inv1:get_stack("communicators_main", 1)
+  local inv1 = communicator.get_inventory(player1)
+  local stack1 = inv1:get_stack("single", 1)
   local cmc1 = communicator.registered_communicators[stack1:get_name()]
   
   --player1 has a communicator
   if cmc1 ~= nil then
-    local inv2 = player2:get_inventory()
-    local stack2 = inv2:get_stack("communicators_main", 1)
+    local inv2 = communicator.get_inventory(player2)
+    local stack2 = inv2:get_stack("single", 1)
     local cmc2 = communicator.registered_communicators[stack2:get_name()]
     
     --player2 has a communicator

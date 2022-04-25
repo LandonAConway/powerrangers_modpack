@@ -40,14 +40,15 @@ minetest.register_chatcommand("communicator", {
   
   func = function(name,text)
     local player = minetest.get_player_by_name(name)
-    local inv = player:get_inventory()
-    if not inv:is_empty("communicators_main") then
-      local stack = inv:get_stack("communicators_main", 1)
+    local inv = communicator.get_inventory(player)
+    if not inv:is_empty("single") then
+      local stack = inv:get_stack("single", 1)
       local stackname = stack:get_name()
       if communicator.registered_communicators[stackname] ~= nil then
         if text ~= nil and text ~= "" then
           local result,message,itemstack = communicator.execute_communicator_cmd(name,text,stack)
-          inv:set_stack("communicators_main", 1, itemstack)
+          inv:set_stack("single", 1, itemstack)
+          communicator.save_inventory(minetest.get_player_by_name(name))
           return result,message
         end
         return false, "Please enter a command."
@@ -91,18 +92,18 @@ function communicator.execute_communicator_cmd(name,text,itemstack)
   local cc_args = morphinggrid.call_grid_functions("before_communicator_command", cc_params)
   
   if cc_args.cancel then
-	cc_params.canceled = true
-	return false, cc_args.description or "Communicator failed to execute command.", itemstack
+    cc_params.canceled = true
+    return false, cc_args.description or "Communicator failed to execute command.", itemstack
   elseif communicatordef.communicator_commands[params[1]] ~= nil then
-	local result,message,newitemstack = before_cmd_executed(communicatordef,name,subtext,itemstack)
-	if result then
-	  result,message,newitemstack = communicatordef.communicator_commands[params[1]].func(name,subtext,itemstack)
-	end
-	if result == nil then result = true end
-	message = message or ""
-	itemstack = newitemstack or itemstack
-	after_cmd_executed(communicatordef,name,subtext,itemstack)
-	return result,message,itemstack
+    local result,message,newitemstack = before_cmd_executed(communicatordef,name,subtext,itemstack)
+    if result then
+      result,message,newitemstack = communicatordef.communicator_commands[params[1]].func(name,subtext,itemstack)
+    end
+  if result == nil then result = true end
+    message = message or ""
+    itemstack = newitemstack or itemstack
+    after_cmd_executed(communicatordef,name,subtext,itemstack)
+    return result,message,itemstack
   end
   
   return false, "The command '"..params[1].."' does not exist.", itemstack

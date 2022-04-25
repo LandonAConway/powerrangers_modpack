@@ -62,16 +62,64 @@ function communicator.apply_cmd_presets(cmc)
 end
 
 minetest.register_on_joinplayer(function(player)
-  local inv = player:get_inventory()
-  inv:set_size("communicators", 4*14)
-  inv:set_size("communicators_main", 1*1)
+  local _inv = player:get_inventory()
+  _inv:set_size("communicators", 4*14)
+  _inv:set_size("communicators_main", 1*1)
+
+  --new inventory location
+  local player_name = player:get_player_name()
+  local inv = minetest.create_detached_inventory("communicators_"..player_name, {
+    on_move = function(_, _, _, _, _, _, player)
+      communicator.save_inventory(player)
+    end,
+    
+    on_put = function(_, _, _, _, player)
+      communicator.save_inventory(player)
+    end,
+    
+    on_take = function(_, _, _, _, player)
+      communicator.save_inventory(player)
+    end,
+    
+    allow_put = function(_, _, _, stack, _)
+      local itemstring = stack:get_name()
+      if communicator.registered_communicators[itemstring] then
+        return stack:get_count()
+      end
+      return 0
+    end
+  })
+
+  inv:set_size("single", 1*1)
+  inv:set_size("main", 4*14)
+
+  communicator.restore_inventory(player)
 end)
 
-function communicator.ui()
+function communicator.get_inventory(player)
+  return minetest.get_inventory({ type="detached", name="communicators_"..player:get_player_name() })
+end
+
+function communicator.save_inventory(player)
+  local _inv = player:get_inventory()
+  local inv = communicator.get_inventory(player)
+  _inv:set_list("communicators_main", inv:get_list("single"))
+  _inv:set_list("communicators", inv:get_list("main"))
+end
+
+function communicator.restore_inventory(player)
+  local _inv = player:get_inventory()
+  local inv = communicator.get_inventory(player)
+  inv:set_list("single", _inv:get_list("communicators_main"))
+  inv:set_list("main", _inv:get_list("communicators"))
+end
+
+function communicator.ui(player)
+  local inventory_location = "communicators_"..player
   local formspec = "size[14,12]"..
     "label[4,0;Place a communicator in the single communicator slot and use it with the communicator chat commands.]"..
-    "list[current_player;communicators_main;6.25,0.5;1,1;]"..
-    "list[current_player;communicators;0,2;14,4;]"..
+    "list[detached:"..inventory_location..";single;6.25,0.5;1,1;]"..
+    "list[detached:"..inventory_location..";main;0,2;14,4;]"..
     "list[current_player;main;3,7.5;8,4;]"
   return formspec
 end
@@ -87,24 +135,9 @@ minetest.register_chatcommand("communicators", {
   },
   
   func = function(name)
-    minetest.show_formspec(name, name.."_communicators", communicator.ui())
+    minetest.show_formspec(name, name.."_communicators", communicator.ui(name))
   end
 })
-
-function communicator.contains_itemstack(player, stack)
-  local inv = player:get_inventory()
-  return inv:contains_itemstack("communicators", stack)
-end
-
-function communicator.get_stack(player, index)
-  local inv = player:get_inventory()
-  return inv:get_stack("communicators", index)
-end
-
-function communicator.set_stack(player, index, stack)
-  local inv = player:get_inventory()
-  return inv:set_stack("communicators", index, stack)
-end
 
 --Grid Documentation
 morphinggrid.grid_doc.register_type("communicators", {

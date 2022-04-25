@@ -39,18 +39,20 @@ minetest.register_chatcommand("morph", {
         local stack = inv:get_stack("single", 1)
         local stackname = stack:get_name()
         if morphinggrid.registered_morphers[stackname] ~= nil then
-			local itemstack = morphinggrid.morph_from_morpher(player, stackname, stack) or stack
-			inv:set_stack("single", 1, itemstack)
-			return true
-		elseif morphinggrid.registered_griditems[stackname] ~= nil then
-			local def = morphinggrid.registered_griditems[stackname]
-			local result, itemstack = def.morph_behavior(player, stack)
-			inv:set_stack("single", 1, itemstack or stack)
-			if result then
-				return true
-			end
-			return false, "The item placed in the single morpher slot is a grid item but is not capeable of "..
-					"morphing a player without a morpher. Use the chat command '/morphers'"
+          local itemstack = morphinggrid.morph_from_morpher(player, stackname, stack) or stack
+          inv:set_stack("single", 1, itemstack)
+          morphinggrid.morphers.save_inventory(player)
+          return true
+        elseif morphinggrid.registered_griditems[stackname] ~= nil then
+          local def = morphinggrid.registered_griditems[stackname]
+          local result, itemstack = def.morph_behavior(player, stack)
+          inv:set_stack("single", 1, itemstack or stack)
+          morphinggrid.morphers.save_inventory(player)
+          if result then
+            return true
+          end
+          return false, "The item placed in the single morpher slot is a grid item but is not capeable of "..
+              "morphing a player without a morpher. Use the chat command '/morphers'"
         end
         return false, "The item placed in the single morpher slot is not a morpher. Use the chat command '/morphers'"
       end
@@ -159,7 +161,7 @@ minetest.register_chatcommand("morpher", {
   
   func = function(name,text)
     local player = minetest.get_player_by_name(name)
-    local inv = player:get_inventory()
+    local inv = morphinggrid.morphers.get_inventory(player)
     if morphinggrid.registered_morphers[player:get_wielded_item():get_name()] ~= nil then
       if text ~= nil and text ~= "" then
         local stack = player:get_wielded_item()
@@ -168,13 +170,14 @@ minetest.register_chatcommand("morpher", {
         return result,message
       end
       return false, "Please enter a command."
-    elseif not inv:is_empty("morphers_main") then
-      local stack = inv:get_stack("morphers_main", 1)
+    elseif not inv:is_empty("single") then
+      local stack = inv:get_stack("single", 1)
       local stackname = stack:get_name()
       if morphinggrid.registered_morphers[stackname] ~= nil then
         if text ~= nil and text ~= "" then
           local result,message,itemstack = morphinggrid.execute_morpher_cmd(name,text,stack)
-          inv:set_stack("morphers_main", 1, itemstack)
+          inv:set_stack("single", 1, itemstack)
+          morphinggrid.morphers.save_inventory(player)
           return result,message
         end
         return false, "Please enter a command."

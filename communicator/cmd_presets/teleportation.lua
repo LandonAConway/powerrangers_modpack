@@ -16,7 +16,7 @@ communicator.cmd_presets.teleportation.teleport_pos = {
     local player = minetest.get_player_by_name(name)
     
     if communicator.player_has_communicator(player) then
-      local cmc = communicator.registered_communicators[player:get_inventory():get_stack("communicators_main", 1):get_name()]
+      local cmc = communicator.registered_communicators[communicator.get_inventory(player):get_stack("single", 1):get_name()]
       
       local pos = player:get_pos()
       local meta = player:get_meta()
@@ -65,7 +65,7 @@ communicator.cmd_presets.teleportation.safe_teleport_pos = {
     local player = minetest.get_player_by_name(name)
     
     if communicator.player_has_communicator(player) then
-      local cmc = communicator.registered_communicators[player:get_inventory():get_stack("communicators_main", 1):get_name()]
+      local cmc = communicator.registered_communicators[communicator.get_inventory(player):get_stack("single", 1):get_name()]
       
       local pos = player:get_pos()
       local meta = player:get_meta()
@@ -139,11 +139,11 @@ communicator.cmd_presets.teleportation.teleport = {
     local player = minetest.get_player_by_name(name)
 
     if communicator.player_has_communicator(player) then
-      local cmc = communicator.registered_communicators[player:get_inventory():get_stack("communicators_main", 1):get_name()]
+      local cmc = communicator.registered_communicators[communicator.get_inventory(player):get_stack("single", 1):get_name()]
 
       local pos = player:get_pos()
       local meta = player:get_meta()
-      local smeta = player:get_inventory():get_stack("communicators_main", 1):get_meta()
+      local smeta = communicator.get_inventory(player):get_stack("single", 1):get_meta()
 
       --proposed--
       local positions = minetest.deserialize(smeta:get_string("positions")) or {}
@@ -189,7 +189,7 @@ communicator.cmd_presets.teleportation.teleport_to_player = {
     local player = minetest.get_player_by_name(name)
     
     if communicator.player_has_communicator(player) then
-      local cmc = communicator.registered_communicators[player:get_inventory():get_stack("communicators_main", 1):get_name()]
+      local cmc = communicator.registered_communicators[communicator.get_inventory(player):get_stack("single", 1):get_name()]
       
       local pos = player:get_pos()
       local meta = player:get_meta()
@@ -268,7 +268,7 @@ communicator.cmd_presets.teleportation.teleport_back = {
     local player = minetest.get_player_by_name(name)
     
     if communicator.player_has_communicator(player) then
-      local cmc = communicator.registered_communicators[player:get_inventory():get_stack("communicators_main", 1):get_name()]
+      local cmc = communicator.registered_communicators[communicator.get_inventory(player):get_stack("single", 1):get_name()]
 
       local meta = player:get_meta()
 
@@ -316,11 +316,11 @@ communicator.cmd_presets.teleportation.teleportation_add_pos = {
     local player = minetest.get_player_by_name(name)
 
     if communicator.player_has_communicator(player) then
-      local cmc = communicator.registered_communicators[player:get_inventory():get_stack("communicators_main", 1):get_name()]
+      local cmc = communicator.registered_communicators[communicator.get_inventory(player):get_stack("single", 1):get_name()]
 
       local pos = player:get_pos()
       local meta = player:get_meta()
-      local stack = player:get_inventory():get_stack("communicators_main", 1)
+      local stack = communicator.get_inventory(player):get_stack("single", 1)
       local smeta = stack:get_meta()
 
       if text ~= nil and text ~= "" then
@@ -329,7 +329,7 @@ communicator.cmd_presets.teleportation.teleportation_add_pos = {
           local positions = minetest.deserialize(smeta:get_string("positions")) or {}
           positions[text] = pos
           smeta:set_string("positions", minetest.serialize(positions))
-          player:get_inventory():set_stack("communicators_main", 1, stack)
+          communicator.get_inventory(player):set_stack("single", 1, stack)
           return true, "'"..text.."' added. ", stack
         end
         return false, "Key cannot contain these characters: '|='."
@@ -355,11 +355,11 @@ communicator.cmd_presets.teleportation.teleportation_remove_pos = {
     local player = minetest.get_player_by_name(name)
 
     if communicator.player_has_communicator(player) then
-      local cmc = communicator.registered_communicators[player:get_inventory():get_stack("communicators_main", 1):get_name()]
+      local cmc = communicator.registered_communicators[communicator.get_inventory(player):get_stack("single", 1):get_name()]
 
       local pos = player:get_pos()
       local meta = player:get_meta()
-      local stack = player:get_inventory():get_stack("communicators_main", 1)
+      local stack = communicator.get_inventory(player):get_stack("single", 1)
       local smeta = stack:get_meta()
 
       if text ~= nil and text ~= "" then
@@ -394,12 +394,12 @@ communicator.cmd_presets.teleportation.teleportation_get_keys = {
     local player = minetest.get_player_by_name(name)
     
     if communicator.player_has_communicator(player) then
-      local cmc = communicator.registered_communicators[player:get_inventory():get_stack("communicators_main", 1):get_name()]
+      local cmc = communicator.registered_communicators[communicator.get_inventory(player):get_stack("single", 1):get_name()]
 
       --proposed--
       local pos = player:get_pos()
       local meta = player:get_meta()
-      local stack = player:get_inventory():get_stack("communicators_main", 1)
+      local stack = communicator.get_inventory(player):get_stack("single", 1)
       local smeta = stack:get_meta()
       local positions = minetest.deserialize(smeta:get_string("positions")) or {}
 
@@ -434,7 +434,7 @@ communicator.cmd_presets.teleportation.teleportation_get_pos = {
     local player = minetest.get_player_by_name(name)
 
     if communicator.player_has_communicator(player) then
-      local cmc = communicator.registered_communicators[player:get_inventory():get_stack("communicators_main", 1):get_name()]
+      local cmc = communicator.registered_communicators[communicator.get_inventory(player):get_stack("single", 1):get_name()]
 
       local pos = player:get_pos()
       local meta = player:get_meta()
@@ -443,7 +443,7 @@ communicator.cmd_presets.teleportation.teleportation_get_pos = {
         --proposed--
         local pos = player:get_pos()
         local meta = player:get_meta()
-        local stack = player:get_inventory():get_stack("communicators_main", 1)
+        local stack = communicator.get_inventory(player):get_stack("single", 1)
         local smeta = stack:get_meta()
         local positions = minetest.deserialize(smeta:get_string("positions")) or {}
 
