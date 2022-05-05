@@ -32,6 +32,7 @@ for k, v in pairs(rangers) do
 		ranger_groups = v.rgroups or {},
 		privs = { "morphinggrid" },
 		create_rangerdata = false,
+		ranger_command_presets = { visor = true },
 		armor_textures = {
 			boots = {
 				armor = "morphin_masters_boots.png",
@@ -42,6 +43,10 @@ for k, v in pairs(rangers) do
 			leggings = {
 				preview = "morphin_masters_leggings_preview.png",
 				inventory = "morphin_masters_inv_leggings.png"
+			},
+
+			helmet = {
+				armor_visor_mask = "morphin_masters_helmet_visor_mask.png"
 			}
 		}
 	})

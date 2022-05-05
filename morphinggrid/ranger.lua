@@ -48,13 +48,15 @@ function morphinggrid.register_ranger(name, rangerdef)
   --Register Armor
   register_ranger_armor(rangerdef)
   
+  --ranger commands
+  rangerdef.ranger_commands = rangerdef.ranger_commands or {}
   
   --Add command presets
   rangerdef.ranger_command_presets = rangerdef.ranger_command_presets or {}
   for pname, p in pairs(rangerdef.ranger_command_presets) do
 	if morphinggrid.ranger_cmd_presets[pname] then
 		if p == true then
-			for cname, c in pairs(rangerdef.ranger_cmd_presets[pname]) do
+			for cname, c in pairs(morphinggrid.ranger_cmd_presets[pname]) do
 			  rangerdef.ranger_commands[cname] = c
 			end
 		end
@@ -63,8 +65,7 @@ function morphinggrid.register_ranger(name, rangerdef)
 	end
   end
   
-  --ranger commands
-  rangerdef.ranger_commands = rangerdef.ranger_commands or {}
+  --add help command
   rangerdef.ranger_commands.help = {
     description = "Lists all commands for the ranger.",
     func = function(name)
@@ -462,6 +463,7 @@ function morphinggrid.correct_armor_textures(rangerdef)
   rangerdef.armor_textures = {
     helmet = {
         armor = rangerdef.armor_textures.helmet.armor or name_[1].."_helmet_"..name_[2],
+        armor_visor_mask = rangerdef.armor_textures.helmet.armor_visor_mask,
         preview = rangerdef.armor_textures.helmet.preview or name_[1].."_helmet_"..name_[2].."_preview.png",
         inventory = rangerdef.armor_textures.helmet.inventory or name_[1].."_inv_helmet_"..name_[2]..".png"
       },

@@ -352,14 +352,6 @@ function morphinggrid.demorph(player, demorph_settings, is_morphing)
 			  morphinggrid.connections[ranger.name].players[player:get_player_name()].in_use = false
 			end
 			
-			inv:set_list("armor", {})
-			morphinggrid.load_last_armor(player)
-			
-			armor:save_armor_inventory(player)
-			armor:set_player_armor(player)
-			
-			player:set_nametag_attributes({text = ""})
-			
 			local is_invisible = meta:get_string("morphinggrid_invis")
 			
 			if is_invisible == "true" then
@@ -382,8 +374,16 @@ function morphinggrid.demorph(player, demorph_settings, is_morphing)
 			if demorph_settings.hide_hud then
 			  morphinggrid.hide_hud(player)
 			end
+			
+			player:set_nametag_attributes({text = ""})
 		  
 			meta:set_string("player_morph_status", "none")
+			
+			inv:set_list("armor", {})
+			morphinggrid.load_last_armor(player)
+			
+			armor:save_armor_inventory(player)
+			armor:set_player_armor(player)
 			
 			if demorph_settings.chat_messages then
 			  minetest.chat_send_player(player_name, "Demorph successful. (Ranger: "..ranger.description..")")
@@ -535,6 +535,13 @@ minetest.register_on_joinplayer(function(player)
   --     morphinggrid.show_hud(player, ranger, true)
   --   end
   -- end
+end)
+
+minetest.register_on_leaveplayer(function(player)
+  local ranger = morphinggrid.get_morph_status(player)
+  if ranger then
+    morphinggrid.hide_hud(player)
+  end
 end)
 
 function morphinggrid.show_hud(player, ranger, startup)

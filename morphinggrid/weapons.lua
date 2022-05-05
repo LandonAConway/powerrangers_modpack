@@ -25,7 +25,16 @@ function morphinggrid.get_weapon(name)
   return morphinggrid.registered_weapons[name]
 end
 
-local function weapon_items(weapon_name)
+local function get_weapon_keys(list)
+  local t = {}
+  for i, v in ipairs(list) do
+    local weapon_key = morphinggrid.registered_weapons[v].weapon_key
+    table.insert(t, weapon_key)
+  end
+  return t
+end
+
+local function get_weapon_items(weapon_name)
 	local weapon = morphinggrid.registered_weapons[weapon_name]
 	local t = {}
 	for i, v in ipairs(weapon.items or {}) do
@@ -34,8 +43,8 @@ local function weapon_items(weapon_name)
 	return weapon
 end
 
-local function has_item(player, weapon_name)
-	local items = weapon_items(weapon_name)
+local function has_weapon_item(player, weapon_name)
+	local items = get_weapon_items(weapon_name)
 	local inv = player:get_inventory()
 	for _, i in pairs(inv:get_list("main")) do
 		if items[i:get_name()] then
@@ -50,48 +59,69 @@ local function has_item(player, weapon_name)
 	return false
 end
 
+local function get_ranger_weapons(ranger)
+  local ranger_weapons = {}
+  local rangerdef = morphinggrid.registered_rangers[ranger or ""]
+  if rangerdef then
+    for _, wepname in pairs(rangerdef.weapons or {}) do
+      ranger_weapons[wepname] = true
+    end
+  end
+  return ranger_weapons
+end
+
+local function get_required_weapons(weapon_name)
+  local weapon = morphinggrid.registered_weapons[weapon_name]
+  local required_weapons = {}
+  for _, wepname in pairs(weapon.required_weapons or {}) do
+    required_weapons[wepname] = true
+  end
+  return required_weapons
+end
+
+local function has_required_weapons(player, weapon_name)
+  local inv = player:get_inventory()
+  local inv_items = {}
+  for _, stack in pairs(inv:get_list("main")) do
+    inv_items[stack:get_name()] = true
+  end
+  local weapon = morphinggrid.registered_weapons[weapon_name] or {required_weapons={}}
+  local count = 0
+  for _, wepname in pairs(weapon.required_weapons or {}) do
+    if not inv_items[wepname] then
+      count = count + 1
+    end
+  end
+  return count == 0
+end
+
 function morphinggrid.can_summon_weapon(player, weapon_name)
+  local inv = player:get_inventory()
   local morph_status = morphinggrid.get_morph_status(player)
   local weapon = morphinggrid.registered_weapons[weapon_name]
-  if weapon.can_summon ~= nil then
-    if weapon.ignore_requirments_on_can_summon then
-      local ranger = morphinggrid.get_ranger(morph_status)
-      return weapon.can_summon(player, ranger)
+  if type(weapon.can_summon) == "function" then
+    if weapon.ignore_requirments_on_can_summon == true then
+      return weapon.can_summon(player, morphinggrid.registered_rangers[morph_status])
     end
   else
-    for _, r in ipairs(weapon.rangers) do
-      if r == morph_status or has_item(player, weapon_name) then
-        if weapon.required_weapons then
-          local inv = player:get_inventory()
-          local wl = player:get_wield_list()
-          for _, rw in ipairs(weapon.required_weapons) do
-            if not inv:contains_item(wl, ItemStack(rw)) then
-              return false, "This is a combined weapon. You do not have the required weapons in your inventory to summon this weapon. "..
-              "(Weapons: "..table.concat(get_weapon_keys(weapon.required_weapons), ", ")..")"
-            end
-          end
-          for _, rw in ipairs(weapon.required_weapons) do
-            inv:remove_item(wl, ItemStack(rw))
+    if get_ranger_weapons(morph_status)[weapon_name] or has_weapon_item(player, weapon_name) then
+      if has_required_weapons(player, weapon_name) then
+        local required_weapons = get_required_weapons(weapon_name)
+        for _, stack in pairs(inv:get_list("main")) do
+          if required_weapons[stack:get_name()] then
+            inv:remove_item("main",stack)
           end
         end
-        if weapon.can_summon ~= nil then
-          local ranger = morphinggrid.get_ranger(morph_status)
-          return weapon.can_summon(player, ranger)
+        if type(weapon.can_summon) =="function" then
+          return weapon.can_summon(player, morphinggrid.registered_rangers[morph_status])
         end
         return true
       end
+      return false, "This is a combined weapon. You do not have the required weapons in your inventory to summon this weapon. "..
+        "(Weapons: "..table.concat(get_weapon_keys(weapon.required_weapons), ", ")..")"
     end
   end
   return false
-end
-
-function get_weapon_keys(list)
-  local t = {}
-  for i, v in ipairs(list) do
-    local weapon_key = morphinggrid.registered_weapons[v].weapon_key
-    table.insert(t, weapon_key)
-  end
-  return t
 end
 
 --Firearms
