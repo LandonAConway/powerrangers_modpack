@@ -37,6 +37,9 @@ function morphinggrid.register_ranger(name, rangerdef)
   --make sure fields are not nil
   rangerdef.ranger_groups = rangerdef.ranger_groups or {}
   rangerdef.abilities = rangerdef.abilities or {}
+  rangerdef.max_energy = rangerdef.max_energy or 2500
+  rangerdef.energy_damage_per_hp = rangerdef.energy_damage_per_hp or 1
+  rangerdef.energy_heal_per_globalstep = rangerdef.energy_heal_per_globalstep or 1
   
   if rangerdef.hide_identity == nil then rangerdef.hide_identity = true end
   if rangerdef.hide_player == nil then rangerdef.hide_player = false end
@@ -105,14 +108,6 @@ function morphinggrid.register_ranger(name, rangerdef)
   morphinggrid.registered_rangers[rangerdef.name] = rangerdef
   --table.insert(morphinggrid.registered_rangers, rangerdef)
   
-  --Load connection
-  local connection = minetest.deserialize(morphinggrid.mod_storage.get_string(name.."_connection"))
-  morphinggrid.connections[name] = connection
-  
-  morphinggrid.connections[name] = morphinggrid.connections[name] or {}
-  morphinggrid.connections[name].name = name
-  morphinggrid.connections[name].players = morphinggrid.connections[name].players or {}
-  
   --register rangerdata
   morphinggrid.register_griditem(name.."_rangerdata", {
 	inventory_image = "rangerdata.png",
@@ -139,58 +134,7 @@ function register_ranger_armor(rangerdef)
     armor_punch_damage = true,
     armor_groups = {fleshy=100},
     groups = {armor_head=1, armor_heal=rangerdef.heal, armor_use=rangerdef.use, armor_water=1,
-      not_in_creative_inventory=1},
-      
-    on_destroy = function(player, index, stack)
-      local morph_status = morphinggrid.get_morph_status(player)
-      local morph_status_ranger = morphinggrid.registered_rangers[morph_status]
-      if morph_status ~= nil then
-        morphinggrid.demorph(player, { voluntary = false, chat_messages = false })
-        local connection = morphinggrid.connections[modname..":"..ranger].players[player:get_player_name()]
-        connection.damage = connection.damage or 12
-        connection.armor_wear = 65535
-        local timer_amount = 60 * (connection.damage/12)
-        connection.timer = timer_amount
-        minetest.chat_send_player(player:get_player_name(), "You have demorphed becuase you did not have enough power. (Ranger: "..morph_status_ranger.description..")")
-      end
-    end,
-    
-    on_equip = function(player, index, stack)
-      local current_armor = morphinggrid.get_current_armor(player, rangerdef.name)
-      if current_armor.chestplate and current_armor.leggings and current_armor.boots then
-        local ranger = morphinggrid.registered_rangers[rangerdef.name]
-        
-        local morph_status = morphinggrid.get_morph_status(player)
-        if morph_status == nil then
-          local result, morph_info = morphinggrid.morph(player, ranger, { armor_parts = current_armor })
-          
-          if morph_info.reason == "no_permission" then
-            clear_ranger_armor(player, rangerdef.name)
-          end
-        end
-      end
-    end,
-    
-    on_unequip = function(player, index, stack)
-      local current_armor = morphinggrid.get_current_armor(player, rangerdef.name)
-      if not current_armor.helmet and not current_armor.chestplate and not current_armor.leggings and not current_armor.boots then
-        local morph_status = morphinggrid.get_morph_status(player)
-        if morph_status ~= nil then
-          morphinggrid.demorph(player, {priv_bypass=true})
-        end
-      end
-    end,
-    
-    on_punched = function(player, hitter, time_from_last_punch, tool_capabilities)
-      local caps = tool_capabilities or {}
-      local damage_groups = caps.damage_groups or {fleshy = 0}
-      morphinggrid.punch_ranger_armor(player, hitter, damage_groups.fleshy)
-      morphinggrid.hud_update_power_usage(player)
-    end,
-    
-    on_drop = function(itemstack, dropper, pos)
-      return
-    end,
+      not_in_creative_inventory=1}
   })
   
   --chestplate
@@ -203,58 +147,6 @@ function register_ranger_armor(rangerdef)
     armor_groups = {fleshy=100},
     groups = {armor_torso=1, armor_heal=rangerdef.heal, armor_use=rangerdef.use,
       not_in_creative_inventory=1},
-      
-    on_destroy = function(player, index, stack)
-      local morph_status = morphinggrid.get_morph_status(player)
-      local morph_status_ranger = morphinggrid.registered_rangers[morph_status]
-      if morph_status ~= nil then
-        morphinggrid.demorph(player, { voluntary = false, chat_messages = false })
-        local connection = morphinggrid.connections[modname..":"..ranger].players[player:get_player_name()]
-        connection.damage = connection.damage or 12
-        connection.armor_wear = 65535
-        local timer_amount = 60 * (connection.damage/12)
-        connection.timer = timer_amount
-        minetest.chat_send_player(player:get_player_name(), "You have demorphed becuase you did not have enough power. (Ranger: "..morph_status_ranger.description..")")
-      end
-    end,
-    
-    on_equip = function(player, index, stack)
-      local current_armor = morphinggrid.get_current_armor(player, rangerdef.name)
-      if current_armor.chestplate and current_armor.leggings and current_armor.boots then
-        local ranger = morphinggrid.registered_rangers[rangerdef.name]
-        
-        local morph_status = morphinggrid.get_morph_status(player)
-        if morph_status == nil then
-          local result, morph_info = morphinggrid.morph(player, ranger, { armor_parts = current_armor })
-          
-          if morph_info.reason == "no_permission" then
-            clear_ranger_armor(player, rangerdef.name)
-          end
-        end
-      end
-    end,
-    
-    on_unequip = function(player, index, stack)
-      local current_armor = morphinggrid.get_current_armor(player, rangerdef.name)
-      
-      if not current_armor.helmet and not current_armor.chestplate and not current_armor.leggings and not current_armor.boots then
-        local morph_status = morphinggrid.get_morph_status(player)
-        if morph_status ~= nil then
-          morphinggrid.demorph(player, {priv_bypass=true})
-        end
-      end
-    end,
-    
-    on_punched = function(player, hitter, time_from_last_punch, tool_capabilities)
-      local caps = tool_capabilities or {}
-      local damage_groups = caps.damage_groups or {fleshy = 0}
-      morphinggrid.punch_ranger_armor(player, hitter, damage_groups.fleshy)
-      morphinggrid.hud_update_power_usage(player)
-    end,
-    
-    on_drop = function(itemstack, dropper, pos)
-      return
-    end,
   })
   
   --leggings
@@ -269,58 +161,6 @@ function register_ranger_armor(rangerdef)
     armor_groups = {fleshy=100},
     groups = {armor_legs=1, armor_heal=rangerdef.heal, armor_use=rangerdef.use,
       not_in_creative_inventory=1},
-      
-    on_destroy = function(player, index, stack)
-      local morph_status = morphinggrid.get_morph_status(player)
-      local morph_status_ranger = morphinggrid.registered_rangers[morph_status]
-      if morph_status ~= nil then
-        morphinggrid.demorph(player, { voluntary = false, chat_messages = false })
-        local connection = morphinggrid.connections[modname..":"..ranger].players[player:get_player_name()]
-        connection.damage = connection.damage or 12
-        connection.armor_wear = 65535
-        local timer_amount = 60 * (connection.damage/12)
-        connection.timer = timer_amount
-        minetest.chat_send_player(player:get_player_name(), "You have demorphed becuase you did not have enough power. (Ranger: "..morph_status_ranger.description..")")
-      end
-    end,
-    
-    on_equip = function(player, index, stack)
-      local current_armor = morphinggrid.get_current_armor(player, rangerdef.name)
-      if current_armor.chestplate and current_armor.leggings and current_armor.boots then
-        local ranger = morphinggrid.registered_rangers[rangerdef.name]
-        
-        local morph_status = morphinggrid.get_morph_status(player)
-        if morph_status == nil then
-          local result, morph_info = morphinggrid.morph(player, ranger, { armor_parts = current_armor })
-          
-          if morph_info.reason == "no_permission" then
-            clear_ranger_armor(player, rangerdef.name)
-          end
-        end
-      end
-    end,
-    
-    on_unequip = function(player, index, stack)
-      local current_armor = morphinggrid.get_current_armor(player, rangerdef.name)
-      
-      if not current_armor.helmet and not current_armor.chestplate and not current_armor.leggings and not current_armor.boots then
-        local morph_status = morphinggrid.get_morph_status(player)
-        if morph_status ~= nil then
-          morphinggrid.demorph(player, {priv_bypass=true})
-        end
-      end
-    end,
-    
-    on_punched = function(player, hitter, time_from_last_punch, tool_capabilities)
-      local caps = tool_capabilities or {}
-      local damage_groups = caps.damage_groups or {fleshy = 0}
-      morphinggrid.punch_ranger_armor(player, hitter, damage_groups.fleshy)
-      morphinggrid.hud_update_power_usage(player)
-    end,
-    
-    on_drop = function(itemstack, dropper, pos)
-      return
-    end,
   })
   
   --boots
@@ -335,58 +175,6 @@ function register_ranger_armor(rangerdef)
     armor_groups = {fleshy=100},
     groups = {armor_feet=1, armor_heal=rangerdef.heal, armor_use=rangerdef.use,
       not_in_creative_inventory=1},
-      
-    on_destroy = function(player, index, stack)
-      local morph_status = morphinggrid.get_morph_status(player)
-      local morph_status_ranger = morphinggrid.registered_rangers[morph_status]
-      if morph_status ~= nil then
-        morphinggrid.demorph(player, { voluntary = false, chat_messages = false })
-        local connection = morphinggrid.connections[modname..":"..ranger].players[player:get_player_name()]
-        connection.damage = connection.damage or 12
-        connection.armor_wear = 65535
-        local timer_amount = 60 * (connection.damage/12)
-        connection.timer = timer_amount
-        minetest.chat_send_player(player:get_player_name(), "You have demorphed becuase you did not have enough power. (Ranger: "..morph_status_ranger.description..")")
-      end
-    end,
-    
-    on_equip = function(player, index, stack)
-      local current_armor = morphinggrid.get_current_armor(player, rangerdef.name)
-      if current_armor.chestplate and current_armor.leggings and current_armor.boots then
-        local ranger = morphinggrid.registered_rangers[rangerdef.name]
-        
-        local morph_status = morphinggrid.get_morph_status(player)
-        if morph_status == nil then
-          local result, morph_info = morphinggrid.morph(player, ranger, { armor_parts = current_armor })
-          
-          if morph_info.reason == "no_permission" then
-            clear_ranger_armor(player, rangerdef.name)
-          end
-        end
-      end
-    end,
-    
-    on_unequip = function(player, index, stack)
-      local current_armor = morphinggrid.get_current_armor(player, rangerdef.name)
-      
-      if not current_armor.helmet and not current_armor.chestplate and not current_armor.leggings and not current_armor.boots then
-        local morph_status = morphinggrid.get_morph_status(player)
-        if morph_status ~= nil then
-          morphinggrid.demorph(player, {priv_bypass=true})
-        end
-      end
-    end,
-    
-    on_punched = function(player, hitter, time_from_last_punch, tool_capabilities)
-      local caps = tool_capabilities or {}
-      local damage_groups = caps.damage_groups or {fleshy = 0}
-      morphinggrid.punch_ranger_armor(player, hitter, damage_groups.fleshy)
-      morphinggrid.hud_update_power_usage(player)
-    end,
-    
-    on_drop = function(itemstack, dropper, pos)
-      return
-    end,
   })
 end
 
@@ -462,26 +250,26 @@ function morphinggrid.correct_armor_textures(rangerdef)
   --auto-generate file names if not specified.
   rangerdef.armor_textures = {
     helmet = {
-        armor = rangerdef.armor_textures.helmet.armor or name_[1].."_helmet_"..name_[2],
+        armor = rangerdef.armor_textures.helmet.armor or name_[1].."_helmet_"..name_[2]..".png",
         armor_visor_mask = rangerdef.armor_textures.helmet.armor_visor_mask,
         preview = rangerdef.armor_textures.helmet.preview or name_[1].."_helmet_"..name_[2].."_preview.png",
         inventory = rangerdef.armor_textures.helmet.inventory or name_[1].."_inv_helmet_"..name_[2]..".png"
       },
       
     chestplate = {
-        armor = rangerdef.armor_textures.chestplate.armor or name_[1].."_chestplate_"..name_[2],
+        armor = rangerdef.armor_textures.chestplate.armor or name_[1].."_chestplate_"..name_[2]..".png",
         preview = rangerdef.armor_textures.chestplate.preview or name_[1].."_chestplate_"..name_[2].."_preview.png",
         inventory = rangerdef.armor_textures.chestplate.inventory or name_[1].."_inv_chestplate_"..name_[2]..".png"
       },
       
     leggings = {
-        armor = rangerdef.armor_textures.leggings.armor or name_[1].."_leggings_"..name_[2],
+        armor = rangerdef.armor_textures.leggings.armor or name_[1].."_leggings_"..name_[2]..".png",
         preview = rangerdef.armor_textures.leggings.preview or name_[1].."_leggings_"..name_[2].."_preview.png",
         inventory = rangerdef.armor_textures.leggings.inventory or name_[1].."_inv_leggings_"..name_[2]..".png"
       },
       
     boots = {
-        armor = rangerdef.armor_textures.boots.armor or name_[1].."_boots_"..name_[2],
+        armor = rangerdef.armor_textures.boots.armor or name_[1].."_boots_"..name_[2]..".png",
         preview = rangerdef.armor_textures.boots.preview or name_[1].."_boots_"..name_[2].."_preview.png",
         inventory = rangerdef.armor_textures.boots.inventory or name_[1].."_inv_boots_"..name_[2]..".png"
       }
@@ -533,9 +321,6 @@ function morphinggrid.punch_ranger_armor(player, hitter, damage)
       
       stack:add_wear(amount_of_damage)
       inv:set_stack("armor", i, stack)
-      
-      morphinggrid.connections[ranger.name].players[player:get_player_name()] = morphinggrid.connections[ranger.name].players[player:get_player_name()] or { timer = 0 }
-      morphinggrid.connections[ranger.name].players[player:get_player_name()].damage = wear_level
       
       if stack:get_count() == 0 then
         armor:run_callbacks("on_destroy", player, i, old_stack)
@@ -791,8 +576,8 @@ function morphinggrid.default_callbacks.morpher.allow_prevent_respawn(player, it
 	end
 	
 	for k, ranger in ipairs(rangers) do
-		local connection = morphinggrid.get_connection(player, ranger)
-		if connection.timer <= 0 then
+		local rangerdata = morphinggrid.get_rangerdata(player, ranger)
+		if rangerdata:has_energy() then
 			return true
 		end
 	end

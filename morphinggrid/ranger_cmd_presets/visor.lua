@@ -10,7 +10,7 @@ morphinggrid.ranger_cmd_presets.visor = {
 				visor_state = "closed"
 			end
 			ranger_settings:set_value(player, ranger, "visor_state", visor_state)
-			armor:update_player_visuals(player)
+			morphinggrid.update_player_visuals(player)
 		end
 	}
 }

@@ -63,10 +63,6 @@ function morphinggrid.morph(player, ranger, morph_settings)
   morph_info.reason = "unknown"
   morph_info.timestamp = os.date('%Y-%m-%d %H:%M:%S')
   
-  if morphinggrid.connections[ranger.name].players[player:get_player_name()] == nil then
-    morphinggrid.create_connection(ranger.name, player_name)
-  end
-  
   local result = false
   
   if morph_settings.priv_bypass then
@@ -75,15 +71,18 @@ function morphinggrid.morph(player, ranger, morph_settings)
   
   --do morph functions first.
   local morph_params = {
-	player = morph_info.player,
-	ranger = morph_info.ranger.name,
-	morph_settings = morph_settings,
-	pos = morph_info.pos,
-	timestamp = morph_info.timestamp,
-	itemstack = morph_info.itemstack
+    player = morph_info.player,
+    ranger = morph_info.ranger.name,
+    morph_settings = morph_settings,
+    pos = morph_info.pos,
+    timestamp = morph_info.timestamp,
+    itemstack = morph_info.itemstack
   }
   
   local mfunc_args = morphinggrid.call_grid_functions("before_morph", morph_params)
+
+  --create rangerdata (get_rangerdata is used to do this)
+  morphinggrid.get_rangerdata(player, ranger.name)
   
   --check for privs again if mfunc_args.recheck_privs is true. This doesn't override can_use if morph_settings.priv_bypass is true.
   --if mfunc_args.force_recheck_privs is true, then override can_use regardless.
@@ -102,40 +101,22 @@ function morphinggrid.morph(player, ranger, morph_settings)
   
   if can_use == true then
 	if not mfunc_args.cancel then
-		local connection = morphinggrid.connections[ranger.name].players[player:get_player_name()]
-		if connection.timer > 0 then
+		local rangerdata = morphinggrid.get_rangerdata(player, ranger.name)
+		if not rangerdata:has_energy() then
 		  morph_info.reason = "not_stable"
 		  if morph_settings.chat_messages then
-		   local time_left = morphinggrid.seconds_to_clock(connection.timer)
 		   minetest.chat_send_player(player_name, "You cannot morph because these ranger powers are not currently stable."..
-		   " Please wait some time while the Morphing Grid re-stabelizes these ranger powers."..
-		   " Approximately: "..time_left.days.." Days, "..time_left.hours.." Hours, "..time_left.minutes.." Minutes, "..time_left.seconds.." Seconds")
+		   " Please wait some time while the Morphing Grid re-stabelizes these ranger powers.")
 		  end
 		  minetest.log("action","Player ("..player:get_player_name()..") Morphed: "..ranger.name..", "..(morph_info.reason or ""))
 		  return false, morph_info
 		end
 		
-		morphinggrid.save_current_armor(player)
-		
-		local inv = minetest.get_inventory({
-		  type="detached", name=player_name.."_armor"})
-		
 		morphinggrid.demorph(player, {}, true)
-		
-		morphinggrid.connections[ranger.name].players[player:get_player_name()].in_use = true
 		
 		morphinggrid.set_ranger_meta(player, ranger)
 		morphinggrid.set_ranger_abilities(player, ranger)
-		
-		for k, v in pairs(morph_settings.armor_parts) do
-		  if v == true then
-			local stack = ItemStack(rangername_split[1]..":"..k.."_"..rangername_split[2])
-			stack:set_wear(morphinggrid.connections[ranger.name].players[player:get_player_name()].armor_wear)
-			inv:add_item("armor", stack)
-			armor:save_armor_inventory(player)
-			armor:set_player_armor(player)
-		  end
-		end
+		morphinggrid.update_player_visuals(player)
 		
 		--overriding hide_identity
 		local hide_identity = ranger.hide_identity
@@ -281,12 +262,6 @@ function morphinggrid.demorph(player, demorph_settings, is_morphing)
 	demorph_settings = morphinggrid.configure_demorph_settings(dmfunc_args.demorph_settings)
   end
   
-  if ranger ~= nil then
-    if morphinggrid.connections[ranger.name].players[player:get_player_name()] == nil then
-      morphinggrid.create_connection(ranger.name, player_name)
-    end
-  end
-  
   if can_use == true then
     if is_morphing == true then
       --only remove the hud if the player is already morphed
@@ -294,24 +269,11 @@ function morphinggrid.demorph(player, demorph_settings, is_morphing)
         morphinggrid.hide_hud(player)
       end
 
-      local inv = minetest.get_inventory({
-        type="detached", name=player_name.."_armor"})
-      
-      local wear = morphinggrid.get_current_ranger_wear(player)
-      if wear ~= nil then
-        morphinggrid.connections[ranger.name].players[player:get_player_name()].armor_wear = wear
-        morphinggrid.connections[ranger.name].players[player:get_player_name()].in_use = false
-      end
-      
-      inv:set_list("armor", {})
-      
-      armor:save_armor_inventory(player)
-      armor:set_player_armor(player)
-      
+      morphinggrid.update_player_visuals(player)
+
       player:set_nametag_attributes({text = ""})
       
       local is_invisible = meta:get_string("morphinggrid_invis")
-      
       if is_invisible == "true" then
         player:set_string("morphinggrid_invis", "false")
         local prop = {
@@ -342,28 +304,19 @@ function morphinggrid.demorph(player, demorph_settings, is_morphing)
 			
 			morphinggrid.call_grid_functions("on_demorph_attempt", demorph_params)
 			minetest.chat_send_player(player_name, "You are not morphed.")
-		  else
-			local inv = minetest.get_inventory({
-			  type="detached", name=player_name.."_armor"})
-			  
-			local wear = morphinggrid.get_current_ranger_wear(player)
-			if wear ~= nil then
-			  morphinggrid.connections[ranger.name].players[player:get_player_name()].armor_wear = wear
-			  morphinggrid.connections[ranger.name].players[player:get_player_name()].in_use = false
-			end
-			
-			local is_invisible = meta:get_string("morphinggrid_invis")
-			
-			if is_invisible == "true" then
-			  player:set_string("morphinggrid_invis", "false")
-			  local prop = {
-				collide_with_object = true,
-				pointable = true,
-				makes_footstep_sound = true,
-				visual_size = {x = 1, y = 1, z = 1},
-			  }
-			  player:set_properties(prop)
-			end
+    else
+      local is_invisible = meta:get_string("morphinggrid_invis")
+      
+      if is_invisible == "true" then
+        player:set_string("morphinggrid_invis", "false")
+        local prop = {
+        collide_with_object = true,
+        pointable = true,
+        makes_footstep_sound = true,
+        visual_size = {x = 1, y = 1, z = 1},
+        }
+        player:set_properties(prop)
+      end
 			
 			local rangername_split = morphinggrid.split_string(ranger.name, ":")
 			local rangertype = morphinggrid.get_rangertype(rangername_split[1])
@@ -379,11 +332,7 @@ function morphinggrid.demorph(player, demorph_settings, is_morphing)
 		  
 			meta:set_string("player_morph_status", "none")
 			
-			inv:set_list("armor", {})
-			morphinggrid.load_last_armor(player)
-			
-			armor:save_armor_inventory(player)
-			armor:set_player_armor(player)
+      morphinggrid.update_player_visuals(player)
 			
 			if demorph_settings.chat_messages then
 			  minetest.chat_send_player(player_name, "Demorph successful. (Ranger: "..ranger.description..")")
@@ -553,9 +502,8 @@ function morphinggrid.show_hud(player, ranger, startup)
     ranger = morphinggrid.registered_rangers[ranger]
   end
   
-  local wear = morphinggrid.connections[ranger.name].players[player:get_player_name()].armor_wear or 0
-  local power_usage = ((((65535-wear)/65535)*10)*2)
-  local power_usage_as_percent = ((65535-wear)/65535)*100
+  local rangerdata = morphinggrid.get_current_rangerdata(player)
+  local energy_level = rangerdata:get_energy_level_percentage()
   
   --this will be used if [hudbars] is not installed
   local position = {x=0.5,y=0.7}
@@ -579,7 +527,7 @@ function morphinggrid.show_hud(player, ranger, startup)
       position = position,
       offset = {x=-160,y=32},
       text = "morphinggrid_power_usage_32.png",
-      number = power_usage
+      number = energy_level*20
     }
   }
 
@@ -638,7 +586,7 @@ function morphinggrid.show_hud(player, ranger, startup)
       morphinggrid.huds[player:get_player_name()].helmet = player:hud_add(hud_hb.helmet)
       morphinggrid.huds[player:get_player_name()].ranger = player:hud_add(hud_hb.ranger)
       hb.unhide_hudbar(player, "morphinggrid_power_usage")
-      hb.change_hudbar(player, "morphinggrid_power_usage", power_usage_as_percent)
+      hb.change_hudbar(player, "morphinggrid_power_usage", energy_level*100)
     else
       morphinggrid.huds[player:get_player_name()].title = player:hud_add(hud_standard.title)
       morphinggrid.huds[player:get_player_name()].ranger = player:hud_add(hud_standard.ranger)
@@ -678,15 +626,13 @@ function morphinggrid.hud_update_power_usage(player)
   end
   
   if morphinggrid.hud_is_visible(player) then
-    local current = morphinggrid.get_current_ranger_wear(player)
-    local amount = ((((65535-current)/65535)*10)*2)
-    local power_usage_as_percent = ((65535-current)/65535)*100
+    local rangerdata = morphinggrid.get_current_rangerdata(player)
+    local energy_level = rangerdata:get_energy_level_percentage()
 
-    --
     if hudbars_loaded() then
-      hb.change_hudbar(player, "morphinggrid_power_usage", power_usage_as_percent)
+      hb.change_hudbar(player, "morphinggrid_power_usage", energy_level*100)
     else
-      player:hud_change(morphinggrid.huds[player:get_player_name()].status,"number",math.floor(amount))
+      player:hud_change(morphinggrid.huds[player:get_player_name()].status,"number",math.floor(energy_level*20))
     end
   end
 end
@@ -709,38 +655,6 @@ function morphinggrid.set_ranger_meta(player, ranger)
   
   meta:set_string('player_morph_status', ranger.name)
   meta:set_string('player_last_morph_status', ranger.name)
-end
-
-function morphinggrid.save_current_armor(player)
-  local is_morphed = morphinggrid.get_morph_status(player)
-  if is_morphed == nil then
-    local inv = minetest.get_inventory({
-      type="detached", name=player:get_player_name().."_armor"})
-      
-    local list_ = inv:get_list("armor")
-    local list = {}
-    
-    for i,v in ipairs(list_) do
-      table.insert(list, v:get_name().." "..v:get_count())
-    end
-    
-    player:get_meta():set_string("saved_armor", minetest.serialize(list))
-  end
-  return false
-end
-
-function morphinggrid.load_last_armor(player)
-  local list_ = minetest.deserialize(player:get_meta():get_string("saved_armor")) or {}
-  local list = {}
-  
-  for i,v in ipairs(list_) do
-    table.insert(list, ItemStack(v))
-  end
-  
-  local inv = minetest.get_inventory({
-    type="detached", name=player:get_player_name().."_armor"})
-  
-  inv:set_list("armor", list)
 end
 
 function morphinggrid.set_ranger_abilities(player, ranger)
@@ -789,6 +703,7 @@ function morphinggrid.remove_weapons(player, weapons)
 end
 
 function morphinggrid.get_morph_status(player)
+  if player == "string" then player = minetest.get_player_by_name(player) end
   local meta = player:get_meta()
   local status = meta:get_string('player_morph_status')
   if status ~= "none" and status ~= nil and status ~= "" then
@@ -806,21 +721,6 @@ function morphinggrid.get_last_morph_status(player)
   else
     return nil
   end
-end
-
-function morphinggrid.get_current_ranger_wear(player)
-  local ranger = morphinggrid.registered_rangers[morphinggrid.get_morph_status(player)]
-  if ranger ~= nil then
-    local inv = minetest.get_inventory({
-      type="detached", name=player:get_player_name().."_armor"})
-      
-    for k, v in pairs(inv:get_list("armor")) do
-      if v:get_count() > 0 then
-        return v:get_wear(), ranger
-      end
-    end
-  end
-  return nil, nil
 end
 
 --Morphing log

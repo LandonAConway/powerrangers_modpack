@@ -396,49 +396,6 @@ function morphing_info_to_message(info)
   return table.concat(t, ", ")
 end
 
-minetest.register_chatcommand("set_ranger_armor_wear", {
-  params = "<player> <ranger> <amount>",
-  description = "Sets the ranger armor wear for a specific player.",
-  
-  privs = {
-    interact = true,
-    power_rangers = true,
-  },
-  
-  func = function(name, text)
-    if text ~= nil and text ~= "" then
-      local params = morphinggrid.split_string(text, " ")
-      for _, player in ipairs(minetest.get_connected_players()) do
-        if player:get_player_name() == params[1] then
-          if params[2] ~= nil and params[2] ~= "" then
-            local ranger = morphinggrid.registered_rangers[params[2]]
-            if ranger ~= nil then
-              if params[3] ~= nil and params[3] ~= "" then
-                if tonumber(params[3]) then
-                  local wear = tonumber(params[3])
-                  if wear > -1 and wear < 65536 then
-                    if morphinggrid.connections[ranger.name].players[params[1]] == nil then
-                      morphinggrid.create_connection(ranger.name, params[1])
-                    end
-                    morphinggrid.connections[ranger.name].players[params[1]].armor_wear = wear
-                    return true, "Wear set to '"..wear.."'."
-                  end
-                end
-                return false, "'"..params[3].."' is not a number."
-              end
-              return false, "Please enter a number greater than -1 and less than 65536."
-            end
-            return false, "'"..params[2].."' is not a registered ranger."
-          end
-          return false, "Enter a ranger name."
-        end
-      end
-      return false, "'"..params[1].."' is not an online, or existing player."
-    end
-    return false, "Enter a player name."
-  end
-})
-
 minetest.register_chatcommand("get_weapons", {
 	params = "<search_pattern> or <ranger_name>",
 	description = "Shows a list of registered weapons based on search pattern, or searches weapons of a specific ranger. Leave empty for full list.",

@@ -418,8 +418,8 @@ function morphinggrid.default_callbacks.griditem.allow_prevent_respawn(player, i
 	end
 	
 	for k, ranger in ipairs(def.rangers) do
-		local connection = morphinggrid.get_connection(player, ranger)
-		if connection.timer <= 0 then
+		local rangerdata = morphinggrid.get_rangerdata(player, ranger)
+		if rangerdata:has_energy() then
 			return true
 		end
 	end
