@@ -40,6 +40,7 @@ function morphinggrid.register_ranger(name, rangerdef)
   rangerdef.max_energy = rangerdef.max_energy or 2500
   rangerdef.energy_damage_per_hp = rangerdef.energy_damage_per_hp or 1
   rangerdef.energy_heal_per_globalstep = rangerdef.energy_heal_per_globalstep or 1
+  rangerdef.energy_damage_per_globalstep = rangerdef.energy_damage_per_globalstep or 0
   
   if rangerdef.hide_identity == nil then rangerdef.hide_identity = true end
   if rangerdef.hide_player == nil then rangerdef.hide_player = false end
