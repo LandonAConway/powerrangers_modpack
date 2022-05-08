@@ -15,8 +15,12 @@ I. Required setup for a Power Rangers mod
 		--This shows an example of how to register a ranger.
 		morphinggrid.register_ranger("modname:red_ranger", {
 			description = "Red Ranger",
-			heal = 100, --The amount that the armor heals
-			use = 100, --The number used to calculate the amount of times the armor can be hit before your armor gets destroyed. hit times = 65535 / use.
+			max_energy = 7700, --The maximum amount of energy that a ranger can hold.
+			energy_damage_per_hp = 1, --Changes the amount of energy taken from a hit. This value is multiplied by the amount of hp that is passed by a punch.
+			energy_heal_per_globalstep = 1, --The amount of energy that goes up when the ranger is not morphed. Negative value will cause energy to decrease.
+			energy_damage_per_globalstep = 0, --Zero by default. Same as 'energy_heal_per_globalstep' but is used when the ranger is morphed. Negative value will cause energy to go up.
+	*deprecated	heal = 100, --The amount that the armor heals
+	*deprecated	use = 100, --The number used to calculate the amount of times the armor can be hit before your armor gets destroyed. hit times = 65535 / use.
 			color = "red", Defines which color the ranger is. Can currently choose from green, white, black, pink, blue, yellow, red, silver, and gold.
 			weapons = {"modname:weaponone", "modname:weapontwo"}, --A list of weapons that belongs to the specified ranger.
 			ranger_groups = {}, --Add leader if the specified ranger is the leader.
@@ -46,12 +50,11 @@ I. Required setup for a Power Rangers mod
 				
 				--default contains auto generated filenames. Whatever filenames are not specified will still be auto generated. Do not include < or > in the filenames.
 				armor_textures = {
-					helmet = { armor="<filename>", preview="<filename>", inventory="<filename>" },
+					helmet = { armor="<filename>", preview="<filename>", inventory="<filename>", armor_visor_mask="<filename>" },
 					chestplate = { armor="<filename>", preview="<filename>", inventory="<filename>" },
 					leggings = { armor="<filename>", preview="<filename>", inventory="<filename>" },
 					boots = { armor="<filename>", preview="<filename>", inventory="<filename>" }
 				}
-
 				
 				--This is an optional field. The commands specified here will be useable when using the chat command '/ranger <command>' when morphed.
 				ranger_commands = {
@@ -63,6 +66,11 @@ I. Required setup for a Power Rangers mod
 						end
 					}
 				},
+
+				--Adds builtin command presets
+				ranger_command_presets = { default = true, visor = true }
+					--* `default` contains a command for removing and putting on a helmet.
+					--* `visor` contains a command for opening and closing the helmet's visor. Requires 'armor_visor_mask' in 'armor_textures.helmet' to work.
 
 				
 				--By default, if you do not specify this, right clicking the morpher will morph the ranger.

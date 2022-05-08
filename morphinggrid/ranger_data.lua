@@ -44,11 +44,10 @@ local ranger_settings_init = function(player, ranger)
     settings[name] = settings[name] or {}
     settings[name][ranger] = settings[name][ranger] or {}
     for setting_name, value in pairs(ranger_settings.default) do
-        if settings[name][ranger][setting_name] == "nil" then
+        if settings[name][ranger][setting_name] == nil then
             settings[name][ranger][setting_name] = value
         end
     end
-    ranger_settings.settings = settings
 end
 
 function ranger_settings.get_value(self, player, ranger, setting)
@@ -226,9 +225,14 @@ function _rangerdata.set_energy_level_percentage(self, level)
     self:set_energy_level(level*rangerdef.max_energy)
 end
 
-function _rangerdata.damage_energy(self, hp)
+function _rangerdata.damage_energy_hp(self, hp)
     local rangerdef = self:get_ranger_definition()
     return self:subtract_energy(hp*rangerdef.energy_damage_per_hp)
+end
+
+function _rangerdata.damage_energy(self)
+    local rangerdef = self:get_ranger_definition()
+    return self:subtract_energy(rangerdef.energy_damage_per_globalstep)
 end
 
 function _rangerdata.heal_energy(self)
@@ -258,6 +262,7 @@ minetest.register_globalstep(function(dtime)
                 if ranger ~= current_ranger then
                     data:heal_energy()
                 else -- player is morphed as the 'ranger'
+                    data:damage_energy()
                     if not data:has_energy() then
                         --demorph the player because they do not have energy; their powers have been destroyed
                         morphinggrid.demorph(player, { voluntary = false, chat_messages = false })

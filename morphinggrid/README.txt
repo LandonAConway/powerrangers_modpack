@@ -1,9 +1,10 @@
-Morphing Grid v3.4
+Morphing Grid v3.9
 
 
 DESCRIPTION
 ==============================
 Adds power rangers to Minetest. It requires the 3d Armor mod.
+*requirment for the 3d Armor mod will be removed in the very near future.
 
 
 LICENSE

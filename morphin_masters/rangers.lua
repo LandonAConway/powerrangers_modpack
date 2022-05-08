@@ -25,14 +25,15 @@ local rangers = {
 for k, v in pairs(rangers) do
 	morphinggrid.register_ranger("morphin_masters:"..k, {
 		description = v.desc.." Morphin Master",
-		heal = 100,
-		use = 0,
+		max_energy = 10000,
+		energy_damage_per_hp = 0,
+		energy_heal_per_globalstep = 100,
 		weapons = { "morphin_masters:blaster", "morphin_masters:laser_digger", "morphin_masters:master_staff" },
 		color = k,
 		ranger_groups = v.rgroups or {},
 		privs = { "morphinggrid" },
 		create_rangerdata = false,
-		ranger_command_presets = { visor = true },
+		ranger_command_presets = { default = true, visor = true },
 		armor_textures = {
 			boots = {
 				armor = "morphin_masters_boots.png",

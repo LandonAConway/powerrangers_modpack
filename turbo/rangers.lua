@@ -33,8 +33,9 @@ turbo.rangers = {
 for _, v in ipairs(turbo.rangers) do
   morphinggrid.register_ranger("turbo:"..v.name, {
       description = v.desc.." Turbo Ranger",
-      heal = 100,
-      use = 14,
+	  max_energy = 7800,
+	  energy_damage_per_hp = 0.9,
+	  energy_heal_per_globalstep = 0.9,
 	  color = v.name,
       weapons = v.weapons,
       ranger_groups = v.ranger_groups,

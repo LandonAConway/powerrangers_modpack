@@ -15,7 +15,7 @@ end
 minetest.register_on_player_hpchange(function(player, hp_change, reason)
     if hp_change < 0 then
         if morphinggrid.get_morph_status(player) then
-            morphinggrid.get_current_rangerdata(player):damage_energy(hp_change*-1)
+            morphinggrid.get_current_rangerdata(player):damage_energy_hp(hp_change*-1)
             morphinggrid.hud_update_power_usage(player)
             hp_change = 0
         else

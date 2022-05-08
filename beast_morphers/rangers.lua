@@ -98,18 +98,19 @@ local special_abilities = {
 }
 
 beast_morphers.rangers = {
-  {"red", "Red", 100, 10, { leader = 1 }, weapons = w_red },
-  {"yellow", "Yellow", 100, 10, weapons = w_yellow },
-  {"blue", "Blue", 100, 10, weapons = w_blue },
-  {"silver", "Silver", 100, 10, weapons = w_silver },
-  {"gold", "Gold", 100, 10, weapons = w_gold }
+  {"red", "Red", 0, 0, { leader = 1 }, weapons = w_red },
+  {"yellow", "Yellow", 0, 0, weapons = w_yellow },
+  {"blue", "Blue", 0, 0, weapons = w_blue },
+  {"silver", "Silver", 0, 0, weapons = w_silver },
+  {"gold", "Gold", 0, 0, weapons = w_gold }
 }
 
 for i, v in ipairs(beast_morphers.rangers) do
   morphinggrid.register_ranger("beast_morphers:"..v[1], {
     description = v[2].." Beast Morphers Ranger",
-    heal = v[3],
-    use = v[4],
+	max_energy = 14000,
+	energy_damage_per_hp = 1,
+	energy_heal_per_globalstep = 1.2,
 	color = v[1],
     weapons = v.weapons,
     abilities = { strength=beast_morphers.get_strength(v[1]) },
