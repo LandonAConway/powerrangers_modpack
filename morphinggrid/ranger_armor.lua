@@ -35,7 +35,7 @@ else
     default.player_register_model("3d_armor_character.b3d", {
         animation_speed = 30,
         textures = {
-            player:get_properties().textures[1],
+            "character.png",
             "morphinggrid_armor_transparent.png",
             "morphinggrid_armor_transparent.png",
             "morphinggrid_armor_transparent.png"

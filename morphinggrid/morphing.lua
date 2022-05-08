@@ -471,12 +471,14 @@ minetest.after(0, function()
 end)
 
 minetest.register_on_joinplayer(function(player)
-  hb.init_hudbar(player, "morphinggrid_power_usage", 0, 100, true)
+  if morphinggrid.optional_dependencies["hudbars"] then
+    hb.init_hudbar(player, "morphinggrid_power_usage", 0, 100, true)
 
-  morphinggrid.huds[player:get_player_name()] = nil
-  local ranger = morphinggrid.get_morph_status(player)
-  if ranger then
-    morphinggrid.show_hud(player, ranger, true)
+    morphinggrid.huds[player:get_player_name()] = nil
+    local ranger = morphinggrid.get_morph_status(player)
+    if ranger then
+      morphinggrid.show_hud(player, ranger, true)
+    end
   end
   -- if morphinggrid.huds[player:get_player_name()] ~= nil then
   --   local ranger = morphinggrid.get_morph_status(player)
@@ -580,7 +582,7 @@ function morphinggrid.show_hud(player, ranger, startup)
   
   if morphinggrid.huds[player:get_player_name()] == nil then
     morphinggrid.huds[player:get_player_name()] = {}
-    if hudbars_loaded then
+    if morphinggrid.optional_dependencies["hudbars"] then
       morphinggrid.huds[player:get_player_name()].helmet_bg = player:hud_add(hud_hb.helmet_bg)
       morphinggrid.huds[player:get_player_name()].bg = player:hud_add(hud_hb.bg)
       morphinggrid.huds[player:get_player_name()].helmet = player:hud_add(hud_hb.helmet)
@@ -604,7 +606,7 @@ function morphinggrid.hide_hud(player)
   
   local huds = morphinggrid.huds[player:get_player_name()]
   if huds ~= nil then
-    if hudbars_loaded() then
+    if morphinggrid.optional_dependencies["hudbars"] then
       player:hud_remove(huds.helmet_bg)
       player:hud_remove(huds.bg)
       player:hud_remove(huds.helmet)
@@ -629,7 +631,7 @@ function morphinggrid.hud_update_power_usage(player)
     local rangerdata = morphinggrid.get_current_rangerdata(player)
     local energy_level = rangerdata:get_energy_level_percentage()
 
-    if hudbars_loaded() then
+    if morphinggrid.optional_dependencies["hudbars"] then
       hb.change_hudbar(player, "morphinggrid_power_usage", energy_level*100)
     else
       player:hud_change(morphinggrid.huds[player:get_player_name()].status,"number",math.floor(energy_level*20))
