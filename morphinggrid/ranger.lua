@@ -50,7 +50,7 @@ function morphinggrid.register_ranger(name, rangerdef)
   rangerdef.armor_textures = morphinggrid.correct_armor_textures(rangerdef)
   
   --Register Armor
-  register_ranger_armor(rangerdef)
+  -- register_ranger_armor(rangerdef)
   
   --ranger commands
   rangerdef.ranger_commands = rangerdef.ranger_commands or {}
@@ -120,107 +120,64 @@ function morphinggrid.register_ranger(name, rangerdef)
   })
 end
 
-function register_ranger_armor(rangerdef)
-  local modname = morphinggrid.split_string (rangerdef.name, ":")[1]
-  local ranger = morphinggrid.split_string (rangerdef.name, ":")[2]
+-- function register_ranger_armor(rangerdef)
+--   local modname = morphinggrid.split_string (rangerdef.name, ":")[1]
+--   local ranger = morphinggrid.split_string (rangerdef.name, ":")[2]
   
-  --helmet
-  armor:register_armor(modname..":helmet_"..ranger, {
-    --description = S(rangerdef.description.." Helmet"),
-	description = rangerdef.description.." Helmet",
-    texture = rangerdef.armor_textures.helmet.armor,
-    preview = rangerdef.armor_textures.helmet.preview,
-    inventory_image = rangerdef.armor_textures.helmet.inventory,
-    armor_fire_protect = true,
-    armor_punch_damage = true,
-    armor_groups = {fleshy=100},
-    groups = {armor_head=1, armor_heal=rangerdef.heal, armor_use=rangerdef.use, armor_water=1,
-      not_in_creative_inventory=1}
-  })
+--   --helmet
+--   armor:register_armor(modname..":helmet_"..ranger, {
+--     --description = S(rangerdef.description.." Helmet"),
+-- 	description = rangerdef.description.." Helmet",
+--     texture = rangerdef.armor_textures.helmet.armor,
+--     preview = rangerdef.armor_textures.helmet.preview,
+--     inventory_image = rangerdef.armor_textures.helmet.inventory,
+--     armor_fire_protect = true,
+--     armor_punch_damage = true,
+--     armor_groups = {fleshy=100},
+--     groups = {armor_head=1, armor_heal=rangerdef.heal, armor_use=rangerdef.use, armor_water=1,
+--       not_in_creative_inventory=1}
+--   })
   
-  --chestplate
-  armor:register_armor(modname..":chestplate_"..ranger, {
-    --description = S(rangerdef.description.." Chestplate"),
-	description = rangerdef.description.." Chestplate",
-    texture = rangerdef.armor_textures.chestplate.armor,
-    preview = rangerdef.armor_textures.chestplate.preview,
-    inventory_image = rangerdef.armor_textures.chestplate.inventory,
-    armor_groups = {fleshy=100},
-    groups = {armor_torso=1, armor_heal=rangerdef.heal, armor_use=rangerdef.use,
-      not_in_creative_inventory=1},
-  })
+--   --chestplate
+--   armor:register_armor(modname..":chestplate_"..ranger, {
+--     --description = S(rangerdef.description.." Chestplate"),
+-- 	description = rangerdef.description.." Chestplate",
+--     texture = rangerdef.armor_textures.chestplate.armor,
+--     preview = rangerdef.armor_textures.chestplate.preview,
+--     inventory_image = rangerdef.armor_textures.chestplate.inventory,
+--     armor_groups = {fleshy=100},
+--     groups = {armor_torso=1, armor_heal=rangerdef.heal, armor_use=rangerdef.use,
+--       not_in_creative_inventory=1},
+--   })
   
-  --leggings
-  armor:register_armor(modname..":leggings_"..ranger, {
-    --description = S(rangerdef.description.." Leggings"),
-	description = rangerdef.description.." Leggings",
-    texture = rangerdef.armor_textures.leggings.armor,
-    preview = rangerdef.armor_textures.leggings.preview,
-    inventory_image = rangerdef.armor_textures.leggings.inventory,
-    armor_fire_protect = true,
-    armor_punch_damage = true,
-    armor_groups = {fleshy=100},
-    groups = {armor_legs=1, armor_heal=rangerdef.heal, armor_use=rangerdef.use,
-      not_in_creative_inventory=1},
-  })
+--   --leggings
+--   armor:register_armor(modname..":leggings_"..ranger, {
+--     --description = S(rangerdef.description.." Leggings"),
+-- 	description = rangerdef.description.." Leggings",
+--     texture = rangerdef.armor_textures.leggings.armor,
+--     preview = rangerdef.armor_textures.leggings.preview,
+--     inventory_image = rangerdef.armor_textures.leggings.inventory,
+--     armor_fire_protect = true,
+--     armor_punch_damage = true,
+--     armor_groups = {fleshy=100},
+--     groups = {armor_legs=1, armor_heal=rangerdef.heal, armor_use=rangerdef.use,
+--       not_in_creative_inventory=1},
+--   })
   
-  --boots
-  armor:register_armor(modname..":boots_"..ranger, {
-    --description = S(rangerdef.description.." Boots"),
-	description = rangerdef.description.." Boots",
-    texture = rangerdef.armor_textures.boots.armor,
-    preview = rangerdef.armor_textures.boots.preview,
-    inventory_image = rangerdef.armor_textures.boots.inventory,
-    armor_fire_protect = true,
-    armor_punch_damage = true,
-    armor_groups = {fleshy=100},
-    groups = {armor_feet=1, armor_heal=rangerdef.heal, armor_use=rangerdef.use,
-      not_in_creative_inventory=1},
-  })
-end
-
-function clear_ranger_armor(player, ranger_name)
-  local modname = morphinggrid.split_string (ranger_name, ":")[1]
-  local ranger = morphinggrid.split_string (ranger_name, ":")[2]
-  
-  local inv = minetest.get_inventory({type="detached", name=player:get_player_name().."_armor"})
-  
-  inv:remove_item("armor", ItemStack(modname..":helmet_"..ranger.." 2"))
-  inv:remove_item("armor", ItemStack(modname..":chestplate_"..ranger.." 2"))
-  inv:remove_item("armor", ItemStack(modname..":leggings_"..ranger.." 2"))
-  inv:remove_item("armor", ItemStack(modname..":boots_"..ranger.." 2"))
-  
-  armor:save_armor_inventory(player)
-  armor:set_player_armor(player)
-end
-
-function morphinggrid.get_current_armor(player, ranger_name)
-  local t = { helmet = false, chestplate = false, leggings = false, boots = false }
-  
-  local player_name = player:get_player_name()
-  local modname = morphinggrid.split_string (ranger_name, ":")[1]
-  local ranger = morphinggrid.split_string (ranger_name, ":")[2]
-  
-  local inv = minetest.get_inventory({type="detached", name=player_name.."_armor"})
-  
-  if inv:contains_item("armor", ItemStack(modname..":helmet_"..ranger)) then
-    t.helmet = true
-  end
-  
-  if inv:contains_item("armor", ItemStack(modname..":chestplate_"..ranger)) then
-    t.chestplate = true
-  end
-  
-  if inv:contains_item("armor", ItemStack(modname..":leggings_"..ranger)) then
-    t.leggings = true
-  end
-  
-  if inv:contains_item("armor", ItemStack(modname..":boots_"..ranger)) then
-    t.boots = true
-  end
-  
-  return t
-end
+--   --boots
+--   armor:register_armor(modname..":boots_"..ranger, {
+--     --description = S(rangerdef.description.." Boots"),
+-- 	description = rangerdef.description.." Boots",
+--     texture = rangerdef.armor_textures.boots.armor,
+--     preview = rangerdef.armor_textures.boots.preview,
+--     inventory_image = rangerdef.armor_textures.boots.inventory,
+--     armor_fire_protect = true,
+--     armor_punch_damage = true,
+--     armor_groups = {fleshy=100},
+--     groups = {armor_feet=1, armor_heal=rangerdef.heal, armor_use=rangerdef.use,
+--       not_in_creative_inventory=1},
+--   })
+-- end
 
 function morphinggrid.correct_armor_textures(rangerdef)
   local name_ = morphinggrid.split_string (rangerdef.name, ":")
@@ -280,12 +237,7 @@ function morphinggrid.correct_armor_textures(rangerdef)
 end
 
 function morphinggrid.get_ranger(name)
-  for i, v in pairs(morphinggrid.registered_rangers) do
-    if v.name == name then
-      return v
-    end
-  end
-  return nil
+  return morphinggrid.registered_rangers[name or ""]
 end
 
 function morphinggrid.get_registered_rangers()
@@ -303,34 +255,6 @@ function morphinggrid.get_ranger_group(ranger, group)
     end
   end
   return 0
-end
-
-function morphinggrid.punch_ranger_armor(player, hitter, damage)
-  local ranger_name = morphinggrid.get_morph_status(player)
-  local ranger = morphinggrid.registered_rangers[ranger_name]
-  damage = damage or 1
-  
-  if ranger ~= nil then
-    local inv = minetest.get_inventory({
-      type="detached", name=player:get_player_name().."_armor"})
-    
-    local list = inv:get_list("armor")
-    for i, stack in pairs(list) do
-      local old_stack = ItemStack(stack)
-      local amount_of_damage = damage * ranger.use
-      local wear_level = 65535 - (stack:get_wear() + amount_of_damage)
-      
-      stack:add_wear(amount_of_damage)
-      inv:set_stack("armor", i, stack)
-      
-      if stack:get_count() == 0 then
-        armor:run_callbacks("on_destroy", player, i, old_stack)
-      end
-      
-      armor:save_armor_inventory(player)
-      armor:set_player_armor(player)
-    end
-  end
 end
 
 function ranger.get_rangertype(rangerdef)

@@ -19,11 +19,42 @@ minetest.register_on_player_hpchange(function(player, hp_change, reason)
             morphinggrid.hud_update_power_usage(player)
             hp_change = 0
         else
-            hp_change = handle_3d_armor(player, hp_change, reason)
+            if morphinggrid.optional_dependencies["3d_armor"] then
+                hp_change = handle_3d_armor(player, hp_change, reason)
+            end
         end
     end
     return hp_change
 end, true)
+
+if morphinggrid.optional_dependencies["3d_armor"] then
+    armor:register_on_update(function(player)
+        morphinggrid.update_player_visuals(player)
+    end)
+else
+    default.player_register_model("3d_armor_character.b3d", {
+        animation_speed = 30,
+        textures = {
+            player:get_properties().textures[1],
+            "morphinggrid_armor_transparent.png",
+            "morphinggrid_armor_transparent.png",
+            "morphinggrid_armor_transparent.png"
+        },
+        animations = {
+            stand = {x=0, y=79},
+            lay = {x=162, y=166},
+            walk = {x=168, y=187},
+            mine = {x=189, y=198},
+            walk_mine = {x=200, y=219},
+            sit = {x=81, y=160},
+        },
+    })
+
+    minetest.register_on_joinplayer(function(player)
+        player_api.set_model(player, "3d_armor_character.b3d")
+        morphinggrid.update_player_visuals(player)
+    end)
+end
 
 function morphinggrid.update_player_visuals(player)
     local name = player:get_player_name()
@@ -33,7 +64,7 @@ function morphinggrid.update_player_visuals(player)
         local rangerdata = morphinggrid.get_current_rangerdata(player)
         local rangerdef = morphinggrid.registered_rangers[ranger or ""]
         local ranger_armor_textures = rangerdef.armor_textures
-        local ranger_armor = "armor_transparent.png"..
+        local ranger_armor = "morphinggrid_armor_transparent.png"..
             "^"..ranger_armor_textures.boots.armor..
             "^"..ranger_armor_textures.leggings.armor..
             "^"..ranger_armor_textures.chestplate.armor

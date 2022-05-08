@@ -1,6 +1,6 @@
 default
 dye
 player_api
-3d_armor
+3d_armor?
 electronic_materials?
 hudbars?

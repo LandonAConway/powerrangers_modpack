@@ -4,6 +4,12 @@ local modname = minetest.get_current_modname()
 local modpath = minetest.get_modpath(modname)
 
 morphinggrid = {}
+morphinggrid.optional_dependencies = {
+  ["3d_armor"] = minetest.get_modpath("3d_armor") ~= nil,
+  ["electronic_materials"] = minetest.get_modpath("electronic_materials") ~= nil,
+  ["hudbars"] = minetest.get_modpath("hudbars") ~= nil
+}
+
 morphinggrid.default_callbacks = {}
 morphinggrid.mod_storage = {}
 
@@ -22,7 +28,6 @@ dofile(minetest.get_modpath("morphinggrid") .. "/hudbars.lua")
 dofile(minetest.get_modpath("morphinggrid") .. "/ranger_data.lua")
 dofile(minetest.get_modpath("morphinggrid") .. "/ranger_armor.lua")
 dofile(minetest.get_modpath("morphinggrid") .. "/morphing.lua")
-dofile(minetest.get_modpath("morphinggrid") .. "/armor_textures_override.lua")
 dofile(minetest.get_modpath("morphinggrid") .. "/grid_items.lua")
 dofile(minetest.get_modpath("morphinggrid") .. "/morpher_slots.lua")
 dofile(minetest.get_modpath("morphinggrid") .. "/ranger.lua")
