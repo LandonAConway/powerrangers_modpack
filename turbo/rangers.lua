@@ -39,6 +39,7 @@ for _, v in ipairs(turbo.rangers) do
 	  color = v.name,
       weapons = v.weapons,
       ranger_groups = v.ranger_groups,
+	  ranger_command_presets = { default = true },
       armor_textures = {
         boots = { armor="turbo_boots.png", preview="turbo_boots_preview.png", inventory="turbo_boots_inv.png" }
       }

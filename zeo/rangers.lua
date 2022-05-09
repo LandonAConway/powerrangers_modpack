@@ -93,6 +93,7 @@ morphinggrid.register_ranger("zeo:gold", {
 	  color = "gold",
     weapons = {},
     ranger_groups = {},
+    ranger_command_presets = { default = true },
     abilities = {
       strength = {
         full_punch_interval = 0.1,

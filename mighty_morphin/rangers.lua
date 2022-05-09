@@ -55,6 +55,8 @@ for i, v in ipairs(mmprrangers) do
 		grid_doc = {
 			description = "Morphs a player into the Mighty Morphin "..v[2].." Ranger."
 		},
+    ranger_armor = { helmet = { helmet_visor_mask = "mighty_morphin_visor_mask_"..v[1] } },
+    ranger_command_presets = { default = true, visor = true },
 		morpher_slots = {
 			amount = 1,
 			load_input = function(itemstack)
@@ -86,10 +88,13 @@ end
 for i, v in ipairs(mmprrangers_shields) do
   morphinggrid.register_ranger("mighty_morphin:"..v[1], {
     description = v[2].." Mighty Morphin Ranger",
-    heal = v[3],
-    use = v[4],
+    max_energy = v[3],
+    energy_damage_per_hp = 1,
+    energy_heal_per_globalstep = v[4],
     weapons = v[5],
     ranger_groups = v[6],
-	create_rangerdata = false
+	  create_rangerdata = false,
+    ranger_armor = { helmet = { helmet_visor_mask = "mighty_morphin_visor_mask_"..v[1] } },
+    ranger_command_presets = { default = true, visor = true }
   })
 end

@@ -115,7 +115,7 @@ for i, v in ipairs(beast_morphers.rangers) do
     weapons = v.weapons,
     abilities = { strength=beast_morphers.get_strength(v[1]) },
     ranger_groups = v[5],
-	
+    ranger_command_presets = { default = true },
 	grid_doc = {
 		custom_details = {
 			special_abilities[v[1]]
