@@ -3,8 +3,8 @@ local handle_3d_armor = function(player, hp_change, reason)
     if player and reason.type ~= "drown" and reason.hunger == nil then
         local name = player:get_player_name()
         if name then
-            math.randomseed(os.time)
             local heal = armor.def[name].heal
+            math.randomseed(os.time())
             if heal >= math.random(100) then
                 hp_change = 0
             end
@@ -13,47 +13,17 @@ local handle_3d_armor = function(player, hp_change, reason)
     return hp_change
 end
 
-local load_armor = function(player)
-    local player_name = player:get_player_name()
-    local inv = minetest.get_inventory({
-        type="detached", name=player_name.."_armor"})
-    local list = {}
-    if inv then
-        for _, stack in pairs(minetest.deserialize(player:get_meta():get_string("3d_armor_inv_list")) or {}) do
-            table.insert(list, ItemStack(stack))
-        end
-    end
-    inv:set_list("armor", list)
-end
-
-local save_armor = function(player)
-    local player_name = player:get_player_name()
-    local inv = minetest.get_inventory({
-        type="detached", name=player_name.."_armor"})
-    local list = {}
-    if inv then
-        for _, stack in pairs(inv:get_list("armor")) do
-            table.insert(list, stack:to_table())
-        end
-    end
-    player:get_meta():set_string("3d_armor_inv_list", minetest.serialize(list))
-end
-
 minetest.register_on_player_hpchange(function(player, hp_change, reason)
     if hp_change < 0 then
         if morphinggrid.get_morph_status(player) then
             morphinggrid.get_current_rangerdata(player):damage_energy_hp(hp_change*-1)
             morphinggrid.hud_update_power_usage(player)
             hp_change = 0
-            if morphinggrid.optional_dependencies["3d_armor"] then
-                load_armor(player)
-            end
         else
             if morphinggrid.optional_dependencies["3d_armor"] then
-                hp_change = handle_3d_armor(player, hp_change, reason)
+                handle_3d_armor(player, hp_change, reason)
             end
         end
-        save_armor(player)
     end
     return hp_change
 end, true)
@@ -63,13 +33,12 @@ if morphinggrid.optional_dependencies["3d_armor"] then
         morphinggrid.update_player_visuals(player)
     end)
 
-    armor:register_on_equip(function(player, index, stack)
-        save_armor(player)
-    end)
-
-    armor:register_on_unequip(function(player, index, stack)
-        save_armor(player)
-    end)
+    local armor_punch = armor.punch
+    armor.punch = function(self, player, ...)
+        if not morphinggrid.get_morph_status(player) then
+            armor_punch(self, player, ...)
+        end
+    end
 else
     default.player_register_model("3d_armor_character.b3d", {
         animation_speed = 30,

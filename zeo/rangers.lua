@@ -35,6 +35,7 @@ for i, v in ipairs(zeo.rangers) do
 	  color = v[1],
     weapons = v[6],
     ranger_groups = v[5],
+    ranger_command_presets = { default = true },
     abilities = {
       strength = {
         full_punch_interval = 0.1,

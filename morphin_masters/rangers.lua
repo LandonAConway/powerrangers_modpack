@@ -34,6 +34,19 @@ for k, v in pairs(rangers) do
 		privs = { "morphinggrid" },
 		create_rangerdata = false,
 		ranger_command_presets = { default = true, visor = true },
+		hand = {
+			range = 50,
+			tool_capabilities = {
+				full_punch_interval = 0.1,
+				max_drop_level = 0,
+				groupcaps = {
+					crumbly = {times={[2]=1.20, [3]=0.40}, uses=0, maxlevel=1},
+					snappy = {times={[3]=0.20}, uses=0, maxlevel=1},
+					oddly_breakable_by_hand = {times={[1]=2.50,[2]=1.00,[3]=0.40}, uses=0}
+				},
+				damage_groups = {fleshy=5},
+			}
+		},
 		armor_textures = {
 			boots = {
 				armor = "morphin_masters_boots.png",
