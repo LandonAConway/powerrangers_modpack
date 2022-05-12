@@ -50,39 +50,40 @@ for i, v in ipairs(mmprrangers) do
         ranger_command_presets = { default = true, visor = true },
         armor_textures = { helmet = { armor_visor_mask = "mighty_morphin_visor_mask_"..v[1]..".png" } },
         morpher = {
-        name = "mighty_morphin:"..v[5].."_morpher",
-        inventory_image = v[5].."_morpher.png",
-        description = mighty_morphin.upper_first_char(v[5], true).." Morpher",
-        griditems = { "mighty_morphin:"..v[5].."_powercoin" },
-        prevents_respawn = true,
-        grid_doc = {
-            description = "Morphs a player into the Mighty Morphin "..v[2].." Ranger."
-        },
-        ranger_armor = { helmet = { helmet_visor_mask = "mighty_morphin_visor_mask_"..v[1] } },
-        morpher_slots = {
-            amount = 1,
-            load_input = function(itemstack)
-            return true, {ItemStack("mighty_morphin:"..v[5].."_powercoin")}
-            end,
-            output = function(itemstack, slots)
-            if slots[1]:get_name() == "" then
-                return true, ItemStack("mighty_morphin:empty_morpher")
-            end
-            return false, itemstack
-            end,
-            allow_put = function()
-            return 0
-            end,
+            name = "mighty_morphin:"..v[5].."_morpher",
+            inventory_image = v[5].."_morpher.png",
+            description = mighty_morphin.upper_first_char(v[5], true).." Morpher",
+            griditems = { "mighty_morphin:"..v[5].."_powercoin" },
+            prevents_respawn = true,
+            hp_multiplier = 0.5,
             grid_doc = {
-            inputs = {
-                { input = {} }
-            }
-            }
-        },
-        morph_func_override = function(user, itemstack)
-            local ranger = morphinggrid.get_ranger("mighty_morphin:"..v[1])
-            mighty_morphin.morph(user, ranger, "mighty_morphin:"..v[5].."_morpher", itemstack)
-        end,
+                description = "Morphs a player into the Mighty Morphin "..v[2].." Ranger."
+            },
+            ranger_armor = { helmet = { helmet_visor_mask = "mighty_morphin_visor_mask_"..v[1] } },
+            morpher_slots = {
+                amount = 1,
+                load_input = function(itemstack)
+                return true, {ItemStack("mighty_morphin:"..v[5].."_powercoin")}
+                end,
+                output = function(itemstack, slots)
+                if slots[1]:get_name() == "" then
+                    return true, ItemStack("mighty_morphin:empty_morpher")
+                end
+                return false, itemstack
+                end,
+                allow_put = function()
+                return 0
+                end,
+                grid_doc = {
+                inputs = {
+                    { input = {} }
+                }
+                }
+            },
+            morph_func_override = function(user, itemstack)
+                local ranger = morphinggrid.get_ranger("mighty_morphin:"..v[1])
+                mighty_morphin.morph(user, ranger, "mighty_morphin:"..v[5].."_morpher", itemstack)
+            end,
         },
     })
 end

@@ -69,6 +69,7 @@ morphinggrid.register_griditem("mighty_morphin:mastodon_powercoin", {
 	rangers = { "mighty_morphin:black" },
 	morph_chance = 8,
 	prevents_respawn = true,
+	hp_multiplier = 0.5,
 	grid_doc = {
 		description = "Holds the power of the Mighty Morphin Black Ranger."
 	}
@@ -80,6 +81,7 @@ morphinggrid.register_griditem("mighty_morphin:pterodactyl_powercoin", {
 	prevents_respawn = true,
 	rangers = { "mighty_morphin:pink" },
 	morph_chance = 8,
+	hp_multiplier = 0.5,
 	grid_doc = {
 		description = "Holds the power of the Mighty Morphin Pink Ranger."
 	}
@@ -91,6 +93,7 @@ morphinggrid.register_griditem("mighty_morphin:triceratops_powercoin", {
 	prevents_respawn = true,
 	rangers = { "mighty_morphin:blue" },
 	morph_chance = 8,
+	hp_multiplier = 0.5,
 	grid_doc = {
 		description = "Holds the power of the Mighty Morphin Blue Ranger."
 	}
@@ -102,6 +105,7 @@ morphinggrid.register_griditem("mighty_morphin:saber_toothed_tiger_powercoin", {
 	prevents_respawn = true,
 	rangers = { "mighty_morphin:yellow" },
 	morph_chance = 8,
+	hp_multiplier = 0.5,
 	grid_doc = {
 		description = "Holds the power of the Mighty Morphin Yellow Ranger."
 	}
@@ -113,6 +117,7 @@ morphinggrid.register_griditem("mighty_morphin:tyrannosaurus_powercoin", {
 	prevents_respawn = true,
 	rangers = { "mighty_morphin:red" },
 	morph_chance = 8,
+	hp_multiplier = 0.5,
 	grid_doc = {
 		description = "Holds the power of the Mighty Morphin Red Ranger."
 	}
@@ -124,6 +129,7 @@ morphinggrid.register_griditem("mighty_morphin:dragonzord_powercoin", {
 	prevents_respawn = true,
 	rangers = { "mighty_morphin:green" },
 	morph_chance = 8,
+	hp_multiplier = 0.5,
 	grid_doc = {
 		description = "Holds the power of the Mighty Morphin Green Ranger."
 	}
@@ -135,6 +141,7 @@ morphinggrid.register_griditem("mighty_morphin:tigerzord_powercoin", {
 	prevents_respawn = true,
 	rangers = { "mighty_morphin:white" },
 	morph_chance = 8,
+	hp_multiplier = 0.5,
 	grid_doc = {
 		description = "Holds the power of the Mighty Morphin White Ranger."
 	}

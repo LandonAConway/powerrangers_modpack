@@ -1,3 +1,35 @@
+local combine_tables = function(...)
+    local result = {}
+    for _, t in pairs({...}) do
+        for _, stack in pairs(t) do
+            table.insert(result, stack)
+        end
+    end
+    return result
+end
+
+--The purpose of this function is not directly related to the ranger's armor, however it is used by register_on_player_hpchange.
+--This function calculates the hp that will be returned from the grid item's or morphers that are in a player's inventory which
+--modify the hp of a player.
+local get_multiplied_hp = function(player, hp_change)
+    local player_main = player:get_inventory():get_list("main")
+    local morphers_main = morphinggrid.morphers.get_inventory(player):get_list("main")
+    local morphers_single morphinggrid.morphers.get_inventory(player):get_list("single")
+
+    local product = hp_change
+    for _, stack in pairs(combine_tables(player_main, morphers_main, morphers_single)) do
+        local griditemdef = morphinggrid.registered_griditems[stack:get_name()]
+        local morpherdef = morphinggrid.registered_morphers[stack:get_name()]
+        if griditemdef then
+            product = product * (griditemdef.hp_multiplier or 1)
+        elseif morpherdef then
+            product = product * (morpherdef.hp_multiplier or 1)
+        end
+    end
+
+    return product
+end
+
 --prevents the player from having their hp change when morphed, instead affects the ranger armor
 local handle_3d_armor = function(player, hp_change, reason)
     if player and reason.type ~= "drown" and reason.hunger == nil then
@@ -23,6 +55,7 @@ minetest.register_on_player_hpchange(function(player, hp_change, reason)
             if morphinggrid.optional_dependencies["3d_armor"] then
                 handle_3d_armor(player, hp_change, reason)
             end
+            hp_change = get_multiplied_hp(player, hp_change)
         end
     end
     return hp_change

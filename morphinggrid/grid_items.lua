@@ -385,6 +385,7 @@ function morphinggrid.default_callbacks.griditem.morph_behavior(player, itemstac
 	for i, _ in ipairs(def.rangers) do
 		ranger_count = ranger_count + 1
 	end
+	math.randomseed(os.time())
 	local ranger_index = round(math.random(1, ranger_count))
 	
 	--attempt to morph

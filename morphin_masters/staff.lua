@@ -17,6 +17,7 @@ for k, v in pairs(rangers) do
 		inventory_image = "morphin_masters_staff_"..k..".png",
 		register_griditem = true,
 		prevents_respawn = true,
+		hp_multiplier = 0,
 		ranger = "morphin_masters:"..k,
 		tool_capabilities = {
 			full_punch_interval = 0.1,
