@@ -20,10 +20,21 @@ local get_multiplied_hp = function(player, hp_change)
     for _, stack in pairs(combine_tables(player_main, morphers_main, morphers_single)) do
         local griditemdef = morphinggrid.registered_griditems[stack:get_name()]
         local morpherdef = morphinggrid.registered_morphers[stack:get_name()]
+        local hp_multiplier = 1
         if griditemdef then
-            product = product * (griditemdef.hp_multiplier or 1)
+            if type(griditemdef.hp_multiplier) == "number" then
+                hp_multiplier = griditemdef.hp_multiplier
+            elseif type(griditemdef.hp_multiplier) == "function" then
+                hp_multiplier = griditemdef.hp_multiplier(player, hp_change, product) or 1
+            end
+            product = product * hp_multiplier
         elseif morpherdef then
-            product = product * (morpherdef.hp_multiplier or 1)
+            if type(morpherdef.hp_multiplier) == "number" then
+                hp_multiplier = morpherdef.hp_multiplier
+            elseif type(morpherdef.hp_multiplier) == "function" then
+                hp_multiplier = morpherdef.hp_multiplier(player, hp_change, product) or 1
+            end
+            product = product * hp_multiplier
         end
     end
 

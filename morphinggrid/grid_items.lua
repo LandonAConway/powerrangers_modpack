@@ -286,6 +286,7 @@ function morphinggrid.register_griditem(name, def)
 	def.griditem_commands = def.griditem_commands or {}
 	def.rangers = def.rangers or {}
 	def.morph_chance = def.morph_chance or 0
+	def.hp_multiplier = def.hp_multiplier or 1
 	def.callbacks = get_callbacks(def.exclude_callbacks)
 	
 	def.morph_behavior = def.morph_behavior or function(player, itemstack)

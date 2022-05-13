@@ -317,6 +317,7 @@ function morphinggrid.register_morpher(name, morpherdef)
     morpherdef.groups = morpherdef.groups or {}
     morpherdef.groups.morpher = morpherdef.groups.morpher or 1
     morpherdef.griditems = morpherdef.griditems or {}
+    morpherdef.hp_multiplier = morpherdef.hp_multiplier or 1
 
     morpherdef.allow_prevent_respawn = morpherdef.allow_prevent_respawn or function(player, itemstack)
         return morphinggrid.default_callbacks.morpher.allow_prevent_respawn(player, itemstack)
