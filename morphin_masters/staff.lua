@@ -18,6 +18,7 @@ for k, v in pairs(rangers) do
 		register_griditem = true,
 		prevents_respawn = true,
 		hp_multiplier = 0,
+		punchback_multiplier = 1,
 		ranger = "morphin_masters:"..k,
 		tool_capabilities = {
 			full_punch_interval = 0.1,
@@ -91,21 +92,22 @@ for k, v in pairs(rangers) do
 			if meta:get_string("mode") == "" or meta:get_string("mode") == "attack" then
 				local ctrl = player:get_player_control()
 				if ctrl.RMB then
-					for i, v in ipairs(minetest.get_objects_inside_radius(player:get_pos(), 15)) do
+					for _, v in pairs(minetest.get_objects_inside_radius(player:get_pos(), 15)) do
 						local capabilities = {
-							full_punch_interval = 0,
+							full_punch_interval = 0.1,
 							max_drop_level=1,
 							damage_groups = {fleshy=75},
 						}
-						
-						if v ~= player then
+						if v:is_player() and v:get_player_name() == player:get_player_name() then
+							--do nothing
+						else
 							v:punch(player, 0.1, capabilities)
 						end
 					end
 				else
 					if pointed_thing.ref ~= nil then
 						local tool_capabilities = morphinggrid.registered_morphers[itemstack:get_name()].tool_capabilities
-						pointed_thing.ref:punch(player, 0, tool_capabilities, nil)
+						pointed_thing.ref:punch(player, 0.1, tool_capabilities, nil)
 					end
 				end
 			elseif meta:get_string("mode") == "morph" then
@@ -113,7 +115,7 @@ for k, v in pairs(rangers) do
 				if ranger == "" then ranger = "morphin_masters:"..k end
 				if morphinggrid.registered_rangers[ranger] then
 					local obj = pointed_thing.ref
-					if obj ~= nil then
+					if obj then
 						if obj:is_player() then
 							morphinggrid.morph(obj, ranger)
 						end
@@ -141,8 +143,8 @@ morphinggrid.register_morpher("morphin_masters:staff", {
 		damage_groups = {fleshy=8},
 	},
 	grid_doc = {
-		description = "An empty Morphin Master Staff. You can input any Master Crystal into it's slots to get a Morphin Master Staff."..
-		"(Use chat command '/morpher slots' when wielding it)."
+		description = [[An empty Morphin Master Staff. You can input any Master Crystal into it's slots to get a Morphin Master Staff.
+				Use chat command '/morpher slots' when wielding it).]]
 	},
 	
 	morpher_slots = {

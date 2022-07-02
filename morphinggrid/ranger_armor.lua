@@ -14,7 +14,7 @@ end
 local get_multiplied_hp = function(player, hp_change)
     local player_main = player:get_inventory():get_list("main")
     local morphers_main = morphinggrid.morphers.get_inventory(player):get_list("main")
-    local morphers_single morphinggrid.morphers.get_inventory(player):get_list("single")
+    local morphers_single = morphinggrid.morphers.get_inventory(player):get_list("single")
 
     local product = hp_change
     for _, stack in pairs(combine_tables(player_main, morphers_main, morphers_single)) do
@@ -25,17 +25,16 @@ local get_multiplied_hp = function(player, hp_change)
             if type(griditemdef.hp_multiplier) == "number" then
                 hp_multiplier = griditemdef.hp_multiplier
             elseif type(griditemdef.hp_multiplier) == "function" then
-                hp_multiplier = griditemdef.hp_multiplier(player, hp_change, product) or 1
+                hp_multiplier = griditemdef.hp_multiplier(player, hp_change, product, stack) or 1
             end
-            product = product * hp_multiplier
         elseif morpherdef then
             if type(morpherdef.hp_multiplier) == "number" then
                 hp_multiplier = morpherdef.hp_multiplier
             elseif type(morpherdef.hp_multiplier) == "function" then
-                hp_multiplier = morpherdef.hp_multiplier(player, hp_change, product) or 1
+                hp_multiplier = morpherdef.hp_multiplier(player, hp_change, product, stack) or 1
             end
-            product = product * hp_multiplier
         end
+        product = product * hp_multiplier
     end
 
     return product
@@ -71,6 +70,50 @@ minetest.register_on_player_hpchange(function(player, hp_change, reason)
     end
     return hp_change
 end, true)
+
+
+--This function calculates the damage that will be done to the other ObjectRef that punches the player.
+local get_multiplied_punchback = function(player, damage)
+    local player_main = player:get_inventory():get_list("main")
+    local morphers_main = morphinggrid.morphers.get_inventory(player):get_list("main")
+    local morphers_single = morphinggrid.morphers.get_inventory(player):get_list("single")
+
+    local sum = 0
+    for _, stack in pairs(combine_tables(player_main, morphers_main, morphers_single)) do
+        local griditemdef = morphinggrid.registered_griditems[stack:get_name()]
+        local morpherdef = morphinggrid.registered_morphers[stack:get_name()]
+        local punchback_multiplier = 0
+        if griditemdef then
+            if type(griditemdef.punchback_multiplier) == "number" then
+                punchback_multiplier = griditemdef.punchback_multiplier
+            elseif type(griditemdef.punchback_multiplier) == "function" then
+                punchback_multiplier = griditemdef.punchback_multiplier(player, damage, sum, stack) or 0
+            end
+        elseif morpherdef then
+            if type(morpherdef.punchback_multiplier) == "number" then
+                punchback_multiplier = morpherdef.punchback_multiplier
+            elseif type(morpherdef.punchback_multiplier) == "function" then
+                punchback_multiplier = morpherdef.punchback_multiplier(player, damage, sum, stack) or 0
+            end
+        end
+        sum = sum + (punchback_multiplier * damage)
+    end
+
+    return sum
+end
+
+minetest.register_on_punchplayer(function(player, hitter, time_from_last_punch, tool_capabilities, dir, damage)
+    if hitter and damage > 0 then
+        local punchback = get_multiplied_punchback(player, damage)
+        if hitter:is_player() and get_multiplied_punchback(hitter, 1) <= 0 then
+            if punchback > 0 then
+                hitter:punch(player, 1, {damage_groups={fleshy=punchback}})
+            end
+        elseif not hitter:is_player() then
+            hitter:punch(player, 1, {damage_groups={fleshy=punchback}})
+        end
+    end
+end)
 
 if morphinggrid.optional_dependencies["3d_armor"] then
     armor:register_on_update(function(player)
