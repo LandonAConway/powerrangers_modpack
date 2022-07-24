@@ -126,30 +126,32 @@ if morphinggrid.optional_dependencies["3d_armor"] then
             armor_punch(self, player, ...)
         end
     end
-else
-    default.player_register_model("3d_armor_character.b3d", {
-        animation_speed = 30,
-        textures = {
-            "character.png",
-            "morphinggrid_armor_transparent.png",
-            "morphinggrid_armor_transparent.png",
-            "morphinggrid_armor_transparent.png"
-        },
-        animations = {
-            stand = {x=0, y=79},
-            lay = {x=162, y=166},
-            walk = {x=168, y=187},
-            mine = {x=189, y=198},
-            walk_mine = {x=200, y=219},
-            sit = {x=81, y=160},
-        },
-    })
+end
 
-    minetest.register_on_joinplayer(function(player)
-        player_api.set_model(player, "3d_armor_character.b3d")
+player_api.register_model("powerrangers_character.b3d", {
+    animation_speed = 30,
+    textures = {
+        "character.png",
+        "morphinggrid_armor_transparent.png",
+        "morphinggrid_armor_transparent.png",
+        "morphinggrid_armor_transparent.png"
+    },
+    animations = {
+        stand = {x=0, y=79},
+        lay = {x=162, y=166},
+        walk = {x=168, y=187},
+        mine = {x=189, y=198},
+        walk_mine = {x=200, y=219},
+        sit = {x=81, y=160},
+    },
+})
+
+minetest.register_on_joinplayer(function(player)
+    minetest.after(0.1, function()
+        player_api.set_model(player, "powerrangers_character.b3d")
         morphinggrid.update_player_visuals(player)
     end)
-end
+end)
 
 function morphinggrid.update_player_visuals(player)
     local name = player:get_player_name()
