@@ -230,14 +230,14 @@ function _rangerdata.damage_energy_hp(self, hp)
     return self:subtract_energy(hp*rangerdef.energy_damage_per_hp)
 end
 
-function _rangerdata.damage_energy(self)
+function _rangerdata.damage_energy(self, globalsteps)
     local rangerdef = self:get_ranger_definition()
-    return self:subtract_energy(rangerdef.energy_damage_per_globalstep)
+    return self:subtract_energy(rangerdef.energy_damage_per_globalstep*(globalsteps or 1))
 end
 
-function _rangerdata.heal_energy(self)
+function _rangerdata.heal_energy(self, globalsteps)
     local rangerdef = self:get_ranger_definition()
-    return self:add_energy(rangerdef.energy_heal_per_globalstep)
+    return self:add_energy(rangerdef.energy_heal_per_globalstep*(globalsteps or 1))
 end
 
 function _rangerdata.has_energy(self)
@@ -246,36 +246,46 @@ end
 
 
 --calculate energy on each global step
+--EDIT: energy should not be calculated for every globalstep. This lags the server. Instead, do it at an interval.
+local globalstep_update_interval = 10
+local globalsteps = 0
+local time = 0
 local time_since_last_save = 0
 minetest.register_globalstep(function(dtime)
-    for _, player in pairs(minetest.get_connected_players()) do
-        --make sure morphed players have data
-        local current_ranger = morphinggrid.get_morph_status(player)
-        if current_ranger then
-            rangerdata_init(player, current_ranger)
-        end
-        morphinggrid.rangerdatas[player:get_player_name()] = morphinggrid.rangerdatas[player:get_player_name()] or {}
-        local datas = morphinggrid.rangerdatas[player:get_player_name()]
-        for ranger, data in pairs(datas) do
-            if data.loaded then
-                --player is not morphed as the 'ranger' so heal the ranger's energy.
-                if ranger ~= current_ranger then
-                    data:heal_energy()
-                else -- player is morphed as the 'ranger'
-                    data:damage_energy()
-                    if not data:has_energy() then
-                        --demorph the player because they do not have energy; their powers have been destroyed
-                        morphinggrid.demorph(player, { voluntary = false, chat_messages = false })
-                        minetest.chat_send_player(player:get_player_name(), "You have demorphed becuase you did not have enough power. (Ranger: "
-                            ..(data:get_ranger_definition().description or ranger)..")")
+    if time >= globalstep_update_interval then
+        for _, player in pairs(minetest.get_connected_players()) do
+            --make sure morphed players have data
+            local current_ranger = morphinggrid.get_morph_status(player)
+            if current_ranger then
+                rangerdata_init(player, current_ranger)
+            end
+            morphinggrid.rangerdatas[player:get_player_name()] = morphinggrid.rangerdatas[player:get_player_name()] or {}
+            local datas = morphinggrid.rangerdatas[player:get_player_name()]
+            for ranger, data in pairs(datas) do
+                if data.loaded then
+                    --player is not morphed as the 'ranger' so heal the ranger's energy.
+                    if ranger ~= current_ranger then
+                        data:heal_energy(globalsteps)
+                    else -- player is morphed as the 'ranger'
+                        data:damage_energy(globalsteps)
+                        if not data:has_energy() then
+                            --demorph the player because they do not have energy; their powers have been destroyed
+                            morphinggrid.demorph(player, { voluntary = false, chat_messages = false })
+                            minetest.chat_send_player(player:get_player_name(), "You have demorphed becuase you did not have enough power. (Ranger: "
+                                ..(data:get_ranger_definition().description or ranger)..")")
+                        end
                     end
                 end
             end
         end
+        if time_since_last_save > 30 then
+            morphinggrid.save_rangerdatas()
+            time_since_last_save = 0
+        end
+        globalsteps = 0
+        time = 0
     end
+    globalsteps = globalsteps + 1
+    time = time + dtime
     time_since_last_save = time_since_last_save + dtime
-    if time_since_last_save > 30 then
-        morphinggrid.save_rangerdatas()
-        time_since_last_save = 0
-    end
 end)

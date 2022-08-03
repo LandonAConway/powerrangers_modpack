@@ -34,6 +34,16 @@ for k, v in pairs(rangers) do
 		privs = { "morphinggrid" },
 		create_rangerdata = false,
 		ranger_command_presets = { default = true, visor = true },
+		ranger_commands = {
+			toggle_enerform = {
+				description = "Toggles Enerform.",
+				func = function(name)
+					local player = minetest.get_player_by_name(name)
+					morphin_masters.enerform_set_color(player, k)
+					morphin_masters.enerform_toggle(player)
+				end
+			}
+		},
 		hand = {
 			range = 50,
 			tool_capabilities = {

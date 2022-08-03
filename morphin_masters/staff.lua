@@ -58,6 +58,25 @@ for k, v in pairs(rangers) do
 					end
 					return false, '"'..text..'" is not a registered ranger.'
 				end
+			},
+
+			toggle_enerform = {
+				description = "Toggles Enerform.",
+				func = function(name)
+					local player = minetest.get_player_by_name(name)
+					morphin_masters.enerform_set_color(player, k)
+					morphin_masters.enerform_toggle(player)
+				end
+			}
+		},
+		morpher_commands = {
+			toggle_enerform = {
+				description = "Toggles Enerform.",
+				func = function(name)
+					local player = minetest.get_player_by_name(name)
+					morphin_masters.enerform_set_color(player, k)
+					morphin_masters.enerform_toggle(player)
+				end
 			}
 		},
 		morpher_slots = {

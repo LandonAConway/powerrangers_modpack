@@ -27,9 +27,8 @@ morphinggrid.register_on_player_control(function(player, pos, ctrl)
 		
 		if ctrl.sneak then
 			local vel = player:get_player_velocity()
-			if vel.y < 0 then
-				add_velocity(player, {x = 0, y = (0-vel.y)*0.5, z = 0})
-			end
+			local add_vel = {x=0,y=(vel.y*-1),z=0}
+			add_velocity(player, add_vel)
 		end
 		
 		if ctrl.LMB and ctrl.RMB then
