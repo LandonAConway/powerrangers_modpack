@@ -135,6 +135,14 @@ function morphin_masters.enerform_get_state(player)
     return mode
 end
 
+local function get_nametag_text(player)
+    local ranger = morphinggrid.get_morph_status(player)
+    if ranger then
+        local rangerdef = morphinggrid.registered_rangers[ranger]
+        return rangerdef.description or ranger
+    end
+end
+
 function morphin_masters.enerform_on(player)
     local meta = player:get_meta()
     local prop = {
@@ -144,7 +152,7 @@ function morphin_masters.enerform_on(player)
         visual_size = {x = 0, y = 0, z = 0},
     }
     player:set_properties(prop)
-    player:set_nametag_attributes({color = {a = 0, r = 255, g = 255, b = 255}})
+    player:set_nametag_attributes({color = {a = 0, r = 255, g = 255, b = 255}, text=get_nametag_text(player)})
     meta:set_string("morphin_masters:enerform", "on")
 end
 
@@ -157,7 +165,7 @@ function morphin_masters.enerform_off(player)
         visual_size = {x = 1, y = 1, z = 1},
     }
     player:set_properties(prop)
-    player:set_nametag_attributes({color = {a = 255, r = 255, g = 255, b = 255}})
+    player:set_nametag_attributes({color = {a = 255, r = 255, g = 255, b = 255}, text=get_nametag_text(player)})
     meta:set_string("morphin_masters:enerform", "off")
 end
 
