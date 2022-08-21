@@ -64,18 +64,18 @@ function ranger_settings.set_value(self, player, ranger, setting, value)
 end
 
 function ranger_settings.get_value_of_current(self, player, setting)
-    ranger_settings_init(player, ranger)
     local name = configure_player_name(player)
     local ranger = morphinggrid.get_morph_status(player)
+    ranger_settings_init(player, ranger)
     if ranger then
         return self:get_value(player, ranger, setting)
     end
 end
 
 function ranger_settings.set_value_of_current(self, player, setting, value)
-    ranger_settings_init(player, ranger)
     local name = configure_player_name(player)
     local ranger = morphinggrid.get_morph_status(player)
+    ranger_settings_init(player, ranger)
     if ranger then
         self:set_value(player, ranger, setting, value)
     end

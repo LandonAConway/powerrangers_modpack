@@ -43,34 +43,28 @@ local function particles(player, max_particles, texture)
     local lpos = player:get_pos()
     minetest.after(0.1, function()
         local direction = vector.direction(lpos, player:get_pos())
-        local pos = vector.offset(player:get_pos(), 0, 0.8, 0)
-        local time = 1
+        local pos = vector.new(0,0.8,0)
         local vel = player:get_velocity()
         local speed = get_speed(vel)
+        local time = cap(speed/15, 1)
         local amount = max_particles
         local area_size = speed*0.01
         local minpos = vector.offset(pos, area_size, area_size, area_size)
         local maxpos = vector.offset(pos, -area_size, -area_size, -area_size)
-        local vel_factor = (speed/35)*0.35
+        local vel_factor = (speed/35)*0.2
         vel_factor = cap(vel_factor, 0.4)
         local minvel = vector.new(vel_factor,vel_factor,vel_factor)
         local maxvel = vector.new(-vel_factor,-vel_factor,-vel_factor)
-        local acc = {
-            x = -(direction.x*(speed/1.5)),
-            y = -(direction.y*(speed/1.5)),
-            z = -(direction.z*(speed/1.5)),
-        }
         local xptime = cap((speed/15),0.9)
         local colorstring = get_color(player)
         local id = minetest.add_particlespawner({
+            attached = player,
             amount = max_particles,
             time = time,
             minpos = minpos,
             maxpos = maxpos,
             minvel = minvel,
             maxvel = maxvel,
-            minacc = acc,
-            maxacc = acc,
             minexptime = xptime,
             maxexptime = xptime,
             minsize = 0.8,
@@ -87,6 +81,55 @@ local function particles(player, max_particles, texture)
         end)
     end)
 end
+
+-- local function particles(player, max_particles, texture)
+--     local lpos = player:get_pos()
+--     minetest.after(0.1, function()
+--         local direction = vector.direction(lpos, player:get_pos())
+--         local pos = vector.offset(player:get_pos(), 0, 0.8, 0)
+--         local time = 1
+--         local vel = player:get_velocity()
+--         local speed = get_speed(vel)
+--         local amount = max_particles
+--         local area_size = speed*0.01
+--         local minpos = vector.offset(pos, area_size, area_size, area_size)
+--         local maxpos = vector.offset(pos, -area_size, -area_size, -area_size)
+--         local vel_factor = (speed/35)*0.35
+--         vel_factor = cap(vel_factor, 0.4)
+--         local minvel = vector.new(vel_factor,vel_factor,vel_factor)
+--         local maxvel = vector.new(-vel_factor,-vel_factor,-vel_factor)
+--         local acc = {
+--             x = -(direction.x*(speed/1.5)),
+--             y = -(direction.y*(speed/1.5)),
+--             z = -(direction.z*(speed/1.5)),
+--         }
+--         local xptime = cap((speed/15),0.9)
+--         local colorstring = get_color(player)
+--         local id = minetest.add_particlespawner({
+--             amount = max_particles,
+--             time = time,
+--             minpos = minpos,
+--             maxpos = maxpos,
+--             minvel = minvel,
+--             maxvel = maxvel,
+--             minacc = acc,
+--             maxacc = acc,
+--             minexptime = xptime,
+--             maxexptime = xptime,
+--             minsize = 0.8,
+--             maxsize = 1.4,
+--             collisiondetection = true,
+--             collision_removal = true,
+--             object_collision = false,
+--             texture = texture.."^[colorize:"..colorstring..":"..
+--                 math.random(205,255).."^[opacity:"..math.random(98,255),
+--             glow = 14,
+--         })
+--         minetest.after(time+xptime+2.5, function()
+--             minetest.delete_particlespawner(id)
+--         end)
+--     end)
+-- end
 
 local max_particles = tonumber(minetest.settings:get("morphin_masters.enerform_max_particles")) or 125
 local function effect(player)

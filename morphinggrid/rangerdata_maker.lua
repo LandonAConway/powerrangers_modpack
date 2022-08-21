@@ -101,9 +101,8 @@ minetest.register_node("morphinggrid:rangerdata_maker", {
 			if stack:get_name() == "morphinggrid:energy" then
 				return stack:get_count()
 			end
-		elseif listname == "output" then
-			return 0
 		end
+		return 0
 	end,
 	allow_metadata_inventory_take = function(pos, listname, index, stack, player)
 		return stack:get_count()

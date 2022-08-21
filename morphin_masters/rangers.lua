@@ -27,6 +27,7 @@ for k, v in pairs(rangers) do
 		description = v.desc.." Morphin Master",
 		max_energy = 10000,
 		energy_damage_per_hp = 0,
+		energy_damage_per_glabalstep = 0,
 		energy_heal_per_globalstep = 100,
 		weapons = { "morphin_masters:blaster", "morphin_masters:laser_digger", "morphin_masters:master_staff" },
 		color = k,
@@ -45,16 +46,18 @@ for k, v in pairs(rangers) do
 			}
 		},
 		hand = {
-			range = 50,
+			range = 100,
 			tool_capabilities = {
 				full_punch_interval = 0.1,
 				max_drop_level = 0,
 				groupcaps = {
-					crumbly = {times={[2]=1.20, [3]=0.40}, uses=0, maxlevel=1},
-					snappy = {times={[3]=0.20}, uses=0, maxlevel=1},
+					cracky = {times={[1]=2.0, [2]=1.0, [3]=0.50}, uses=30, maxlevel=3},
+					crumbly = {times={[1]=1.10, [2]=0.50, [3]=0.30}, uses=30, maxlevel=3},
+					choppy={times={[1]=2.10, [2]=0.90, [3]=0.50}, uses=30, maxlevel=3},
+					snappy = {times={[1]=0.35,[2]=0.25,[3]=0.20}, uses=0, maxlevel=1},
 					oddly_breakable_by_hand = {times={[1]=2.50,[2]=1.00,[3]=0.40}, uses=0}
 				},
-				damage_groups = {fleshy=5},
+				damage_groups = {fleshy=25},
 			}
 		},
 		armor_textures = {
