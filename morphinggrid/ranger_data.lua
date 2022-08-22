@@ -126,17 +126,18 @@ end
 
 minetest.register_on_mods_loaded(function()
     morphinggrid.load_ranger_settings()
+    morphinggrid.load_rangerdatas()
 end)
 
 --this function must be called whenever a ranger data is retrieved
-local rangerdata_init = function(player, ranger)
+local rangerdata_init = function(player, ranger, refresh)
     local player_name = configure_player_name(player)
     if not morphinggrid.registered_rangers[ranger or ""] then
         error("rangerstring expected, got "..type(ranger))
     end
     local rangerdatas = morphinggrid.rangerdatas
 
-    if rangerdatas[player_name] and rangerdatas[player_name][ranger] then
+    if rangerdatas[player_name] and rangerdatas[player_name][ranger] and not refresh then
         --reload an old ranger data
         if not rangerdatas[player_name][ranger].loaded then
             for k, v in pairs(_rangerdata) do
@@ -162,6 +163,10 @@ local rangerdata_init = function(player, ranger)
     return rangerdatas[player_name][ranger]
 end
 
+function morphinggrid.refresh_rangerdata(player, ranger)
+    return rangerdata_init(player, ranger, true)
+end
+
 function morphinggrid.get_rangerdata(player, ranger)
     local player_name = configure_player_name(player)
     return rangerdata_init(player, ranger)
@@ -173,6 +178,10 @@ function morphinggrid.get_current_rangerdata(player)
     if ranger then
         return morphinggrid.get_rangerdata(player, ranger)
     end
+end
+
+function _rangerdata.refresh(self)
+    return morphinggrid.refresh_rangerdata(minetest.get_player_by_name(self.player_name), self.ranger)
 end
 
 function _rangerdata.get_ranger_definition(self)

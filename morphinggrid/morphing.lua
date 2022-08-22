@@ -498,29 +498,11 @@ local hudbars_loaded = function()
     return false
 end
 
-minetest.after(0, function()
-    local storage = morphinggrid.mod_storage.get_string("morphinggrid_huds")
-    if storage ~= "" then
-        morphinggrid.huds = minetest.deserialize(storage)
-    end
-end)
-
 minetest.register_on_joinplayer(function(player)
-    if morphinggrid.optional_dependencies["hudbars"] then
-        hb.init_hudbar(player, "morphinggrid_power_usage", 0, 100, true)
-
-        morphinggrid.huds[player:get_player_name()] = nil
-        local ranger = morphinggrid.get_morph_status(player)
-        if ranger then
-            morphinggrid.show_hud(player, ranger, true)
-        end
+    local ranger = morphinggrid.get_morph_status(player)
+    if ranger then
+        morphinggrid.show_hud(player, ranger)
     end
-    -- if morphinggrid.huds[player:get_player_name()] ~= nil then
-    --   local ranger = morphinggrid.get_morph_status(player)
-    --   if ranger ~= nil then
-    --     morphinggrid.show_hud(player, ranger, true)
-    --   end
-    -- end
 end)
 
 minetest.register_on_leaveplayer(function(player)
@@ -530,7 +512,7 @@ minetest.register_on_leaveplayer(function(player)
     end
 end)
 
-function morphinggrid.show_hud(player, ranger, startup)
+function morphinggrid.show_hud(player, ranger)
     if type(player) == "string" then
         player = minetest.get_player_by_name(player)
     end
@@ -656,11 +638,7 @@ function morphinggrid.show_hud(player, ranger, startup)
         }
     }
 
-    if startup then
-        morphinggrid.huds[player:get_player_name()] = nil
-    end
-
-    if morphinggrid.huds[player:get_player_name()] == nil then
+    if not morphinggrid.huds[player:get_player_name()] then
         morphinggrid.huds[player:get_player_name()] = {}
         if morphinggrid.optional_dependencies["hudbars"] then
             morphinggrid.huds[player:get_player_name()].helmet_bg = player:hud_add(hud_hb.helmet_bg)
@@ -675,8 +653,6 @@ function morphinggrid.show_hud(player, ranger, startup)
             morphinggrid.huds[player:get_player_name()].status = player:hud_add(hud_standard.status)
         end
     end
-
-    morphinggrid.mod_storage.set_string("morphinggrid_huds", minetest.serialize(morphinggrid.huds))
 end
 
 function morphinggrid.hide_hud(player)
@@ -685,7 +661,7 @@ function morphinggrid.hide_hud(player)
     end
 
     local huds = morphinggrid.huds[player:get_player_name()]
-    if huds ~= nil then
+    if huds then
         if morphinggrid.optional_dependencies["hudbars"] then
             player:hud_remove(huds.helmet_bg)
             player:hud_remove(huds.bg)
@@ -725,7 +701,7 @@ function morphinggrid.hud_is_visible(player)
         player = minetest.get_player_by_name(player)
     end
 
-    if morphinggrid.huds[player:get_player_name()] ~= nil then
+    if morphinggrid.huds[player:get_player_name()] then
         return true
     end
     return false
