@@ -46,18 +46,18 @@ for k, v in pairs(rangers) do
 			}
 		},
 		hand = {
-			range = 100,
+			range = 175,
 			tool_capabilities = {
 				full_punch_interval = 0.1,
 				max_drop_level = 0,
 				groupcaps = {
-					cracky = {times={[1]=2.0, [2]=1.0, [3]=0.50}, uses=30, maxlevel=3},
-					crumbly = {times={[1]=1.10, [2]=0.50, [3]=0.30}, uses=30, maxlevel=3},
-					choppy={times={[1]=2.10, [2]=0.90, [3]=0.50}, uses=30, maxlevel=3},
+					cracky = {times={[1]=1.5, [2]=1.0, [3]=0.50}, uses=30, maxlevel=3},
+					crumbly = {times={[1]=0.80, [2]=0.50, [3]=0.30}, uses=30, maxlevel=3},
+					choppy={times={[1]=1.10, [2]=0.90, [3]=0.50}, uses=30, maxlevel=3},
 					snappy = {times={[1]=0.35,[2]=0.25,[3]=0.20}, uses=0, maxlevel=1},
 					oddly_breakable_by_hand = {times={[1]=2.50,[2]=1.00,[3]=0.40}, uses=0}
 				},
-				damage_groups = {fleshy=25},
+				damage_groups = {fleshy=35},
 			}
 		},
 		armor_textures = {

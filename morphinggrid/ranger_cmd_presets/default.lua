@@ -12,5 +12,15 @@ morphinggrid.ranger_cmd_presets.default = {
 			ranger_settings:set_value(player, ranger, "helmet_state", helmet_state)
 			morphinggrid.update_player_visuals(player)
 		end
+	},
+
+	chat = {
+		description = "Say something public without revealing your ranger identity.",
+		func = function(name, text, ranger)
+			if text ~= nil and text ~= "" then
+				local ranger_desc = morphinggrid.registered_rangers[ranger].description or ranger
+				minetest.chat_send_all("<"..ranger_desc.."> "..(text or ""))
+			end
+		end
 	}
 }

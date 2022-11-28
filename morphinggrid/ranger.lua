@@ -15,63 +15,49 @@ local register_ranger_hand = function(ranger, def)
     minetest.register_tool(morphinggrid.get_ranger_hand_itemstring(ranger), def)
 end
 
-local correct_armor_textures = function(rangerdef)
-    local name_ = morphinggrid.split_string(rangerdef.name, ":")
+local correct_rtextures = function(rdef)
+    local name_ = morphinggrid.split_string(rdef.name, ":")
 
-    -- armor_textures and it's 'named'contents cannot be nil otherwise and exception will be thrown.
-    if rangerdef.armor_textures == nil then
-        rangerdef.armor_textures = {}
-    end
-
-    if rangerdef.armor_textures.helmet == nil then
-        rangerdef.armor_textures.helmet = {}
-    end
-
-    if rangerdef.armor_textures.chestplate == nil then
-        rangerdef.armor_textures.chestplate = {}
-    end
-
-    if rangerdef.armor_textures.leggings == nil then
-        rangerdef.armor_textures.leggings = {}
-    end
-
-    if rangerdef.armor_textures.boots == nil then
-        rangerdef.armor_textures.boots = {}
-    end
+    -- rtextures and it's 'named' contents cannot be nil otherwise and exception will be thrown.
+    rdef.rtextures = rdef.rtextures or {}
+    rdef.rtextures.helmet = rdef.rtextures.helmet or {}
+    rdef.rtextures.chestplate = rdef.rtextures.chestplate or {}
+    rdef.rtextures.leggings = rdef.rtextures.leggings or {}
+    rdef.rtextures.boots = rdef.rtextures.boots or {}
 
     -- auto-generate file names if not specified.
-    rangerdef.armor_textures = {
+    rdef.rtextures = {
         helmet = {
-            armor = rangerdef.armor_textures.helmet.armor or name_[1] .. "_helmet_" .. name_[2] .. ".png",
-            armor_visor_mask = rangerdef.armor_textures.helmet.armor_visor_mask,
-            preview = rangerdef.armor_textures.helmet.preview or name_[1] .. "_helmet_" .. name_[2] .. "_preview.png",
-            inventory = rangerdef.armor_textures.helmet.inventory or name_[1] .. "_inv_helmet_" .. name_[2] .. ".png"
+            armor = rdef.rtextures.helmet.armor or name_[1] .. "_helmet_" .. name_[2] .. ".png",
+            armor_visor_mask = rdef.rtextures.helmet.armor_visor_mask,
+            preview = rdef.rtextures.helmet.preview or name_[1] .. "_helmet_" .. name_[2] .. "_preview.png",
+            inventory = rdef.rtextures.helmet.inventory or name_[1] .. "_inv_helmet_" .. name_[2] .. ".png"
         },
 
         chestplate = {
-            armor = rangerdef.armor_textures.chestplate.armor or name_[1] .. "_chestplate_" .. name_[2] .. ".png",
-            preview = rangerdef.armor_textures.chestplate.preview or name_[1] .. "_chestplate_" .. name_[2] ..
+            armor = rdef.rtextures.chestplate.armor or name_[1] .. "_chestplate_" .. name_[2] .. ".png",
+            preview = rdef.rtextures.chestplate.preview or name_[1] .. "_chestplate_" .. name_[2] ..
                 "_preview.png",
-            inventory = rangerdef.armor_textures.chestplate.inventory or name_[1] .. "_inv_chestplate_" .. name_[2] ..
+            inventory = rdef.rtextures.chestplate.inventory or name_[1] .. "_inv_chestplate_" .. name_[2] ..
                 ".png"
         },
 
         leggings = {
-            armor = rangerdef.armor_textures.leggings.armor or name_[1] .. "_leggings_" .. name_[2] .. ".png",
-            preview = rangerdef.armor_textures.leggings.preview or name_[1] .. "_leggings_" .. name_[2] ..
+            armor = rdef.rtextures.leggings.armor or name_[1] .. "_leggings_" .. name_[2] .. ".png",
+            preview = rdef.rtextures.leggings.preview or name_[1] .. "_leggings_" .. name_[2] ..
                 "_preview.png",
-            inventory = rangerdef.armor_textures.leggings.inventory or name_[1] .. "_inv_leggings_" .. name_[2] ..
+            inventory = rdef.rtextures.leggings.inventory or name_[1] .. "_inv_leggings_" .. name_[2] ..
                 ".png"
         },
 
         boots = {
-            armor = rangerdef.armor_textures.boots.armor or name_[1] .. "_boots_" .. name_[2] .. ".png",
-            preview = rangerdef.armor_textures.boots.preview or name_[1] .. "_boots_" .. name_[2] .. "_preview.png",
-            inventory = rangerdef.armor_textures.boots.inventory or name_[1] .. "_inv_boots_" .. name_[2] .. ".png"
+            armor = rdef.rtextures.boots.armor or name_[1] .. "_boots_" .. name_[2] .. ".png",
+            preview = rdef.rtextures.boots.preview or name_[1] .. "_boots_" .. name_[2] .. "_preview.png",
+            inventory = rdef.rtextures.boots.inventory or name_[1] .. "_inv_boots_" .. name_[2] .. ".png"
         }
     }
 
-    return rangerdef.armor_textures
+    return rdef.rtextures
 end
 
 morphinggrid.registered_rangertypes = {}
@@ -127,7 +113,8 @@ function morphinggrid.register_ranger(name, rangerdef)
     end
 
     -- textures
-    rangerdef.armor_textures = correct_armor_textures(rangerdef)
+    rangerdef.rtextures = rangerdef.rtextures or rangerdef.armor_textures
+    rangerdef.rtextures = correct_rtextures(rangerdef)
 
     --ranger hand
     register_ranger_hand(name, rangerdef.hand)
@@ -212,9 +199,9 @@ end
 --   armor:register_armor(modname..":helmet_"..ranger, {
 --     --description = S(rangerdef.description.." Helmet"),
 -- 	description = rangerdef.description.." Helmet",
---     texture = rangerdef.armor_textures.helmet.armor,
---     preview = rangerdef.armor_textures.helmet.preview,
---     inventory_image = rangerdef.armor_textures.helmet.inventory,
+--     texture = rangerdef.rtextures.helmet.armor,
+--     preview = rangerdef.rtextures.helmet.preview,
+--     inventory_image = rangerdef.rtextures.helmet.inventory,
 --     armor_fire_protect = true,
 --     armor_punch_damage = true,
 --     armor_groups = {fleshy=100},
@@ -226,9 +213,9 @@ end
 --   armor:register_armor(modname..":chestplate_"..ranger, {
 --     --description = S(rangerdef.description.." Chestplate"),
 -- 	description = rangerdef.description.." Chestplate",
---     texture = rangerdef.armor_textures.chestplate.armor,
---     preview = rangerdef.armor_textures.chestplate.preview,
---     inventory_image = rangerdef.armor_textures.chestplate.inventory,
+--     texture = rangerdef.rtextures.chestplate.armor,
+--     preview = rangerdef.rtextures.chestplate.preview,
+--     inventory_image = rangerdef.rtextures.chestplate.inventory,
 --     armor_groups = {fleshy=100},
 --     groups = {armor_torso=1, armor_heal=rangerdef.heal, armor_use=rangerdef.use,
 --       not_in_creative_inventory=1},
@@ -238,9 +225,9 @@ end
 --   armor:register_armor(modname..":leggings_"..ranger, {
 --     --description = S(rangerdef.description.." Leggings"),
 -- 	description = rangerdef.description.." Leggings",
---     texture = rangerdef.armor_textures.leggings.armor,
---     preview = rangerdef.armor_textures.leggings.preview,
---     inventory_image = rangerdef.armor_textures.leggings.inventory,
+--     texture = rangerdef.rtextures.leggings.armor,
+--     preview = rangerdef.rtextures.leggings.preview,
+--     inventory_image = rangerdef.rtextures.leggings.inventory,
 --     armor_fire_protect = true,
 --     armor_punch_damage = true,
 --     armor_groups = {fleshy=100},
@@ -252,9 +239,9 @@ end
 --   armor:register_armor(modname..":boots_"..ranger, {
 --     --description = S(rangerdef.description.." Boots"),
 -- 	description = rangerdef.description.." Boots",
---     texture = rangerdef.armor_textures.boots.armor,
---     preview = rangerdef.armor_textures.boots.preview,
---     inventory_image = rangerdef.armor_textures.boots.inventory,
+--     texture = rangerdef.rtextures.boots.armor,
+--     preview = rangerdef.rtextures.boots.preview,
+--     inventory_image = rangerdef.rtextures.boots.inventory,
 --     armor_fire_protect = true,
 --     armor_punch_damage = true,
 --     armor_groups = {fleshy=100},

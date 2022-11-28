@@ -153,27 +153,71 @@ minetest.register_on_joinplayer(function(player)
     end)
 end)
 
+function morphinggrid.get_ranger_textures(player, ranger)
+    if type(player) == "string" then player = minetest.get_player_by_name(player) end
+    local def = morphinggrid.registered_rangers[ranger]
+    local rtextures = def.rtextures
+    if type(def.get_rtextures) == "function" then
+        local override = def.get_rtextures(player, ranger)
+        override.boots = override.boots or {}
+        override.leggings = override.leggings or {}
+        override.chestplate = override.chestplate or {}
+        override.helmet = override.helmet or {}
+        rtextures.boots.armor = override.boots.armor or rtextures.boots.armor
+        rtextures.leggings.armor = override.leggings.armor or rtextures.leggings.armor
+        rtextures.chestplate.armor = override.chestplate.armor or rtextures.chestplate.armor
+        rtextures.helmet.armor = override.helmet.armor or rtextures.helmet.armor
+        rtextures.helmet.armor_visor_mask = override.helmet.armor_visor_mask or rtextures.helmet.armor_visor_mask
+    end
+    return rtextures
+end
+
+local function get_powerup_textures(player, ranger)
+    local textures = morphinggrid.get_powerup_textures(player, ranger, morphinggrid.get_powerup_status(player))
+    if not textures then
+        textures = {
+            boots = {},
+            leggings = {},
+            chestplate = {},
+            helmet = {}
+        }
+    end
+    return textures
+end
+
+local function add_texture(texture)
+    if texture then
+        return "^"..texture
+    end
+    return ""
+end
+
 function morphinggrid.update_player_visuals(player)
     local name = player:get_player_name()
     local ranger = morphinggrid.get_morph_status(player)
     local textures = player:get_properties().textures
     if ranger then
-        local rangerdata = morphinggrid.get_current_rangerdata(player)
+        local rangerdata = morphinggrid.get_rangerdata(player, ranger)
         local rangerdef = morphinggrid.registered_rangers[ranger or ""]
-        local ranger_armor_textures = rangerdef.armor_textures
+        local ranger_rtextures = morphinggrid.get_ranger_textures(player, ranger)
+        local ranger_powerup_rtextures = get_powerup_textures(player, ranger)
         local ranger_armor = "morphinggrid_armor_transparent.png"..
-            "^"..ranger_armor_textures.boots.armor..
-            "^"..ranger_armor_textures.leggings.armor..
-            "^"..ranger_armor_textures.chestplate.armor
+            "^"..ranger_rtextures.boots.armor..
+            "^"..ranger_rtextures.leggings.armor..
+            "^"..ranger_rtextures.chestplate.armor..
+            add_texture(ranger_powerup_rtextures.boots.armor)..
+            add_texture(ranger_powerup_rtextures.leggings.armor)..
+            add_texture(ranger_powerup_rtextures.chestplate.armor)
 
         local apply_helmet = rangerdata:get_setting_value("helmet_state") == "on"
         local open_visor = rangerdata:get_setting_value("visor_state") == "opened" and
-            type(ranger_armor_textures.helmet.armor_visor_mask) == "string"
+            type(ranger_rtextures.helmet.armor_visor_mask) == "string"
 
         if apply_helmet then
-            ranger_armor = ranger_armor.."^"..ranger_armor_textures.helmet.armor
+            ranger_armor = ranger_armor.."^"..ranger_rtextures.helmet.armor
+            ranger_armor = ranger_armor..add_texture(ranger_powerup_rtextures.helmet.armor)
             if open_visor then
-                ranger_armor = ranger_armor.."^[mask:"..ranger_armor_textures.helmet.armor_visor_mask
+                ranger_armor = ranger_armor.."^[mask:"..ranger_rtextures.helmet.armor_visor_mask
             end
         end
 

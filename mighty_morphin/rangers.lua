@@ -48,7 +48,7 @@ for i, v in ipairs(mmprrangers) do
         weapons = v[6],
         ranger_groups = v[7],
         ranger_command_presets = { default = true, visor = true },
-        armor_textures = { helmet = { armor_visor_mask = "mighty_morphin_visor_mask_"..v[1]..".png" } },
+        rtextures = { helmet = { armor_visor_mask = "mighty_morphin_visor_mask_"..v[1]..".png" } },
         morpher = {
             name = "mighty_morphin:"..v[5].."_morpher",
             inventory_image = v[5].."_morpher.png",
@@ -98,6 +98,18 @@ for i, v in ipairs(mmprrangers_shields) do
         ranger_groups = v[6],
         create_rangerdata = false,
         ranger_command_presets = { default = true, visor = true },
-        armor_textures = { helmet = { armor_visor_mask = "mighty_morphin_visor_mask_"..v[1]..".png" } },
+        rtextures = { helmet = { armor_visor_mask = "mighty_morphin_visor_mask_"..v[1]..".png" } },
     })
 end
+
+morphinggrid.register_powerup("mighty_morphin:dragon_shield", {
+    max_energy = function (player, ranger, powerup)
+        local def = morphinggrid.registered_rangers[ranger]
+        local value = def.max_energy
+        if type(value) == "function" then value = value(player, ranger) end
+        return value * 2.50
+    end,
+    rtextures = {
+        chestplate = { armor = "mighty_morphin_dragon_shield.png" }
+    }
+})

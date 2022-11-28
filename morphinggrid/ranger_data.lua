@@ -153,7 +153,7 @@ local rangerdata_init = function(player, ranger, refresh)
         local data = rangerdatas[player_name][ranger]
         data.player_name = player_name
         data.ranger = ranger
-        data.energy_level = data:get_ranger_definition().energy_default or data:get_ranger_definition().max_energy
+        data.energy_level = data:get_ranger_definition().energy_default or data:get_max_energy()
     end
     --important information that should never change needs to be reloaded to prevent issues.
     rangerdatas[player_name][ranger].player_name = player_name
@@ -201,16 +201,47 @@ end
 --Energy System--
 -----------------
 
+function _rangerdata.get_max_energy(self)
+    local player = minetest.get_player_by_name(self.player_name)
+    local rangerdef = self:get_ranger_definition()
+    local powerup = morphinggrid.get_powerup_status(player)
+    local powerupdef = morphinggrid.registered_powerups[powerup]
+    if powerupdef then
+        return powerupdef.max_energy(player, self.ranger, powerup)
+    end
+    return rangerdef.max_energy
+end
+
+function _rangerdata.get_energy_damage_per_hp(self)
+    local rangerdef = self:get_ranger_definition()
+    local value = rangerdef.energy_damage_per_hp
+    if type(value) == "function" then value = value(minetest.get_player_by_name(self.player_name), self.ranger) end
+    return value
+end
+
+function _rangerdata.get_energy_damage_per_globalstep(self)
+    local rangerdef = self:get_ranger_definition()
+    local value = rangerdef.energy_damage_per_globalstep
+    if type(value) == "function" then value = value(minetest.get_player_by_name(self.player_name), self.ranger) end
+    return value
+end
+
+function _rangerdata.get_energy_heal_per_globalstep(self)
+    local rangerdef = self:get_ranger_definition()
+    local value = rangerdef.energy_heal_per_globalstep
+    if type(value) == "function" then value = value(minetest.get_player_by_name(self.player_name), self.ranger) end
+    return value
+end
+
 function _rangerdata.get_energy_level(self)
     return self.energy_level
 end
 
 function _rangerdata.set_energy_level(self, level)
-    local rangerdef = self:get_ranger_definition()
-    if level <= rangerdef.max_energy then
+    if level <= self:get_max_energy() then
         self.energy_level = level
     else
-        self.energy_level = rangerdef.max_energy
+        self.energy_level = self:get_max_energy()
     end
 end
 
@@ -226,27 +257,27 @@ end
 
 function _rangerdata.get_energy_level_percentage(self)
     local rangerdef = self:get_ranger_definition()
-    return self:get_energy_level()/rangerdef.max_energy
+    return self:get_energy_level()/self:get_max_energy()
 end
 
 function _rangerdata.set_energy_level_percentage(self, level)
     local rangerdef = self:get_ranger_definition()
-    self:set_energy_level(level*rangerdef.max_energy)
+    self:set_energy_level(level*self:get_max_energy())
 end
 
 function _rangerdata.damage_energy_hp(self, hp)
     local rangerdef = self:get_ranger_definition()
-    return self:subtract_energy(hp*rangerdef.energy_damage_per_hp)
+    return self:subtract_energy(hp*self:get_energy_damage_per_hp())
 end
 
 function _rangerdata.damage_energy(self, globalsteps)
     local rangerdef = self:get_ranger_definition()
-    return self:subtract_energy(rangerdef.energy_damage_per_globalstep*(globalsteps or 1))
+    return self:subtract_energy(self:get_energy_damage_per_globalstep()*(globalsteps or 1))
 end
 
 function _rangerdata.heal_energy(self, globalsteps)
     local rangerdef = self:get_ranger_definition()
-    return self:add_energy(rangerdef.energy_heal_per_globalstep*(globalsteps or 1))
+    return self:add_energy(self:get_energy_heal_per_globalstep()*(globalsteps or 1))
 end
 
 function _rangerdata.has_energy(self)
@@ -283,6 +314,7 @@ minetest.register_globalstep(function(dtime)
                             minetest.chat_send_player(player:get_player_name(), "You have demorphed becuase you did not have enough power. (Ranger: "
                                 ..(data:get_ranger_definition().description or ranger)..")")
                         end
+                        morphinggrid.hud_update_power_usage(player)
                     end
                 end
             end

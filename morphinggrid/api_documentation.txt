@@ -48,13 +48,24 @@ I. Required setup for a Power Rangers mod
 				after_morph = <function(player, morph_info)> --do something when a player morphs into this ranger.
 				after_demorph = <function(player, demorph_info)> --do something when a player demorphs from being this ranger.
 				
+		*deprecated     armor_textures = <table> --use 'rtextures' instead.
+
 				--default contains auto generated filenames. Whatever filenames are not specified will still be auto generated. Do not include < or > in the filenames.
-				armor_textures = {
+				rtextures = {
 					helmet = { armor="<filename>", preview="<filename>", inventory="<filename>", armor_visor_mask="<filename>" },
 					chestplate = { armor="<filename>", preview="<filename>", inventory="<filename>" },
 					leggings = { armor="<filename>", preview="<filename>", inventory="<filename>" },
 					boots = { armor="<filename>", preview="<filename>", inventory="<filename>" }
 				}
+
+				--This field should return an alternative 'rtextures' table. Nil fields will be filled in with those found in the 'rtextures' table.
+				--This is particularly useful if a ranger has a shield and there should not be an entirely different ranger registered for it.
+				get_rtextures = <function(player, ranger)>
+
+				--These three fields can also be functions. They must all return a number and nothing else.
+				energy_damage_per_hp = <function(player, ranger)>
+				energy_heal_per_globalstep = <function(player, ranger)>
+				energy_damage_per_globalstep = <function(player, ranger)>
 				
 				--This is an optional field. The commands specified here will be useable when using the chat command '/ranger <command>' when morphed.
 				ranger_commands = {
@@ -70,7 +81,7 @@ I. Required setup for a Power Rangers mod
 				--Adds builtin command presets
 				ranger_command_presets = { default = true, visor = true }
 					--* `default` contains a command for removing and putting on a helmet.
-					--* `visor` contains a command for opening and closing the helmet's visor. Requires 'armor_visor_mask' in 'armor_textures.helmet' to work.
+					--* `visor` contains a command for opening and closing the helmet's visor. Requires 'armor_visor_mask' in 'rtextures.helmet' to work.
 
 				
 				--By default, if you do not specify this, right clicking the morpher will morph the ranger.
