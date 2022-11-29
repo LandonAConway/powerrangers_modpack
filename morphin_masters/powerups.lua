@@ -1,7 +1,7 @@
 morphinggrid.register_powerup("morphin_masters:master_mode", {
     description = "Master Mode",
     mult_energy = 1.25,
-    rtxtures = {
+    rtextures = {
         leggings = { armor = "morphin_masters_master_mode_leggings.png" },
         chestplate = { armor = "morphin_masters_master_mode_chestplate.png" }
     }
