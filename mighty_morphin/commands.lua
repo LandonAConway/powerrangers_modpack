@@ -1,6 +1,6 @@
 minetest.register_chatcommand("give_dragon_shield", {
 	params = "<player>",
-	description = "Transfers the Dragon Shield to another ranger if you currently have it",
+	description = "Transfers the Dragon Shield to another ranger if you currently have it.",
 	
 	privs = {
 		interact = true,
@@ -14,16 +14,13 @@ minetest.register_chatcommand("give_dragon_shield", {
 		if text ~= nil and text ~= "" then
 			if minetest.player_exists(text) then
 				if to ~= nil then
-					mighty_morphin.give_dragon_shield(from, to)
-				else
-					minetest.chat_send_player(name, text.." is not online")
+					return mighty_morphin.give_dragon_shield(from, to)
 				end
-			else
-				minetest.chat_send_player(name, "Player "..text.." does not exist")
+				return false, text.." is not online."
 			end
-		else
-			minetest.chat_send_player(name, "Invalid Usage. Enter a player name.")
+			return false, "Player "..text.." does not exist."
 		end
+		return false, "Invalid Usage. Enter a player name."
 	end,
 })
 
@@ -38,6 +35,6 @@ minetest.register_chatcommand("dragon_shield", {
 	
 	func = function(name, param)
 		local player = minetest.get_player_by_name(name)
-		mighty_morphin.summon_dragon_shield(player)
+		return mighty_morphin.summon_dragon_shield(player)
 	end,
 })

@@ -203,13 +203,16 @@ end
 
 function _rangerdata.get_max_energy(self)
     local player = minetest.get_player_by_name(self.player_name)
-    local rangerdef = self:get_ranger_definition()
-    local powerup = morphinggrid.get_powerup_status(player)
-    local powerupdef = morphinggrid.registered_powerups[powerup]
-    if powerupdef then
-        return powerupdef.max_energy(player, self.ranger, powerup)
+    local rangerdef = morphinggrid.registered_rangers[self.ranger]
+    local max_energy = rangerdef.max_energy
+    local powerupslist = morphinggrid.player_get_powerups_list(player)
+    for _, powerup in pairs(powerupslist) do
+        local powerupdef = morphinggrid.registered_powerups[powerup]
+        if powerupdef then
+            max_energy = powerupdef.max_energy(player, self.ranger, powerup, max_energy, self:get_energy_level())
+        end
     end
-    return rangerdef.max_energy
+    return max_energy
 end
 
 function _rangerdata.get_energy_damage_per_hp(self)

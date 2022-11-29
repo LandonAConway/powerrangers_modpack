@@ -172,17 +172,22 @@ function morphinggrid.get_ranger_textures(player, ranger)
     return rtextures
 end
 
-local function get_powerup_textures(player, ranger)
-    local textures = morphinggrid.get_powerup_textures(player, ranger, morphinggrid.get_powerup_status(player))
-    if not textures then
-        textures = {
-            boots = {},
-            leggings = {},
-            chestplate = {},
-            helmet = {}
-        }
+local function get_powerups_textures(player, ranger)
+    local sets = {}
+    local powerupslist = morphinggrid.player_get_powerups_list(player)
+    for _, powerup in pairs(powerupslist) do
+        local textures = morphinggrid.get_powerup_textures(player, ranger, powerup)
+        if not textures then
+            textures = {
+                boots = {},
+                leggings = {},
+                chestplate = {},
+                helmet = {}
+            }
+        end
+        table.insert(sets, textures)
     end
-    return textures
+    return sets
 end
 
 local function add_texture(texture)
@@ -200,14 +205,18 @@ function morphinggrid.update_player_visuals(player)
         local rangerdata = morphinggrid.get_rangerdata(player, ranger)
         local rangerdef = morphinggrid.registered_rangers[ranger or ""]
         local ranger_rtextures = morphinggrid.get_ranger_textures(player, ranger)
-        local ranger_powerup_rtextures = get_powerup_textures(player, ranger)
+        local ranger_powerup_rtextures_sets = get_powerups_textures(player, ranger)
         local ranger_armor = "morphinggrid_armor_transparent.png"..
             "^"..ranger_rtextures.boots.armor..
             "^"..ranger_rtextures.leggings.armor..
-            "^"..ranger_rtextures.chestplate.armor..
-            add_texture(ranger_powerup_rtextures.boots.armor)..
-            add_texture(ranger_powerup_rtextures.leggings.armor)..
-            add_texture(ranger_powerup_rtextures.chestplate.armor)
+            "^"..ranger_rtextures.chestplate.armor
+
+        --apply rtextures of powerups
+        for _, set in pairs(ranger_powerup_rtextures_sets) do
+            ranger_armor = ranger_armor..add_texture(set.boots.armor)..
+                add_texture(set.leggings.armor)..
+                add_texture(set.chestplate.armor)
+        end
 
         local apply_helmet = rangerdata:get_setting_value("helmet_state") == "on"
         local open_visor = rangerdata:get_setting_value("visor_state") == "opened" and
@@ -215,7 +224,10 @@ function morphinggrid.update_player_visuals(player)
 
         if apply_helmet then
             ranger_armor = ranger_armor.."^"..ranger_rtextures.helmet.armor
-            ranger_armor = ranger_armor..add_texture(ranger_powerup_rtextures.helmet.armor)
+            --apply helmet textures of powerups
+            for _, set in pairs(ranger_powerup_rtextures_sets) do
+                ranger_armor = ranger_armor..add_texture(set.helmet.armor)
+            end
             if open_visor then
                 ranger_armor = ranger_armor.."^[mask:"..ranger_rtextures.helmet.armor_visor_mask
             end

@@ -128,25 +128,42 @@ minetest.register_chatcommand("powerup", {
             return false, "You must be morphed to use a powerup."
         end
         if player then
-            local powerup = morphinggrid.registered_powerups[powerup_name]
-            if powerup then
-                morphinggrid.powerup(player, powerup_name, {
-                    priv_bypass = true
-                })
-                return true
+            local ranger = morphinggrid.get_morph_status(player)
+            if ranger then
+                local powerup = morphinggrid.registered_powerups[powerup_name]
+                if powerup then
+                    local checkfor = {}
+                    checkfor[powerup_name] = true
+                    if not morphinggrid.player_check_powerups(player, checkfor) then
+                        morphinggrid.powerup(player, powerup_name, {
+                            priv_bypass = true
+                        })
+                        return true
+                    end
+                    return false, "The specified powerup is already in use."
+                end
+                if powerup_name == "" then
+                    return false, "Please type a registered powerup name."
+                end
+                return false, "'" .. powerup_name .. "' is not a registered powerup."
             end
-            if powerup_name == "" then
-                return false, "Please type a registered powerup name."
-            end
-            return false, "'" .. powerup_name .. "' is not a registered powerup."
+            return false, "Player must be morphed to use a powerup."
         end
         return false, "'" .. player_name .. "' is not online or does not exist."
     end
 })
 
+local function reverse_table(t)
+    local result = {}
+    for k, v in pairs(t) do
+        table.insert(result, 1, v)
+    end
+    return result
+end
+
 minetest.register_chatcommand("powerdown", {
-    params = "<player>",
-    description = "Powers down a ranger.",
+    params = "<player> <powerup>",
+    description = "Powers down a ranger from using the specified powerup. Type 'all' for <powerup> to power down all powerups",
     privs = {
         interact = true,
         power_rangers = true
@@ -154,11 +171,11 @@ minetest.register_chatcommand("powerdown", {
     func = function(name, text)
         local params = string.split(text)
         local player_name = name
-        if text ~= "" then
-            player_name = text
-            if not minetest.check_player_privs(player_name, {
-                morphinggrid = true
-            }) then
+        local powerup_name = text
+        if params[2] then
+            player_name = params[1]
+            powerup_name = params[2]
+            if not minetest.check_player_privs(player_name, { morphinggrid = true }) then
                 return false, "You don't have permission to run this command (Missing Privileges: morphinggrid)"
             end
         end
@@ -167,14 +184,29 @@ minetest.register_chatcommand("powerdown", {
             return false, "You must be morphed to use a powerup."
         end
         if player then
-            local powerup = morphinggrid.registered_powerups[morphinggrid.get_powerup_status(player)]
-            if powerup then
-                morphinggrid.powerdown(player, {
-                    priv_bypass = true
-                })
-                return true
+            local ranger = morphinggrid.get_morph_status(player)
+            if ranger then
+                if powerup_name == "all" then
+                    morphinggrid.powerdown(player, nil, { priv_bypass = true, chat_messages = false })
+                    return true, "All powerups have been powered down."
+                else
+                    local checkfor = {}
+                    checkfor[powerup_name] = true
+                    if not morphinggrid.player_check_powerups(player, checkfor) then
+                        return false, "The specified powerup is not in use."
+                    end
+                    local powerup = morphinggrid.registered_powerups[powerup_name]
+                    if powerup then
+                        morphinggrid.powerdown(player, powerup_name, { priv_bypass = true })
+                        return true
+                    end
+                    if powerup_name == "" then
+                        return false, "Please type a registered powerup name."
+                    end
+                    return false, "'" .. powerup_name .. "' is not a registered powerup."
+                end
             end
-            return false, "You are not powered up."
+            return false, "Player must be morphed to use a powerup."
         end
         return false, "'" .. player_name .. "' is not online or does not exist."
     end

@@ -15,27 +15,13 @@ morphinggrid.register_rangertype("mighty_morphin", {
 })
 
 mmprrangers = {
-{"black", "Black", 7700, 0.7, "mastodon", {"mighty_morphin:power_axe", "mighty_morphin:blade_blaster", "mighty_morphin:power_blaster"}, {}},
+    {"black", "Black", 7700, 0.7, "mastodon", {"mighty_morphin:power_axe", "mighty_morphin:blade_blaster", "mighty_morphin:power_blaster"}, {}},
     {"pink", "Pink", 7700, 0.7, "pterodactyl", {"mighty_morphin:power_bow", "mighty_morphin:blade_blaster", "mighty_morphin:power_blaster"}, {}},
     {"blue", "Blue", 7700, 0.7, "triceratops", {"mighty_morphin:power_lance", "mighty_morphin:blade_blaster", "mighty_morphin:power_blaster"}, {}},
     {"yellow", "Yellow", 7700, 0.7, "saber_toothed_tiger", {"mighty_morphin:power_daggers", "mighty_morphin:blade_blaster", "mighty_morphin:power_blaster"}, {}},
     {"red", "Red", 7700, 0.7, "tyrannosaurus", {"mighty_morphin:power_sword", "mighty_morphin:blade_blaster", "mighty_morphin:power_blaster"}, { leader = 1 }},
-    {"green", "Green", 7700, 0.7, "dragonzord", {"mighty_morphin:dragon_dagger", "mighty_morphin:blade_blaster"}, {}},
+    {"green", "Green", 7700, 0.7, "dragonzord", {"mighty_morphin:dragon_dagger", "mighty_morphin:blade_blaster"}, {}, {"mighty_morphin:dragon_shield"}},
     {"white", "White", 7700, 0.7, "tigerzord", {"mighty_morphin:saba", "mighty_morphin:blade_blaster"}, { leader = 1 }}
-}
-
-mmprrangers_shields = {
-{"black_shield", "Black", 8000, 0.7, {"mighty_morphin:power_axe", "mighty_morphin:dragon_dagger", "mighty_morphin:blade_blaster",
-    "mighty_morphin:power_blaster"}, { hidden = 1 }},
-    {"pink_shield", "Pink", 8000, 0.7, {"mighty_morphin:power_bow", "mighty_morphin:dragon_dagger", "mighty_morphin:blade_blaster",
-    "mighty_morphin:power_blaster"}, { hidden = 1 }},
-    {"blue_shield", "Blue", 8000, 0.7, {"mighty_morphin:power_lance", "mighty_morphin:dragon_dagger", "mighty_morphin:blade_blaster",
-    "mighty_morphin:power_blaster"}, { hidden = 1 }},
-    {"yellow_shield", "Yellow", 8000, 0.7, {"mighty_morphin:power_daggers", "mighty_morphin:dragon_dagger", "mighty_morphin:blade_blaster",
-    "mighty_morphin:power_blaster"}, { hidden = 1 }},
-    {"red_shield", "Red", 8000, 0.7, {"mighty_morphin:power_sword", "mighty_morphin:dragon_dagger", "mighty_morphin:blade_blaster",
-    "mighty_morphin:power_blaster"}, { hidden = 0.7, leader = 1 }},
-    {"green_no_shield", "Green", 8000, 0.5, {"mighty_morphin:blade_blaster"}, { hidden = 1 }}
 }
 
 for i, v in ipairs(mmprrangers) do
@@ -44,6 +30,7 @@ for i, v in ipairs(mmprrangers) do
         max_energy = v[3],
         energy_damage_per_hp = 1,
         energy_heal_per_globalstep = v[4],
+        powerups = v[8],
         color = v[1],
         weapons = v[6],
         ranger_groups = v[7],
@@ -88,27 +75,8 @@ for i, v in ipairs(mmprrangers) do
     })
 end
 
-for i, v in ipairs(mmprrangers_shields) do
-    morphinggrid.register_ranger("mighty_morphin:"..v[1], {
-        description = v[2].." Mighty Morphin Ranger",
-        max_energy = v[3],
-        energy_damage_per_hp = 1,
-        energy_heal_per_globalstep = v[4],
-        weapons = v[5],
-        ranger_groups = v[6],
-        create_rangerdata = false,
-        ranger_command_presets = { default = true, visor = true },
-        rtextures = { helmet = { armor_visor_mask = "mighty_morphin_visor_mask_"..v[1]..".png" } },
-    })
-end
-
 morphinggrid.register_powerup("mighty_morphin:dragon_shield", {
-    max_energy = function (player, ranger, powerup)
-        local def = morphinggrid.registered_rangers[ranger]
-        local value = def.max_energy
-        if type(value) == "function" then value = value(player, ranger) end
-        return value * 2.50
-    end,
+    mult_energy = 0.85,
     rtextures = {
         chestplate = { armor = "mighty_morphin_dragon_shield.png" }
     }

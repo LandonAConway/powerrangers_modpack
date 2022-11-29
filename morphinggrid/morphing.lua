@@ -130,6 +130,10 @@ function morphinggrid.morph(player, ranger, morph_settings)
             morphinggrid.set_ranger_abilities(player, ranger.name)
             morphinggrid.update_player_visuals(player)
 
+            for _, powerup in pairs(ranger.powerups or {}) do
+                morphinggrid.powerup(player, powerup, { chat_messages = false })
+            end
+
             -- overriding hide_identity
             local hide_identity = ranger.hide_identity
             if type(morph_settings.hide_identity) == "boolean" then
@@ -281,7 +285,7 @@ function morphinggrid.demorph(player, demorph_settings, is_morphing)
 
     if can_use == true then
         if is_morphing == true then --if this function was called from `morphinggrid.morph`
-            morphinggrid.powerdown(player, {chat_messages=false})
+            morphinggrid.powerdown(player, nil, {chat_messages=false})
             -- only remove the hud if the player is already morphed
             if demorph_settings.hide_hud and morphinggrid.get_morph_status(player) ~= nil then
                 morphinggrid.hide_hud(player)
@@ -304,7 +308,7 @@ function morphinggrid.demorph(player, demorph_settings, is_morphing)
             result = true
         else -- not morphing
             if not dmfunc_args.cancel then
-                morphinggrid.powerdown(player, {chat_messages=false})
+                morphinggrid.powerdown(player, nil, {chat_messages=false})
                 if ranger == nil then
                     demorph_info.reason = "not_morphed"
                     demorph_settings.log_this = false
