@@ -28,7 +28,9 @@ minetest.register_tool("morphin_masters:laser_digger", {
 			"morphin_masters:yellow",
 			"morphin_masters:red",
 			"morphin_masters:silver",
-			"morphin_masters:gold"
+			"morphin_masters:gold",
+			"morphin_masters:purple",
+			"morphin_masters:orange"
 		}
 	}
 })
@@ -36,7 +38,7 @@ minetest.register_tool("morphin_masters:laser_digger", {
 morphinggrid.register_firearm("morphin_masters:blaster", {
 	description = "Blaster",
 	inventory_image = "morphin_masters_blaster.png",
-	distance = 5000,
+	distance = 50000,
 	tool_capabilities = {
 		damage_groups = { fleshy = 500 }
 	},
@@ -51,7 +53,53 @@ morphinggrid.register_firearm("morphin_masters:blaster", {
 			"morphin_masters:yellow",
 			"morphin_masters:red",
 			"morphin_masters:silver",
-			"morphin_masters:gold"
+			"morphin_masters:gold",
+			"morphin_masters:purple",
+			"morphin_masters:orange"
 		}
 	}
+})
+
+minetest.register_tool("morphin_masters:fury_blaster", {
+	description = "Fury Blaster",
+	inventory_image = "morphin_masters_fury_blaster.png",
+	tool_capabilities = {
+		damage_groups = { fleshy = 27 }
+	},
+	ranger_weapon = {
+		weapon_key = "fury_blaster",
+		rangers = {
+			"morphin_masters:green",
+			"morphin_masters:white",
+			"morphin_masters:black",
+			"morphin_masters:pink",
+			"morphin_masters:blue",
+			"morphin_masters:yellow",
+			"morphin_masters:red",
+			"morphin_masters:silver",
+			"morphin_masters:gold",
+			"morphin_masters:purple",
+			"morphin_masters:orange"
+		}
+	},
+	on_use = function(itemstack, player, pointed_thing)
+		local def = minetest.registered_items[itemstack:get_name()]
+		local tool_capabilities = def.tool_capabilities
+		local pos = player:get_pos()
+		for _, obj in pairs(minetest.get_objects_inside_radius(pos, 15)) do
+			if obj ~= player then
+				local dir = vector.direction(pos, obj:get_pos())
+				local kickback = {
+					x = dir.x * 75,
+					y = dir.y * 75,
+					z = dir.z * 75
+				}
+				obj:add_velocity(kickback)
+				if not obj:is_player() then
+					obj:set_velocity(kickback)
+				end
+				obj:punch(obj, 0.1, tool_capabilities)
+			end
+		end
+	end
 })

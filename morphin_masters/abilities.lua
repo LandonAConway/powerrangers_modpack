@@ -13,15 +13,17 @@ morphinggrid.register_on_player_control(function(player, pos, ctrl)
 		["morphin_masters:yellow"] = true,
 		["morphin_masters:red"] = true,
 		["morphin_masters:silver"] = true,
-		["morphin_masters:gold"] = true
+		["morphin_masters:gold"] = true,
+		["morphin_masters:purple"] = true,
+		["morphin_masters:orange"] = true
 	}
 	
 	--up, down, left, right, jump, aux1, sneak, dig, place, zoom
-	if morphin_masters[morph_status] then
+	if morphin_masters[morph_status] or morphinggrid.player_check_powerups(player, {["morphin_masters:master_mode"]=true}) then
 		if ctrl.aux1 and ctrl.LMB then
 			local vel = player:get_player_velocity()
 			if vel.x < 32 and vel.z < 32 then
-				add_velocity(player, {x = vel.x*0.8, y = 0, z = vel.y*0.8})
+				add_velocity(player, {x = vel.x*0.8, y = 0, z = vel.z*0.8})
 			end
 		end
 		
@@ -54,7 +56,7 @@ morphinggrid.register_on_player_control(function(player, pos, ctrl)
 			local capabilities = {
 				full_punch_interval = 0.0,
 				max_drop_level=1,
-				damage_groups = {fleshy=5},
+				damage_groups = {fleshy=20},
 			}
 
 			local objects = minetest.get_objects_inside_radius(pos, 8)

@@ -10,7 +10,7 @@ morphinggrid.register_griditem("morphin_masters:master_staff", {
 	punchback_multiplier = function(player, damage, _, _)
 		local wielded_item = player:get_wielded_item()
 		if wielded_item:get_name() == "morphin_masters:master_staff" then
-			return damage*1.5
+			return damage*1.2
 		end
 		return 0
 	end,
@@ -28,7 +28,9 @@ morphinggrid.register_griditem("morphin_masters:master_staff", {
 			"morphin_masters:yellow",
 			"morphin_masters:red",
 			"morphin_masters:silver",
-			"morphin_masters:gold"
+			"morphin_masters:gold",
+			"morphin_masters:purple",
+			"morphin_masters:orange"
 		}
 	},
 	griditem_commands = {

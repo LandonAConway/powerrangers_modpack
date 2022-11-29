@@ -76,6 +76,7 @@ for i, v in ipairs(mmprrangers) do
 end
 
 morphinggrid.register_powerup("mighty_morphin:dragon_shield", {
+    description = "Dragon Shield",
     mult_energy = 0.85,
     rtextures = {
         chestplate = { armor = "mighty_morphin_dragon_shield.png" }

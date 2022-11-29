@@ -61,7 +61,6 @@ function morphinggrid.player_get_powerups_list(player)
 end
 
 function morphinggrid.player_get_powerups(player)
-    local meta = player:get_meta()
     local list = morphinggrid.player_get_powerups_list(player)
     local powerups = {}
     for _, p in pairs(list) do
@@ -96,7 +95,7 @@ local function player_set_powerups_list(player, powerups)
 end
 
 local function player_add_powerup(player, powerup)
-    local list = morphinggrid.player_get_powerups(player)
+    local list = morphinggrid.player_get_powerups_list(player)
     if not has_value(list, powerup) then
         table.insert(list, powerup)
     end
@@ -159,8 +158,6 @@ function morphinggrid.powerup(player, powerup, powerupsettings)
                 return false
             end
         end
-
-        morphinggrid.powerdown(player, {chat_messages=false})
 
         --set the powerup. This must be done first so all of the other functions will react to the powerup
         --before setting it, we need to get some data because it will change afterwards

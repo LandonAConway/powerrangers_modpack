@@ -8,6 +8,8 @@ local rangers = {
 	red = { desc = "Red" },
 	silver = { desc = "Silver" },
 	gold = { desc = "Gold" },
+	purple = { desc = "Purple" },
+	orange = { desc = "Orange" },
 }
 
 for k, v in pairs(rangers) do
@@ -191,6 +193,10 @@ morphinggrid.register_morpher("morphin_masters:staff", {
 				return true, ItemStack("morphin_masters:staff_silver")
 			elseif slots[1]:get_name() == "morphin_masters:master_crystal_gold" then
 				return true, ItemStack("morphin_masters:staff_gold")
+			elseif slots[1]:get_name() == "morphin_masters:master_crystal_purple" then
+				return true, ItemStack("morphin_masters:staff_purple")
+			elseif slots[1]:get_name() == "morphin_masters:master_crystal_orange" then
+				return true, ItemStack("morphin_masters:staff_orange")
 			end
 			return false, morpher
 		end,
@@ -204,7 +210,9 @@ morphinggrid.register_morpher("morphin_masters:staff", {
 				itemstack:get_name() == "morphin_masters:master_crystal_yellow" or
 				itemstack:get_name() == "morphin_masters:master_crystal_red" or
 				itemstack:get_name() == "morphin_masters:master_crystal_silver" or
-				itemstack:get_name() == "morphin_masters:master_crystal_gold"
+				itemstack:get_name() == "morphin_masters:master_crystal_gold" or
+				itemstack:get_name() == "morphin_masters:master_crystal_purple" or
+				itemstack:get_name() == "morphin_masters:master_crystal_orange"
 					then
 				return 1
 			end
@@ -222,6 +230,8 @@ morphinggrid.register_morpher("morphin_masters:staff", {
 				{ input = {"morphin_masters:master_crystal_red"} },
 				{ input = {"morphin_masters:master_crystal_silver"} },
 				{ input = {"morphin_masters:master_crystal_gold"} },
+				{ input = {"morphin_masters:master_crystal_purple"} },
+				{ input = {"morphin_masters:master_crystal_orange"} },
 			}
 		}
 	}

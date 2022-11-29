@@ -9,7 +9,9 @@ local colors = {
     black = {r=25,g=25,b=25},
     white = {r=245,g=245,b=245},
     gold = {r=201,g=150,b=69},
-    silver = {r=185,g=201,b=215}
+    silver = {r=185,g=201,b=215},
+    purple = {r=110,g=36,b=231},
+    orange = {r=239,g=107,b=36}
 }
 
 local function cap(n, min, max)
@@ -55,7 +57,7 @@ local function particles(player, max_particles, texture)
         vel_factor = cap(vel_factor, 0.4)
         local minvel = vector.new(vel_factor,vel_factor,vel_factor)
         local maxvel = vector.new(-vel_factor,-vel_factor,-vel_factor)
-        local xptime = cap((speed/15),0.9)
+        local xptime = cap((speed/15),1.7)
         local colorstring = get_color(player)
         local id = minetest.add_particlespawner({
             attached = player,

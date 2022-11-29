@@ -20,6 +20,8 @@ local rangers = {
 	red = { desc = "Red" },
 	silver = { desc = "Silver" },
 	gold = { desc = "Gold" },
+	purple = { desc = "Purple" },
+	orange = { desc = "Orange" }
 }
 
 for k, v in pairs(rangers) do
@@ -29,7 +31,7 @@ for k, v in pairs(rangers) do
 		energy_damage_per_hp = 0,
 		energy_damage_per_glabalstep = 0,
 		energy_heal_per_globalstep = 100,
-		weapons = { "morphin_masters:blaster", "morphin_masters:laser_digger", "morphin_masters:master_staff" },
+		weapons = { "morphin_masters:blaster", "morphin_masters:fury_blaster", "morphin_masters:laser_digger", "morphin_masters:master_staff" },
 		color = k,
 		ranger_groups = v.rgroups or {},
 		privs = { "morphinggrid" },
@@ -43,6 +45,20 @@ for k, v in pairs(rangers) do
 					morphin_masters.enerform_set_color(player, k)
 					morphin_masters.enerform_toggle(player)
 				end
+			},
+			toggle_master_mode = {
+				description = "Toggles Master Mode.",
+				func = function(name)
+					morphin_masters.toggle_master_mode(name)
+				end
+			},
+			generate_master_mode_key = {
+				description = "Generates a Master Mode Key.",
+				func = function(name)
+					local player = minetest.get_player_by_name(name)
+					local inv = player:get_inventory()
+					inv:add_item("main", ItemStack("morphin_masters:master_mode_key"))
+				end
 			}
 		},
 		hand = {
@@ -51,16 +67,16 @@ for k, v in pairs(rangers) do
 				full_punch_interval = 0.1,
 				max_drop_level = 0,
 				groupcaps = {
-					cracky = {times={[1]=1.5, [2]=1.0, [3]=0.50}, uses=30, maxlevel=3},
-					crumbly = {times={[1]=0.80, [2]=0.50, [3]=0.30}, uses=30, maxlevel=3},
-					choppy={times={[1]=1.10, [2]=0.90, [3]=0.50}, uses=30, maxlevel=3},
+					cracky = {times={[1]=1.0, [2]=0.75, [3]=0.50}, uses=0, maxlevel=3},
+					crumbly = {times={[1]=0.80, [2]=0.50, [3]=0.30}, uses=0, maxlevel=3},
+					choppy={times={[1]=1.10, [2]=0.90, [3]=0.50}, uses=0, maxlevel=3},
 					snappy = {times={[1]=0.35,[2]=0.25,[3]=0.20}, uses=0, maxlevel=1},
-					oddly_breakable_by_hand = {times={[1]=2.50,[2]=1.00,[3]=0.40}, uses=0}
+					oddly_breakable_by_hand = {times={[1]=1.10,[2]=0.70,[3]=0.30}, uses=0}
 				},
 				damage_groups = {fleshy=35},
 			}
 		},
-		armor_textures = {
+		rtextures = {
 			boots = {
 				armor = "morphin_masters_boots.png",
 				preview = "morphin_masters_boots_preview.png",
