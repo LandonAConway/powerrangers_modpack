@@ -248,8 +248,8 @@ function morphinggrid.powerdown(player, powerup, powerdownsettings)
     elseif def == nil then
         for _, _powerup in pairs(reverse_table(morphinggrid.player_get_powerups_list(player))) do
             morphinggrid.powerdown(player, _powerup, powerdownsettings)
-            return true
         end
+        return true
     end
     return false
 end
