@@ -90,6 +90,14 @@ ranger = {}
 morphinggrid.registered_ranger_after_morphs = {}
 morphinggrid.registered_ranger_after_demorphs = {}
 
+local function register_shortcommands(map)
+    for name, def in pairs(map) do
+        if type(def.short) == "string" then
+            map["."..def.short] = def
+        end
+    end
+end
+
 function morphinggrid.register_ranger(name, rangerdef)
     local name_ = morphinggrid.split_string(name, ":")
     rangerdef.name = name
@@ -149,6 +157,8 @@ function morphinggrid.register_ranger(name, rangerdef)
         end
     }
 
+    register_shortcommands(rangerdef.ranger_commands)
+
     if rangerdef.morpher ~= nil then
         local morpherdef = rangerdef.morpher
 
@@ -190,65 +200,6 @@ function morphinggrid.register_ranger(name, rangerdef)
         }
     })
 end
-
--- function register_ranger_armor(rangerdef)
---   local modname = morphinggrid.split_string (rangerdef.name, ":")[1]
---   local ranger = morphinggrid.split_string (rangerdef.name, ":")[2]
-
---   --helmet
---   armor:register_armor(modname..":helmet_"..ranger, {
---     --description = S(rangerdef.description.." Helmet"),
--- 	description = rangerdef.description.." Helmet",
---     texture = rangerdef.rtextures.helmet.armor,
---     preview = rangerdef.rtextures.helmet.preview,
---     inventory_image = rangerdef.rtextures.helmet.inventory,
---     armor_fire_protect = true,
---     armor_punch_damage = true,
---     armor_groups = {fleshy=100},
---     groups = {armor_head=1, armor_heal=rangerdef.heal, armor_use=rangerdef.use, armor_water=1,
---       not_in_creative_inventory=1}
---   })
-
---   --chestplate
---   armor:register_armor(modname..":chestplate_"..ranger, {
---     --description = S(rangerdef.description.." Chestplate"),
--- 	description = rangerdef.description.." Chestplate",
---     texture = rangerdef.rtextures.chestplate.armor,
---     preview = rangerdef.rtextures.chestplate.preview,
---     inventory_image = rangerdef.rtextures.chestplate.inventory,
---     armor_groups = {fleshy=100},
---     groups = {armor_torso=1, armor_heal=rangerdef.heal, armor_use=rangerdef.use,
---       not_in_creative_inventory=1},
---   })
-
---   --leggings
---   armor:register_armor(modname..":leggings_"..ranger, {
---     --description = S(rangerdef.description.." Leggings"),
--- 	description = rangerdef.description.." Leggings",
---     texture = rangerdef.rtextures.leggings.armor,
---     preview = rangerdef.rtextures.leggings.preview,
---     inventory_image = rangerdef.rtextures.leggings.inventory,
---     armor_fire_protect = true,
---     armor_punch_damage = true,
---     armor_groups = {fleshy=100},
---     groups = {armor_legs=1, armor_heal=rangerdef.heal, armor_use=rangerdef.use,
---       not_in_creative_inventory=1},
---   })
-
---   --boots
---   armor:register_armor(modname..":boots_"..ranger, {
---     --description = S(rangerdef.description.." Boots"),
--- 	description = rangerdef.description.." Boots",
---     texture = rangerdef.rtextures.boots.armor,
---     preview = rangerdef.rtextures.boots.preview,
---     inventory_image = rangerdef.rtextures.boots.inventory,
---     armor_fire_protect = true,
---     armor_punch_damage = true,
---     armor_groups = {fleshy=100},
---     groups = {armor_feet=1, armor_heal=rangerdef.heal, armor_use=rangerdef.use,
---       not_in_creative_inventory=1},
---   })
--- end
 
 function morphinggrid.get_ranger(name)
     return morphinggrid.registered_rangers[name or ""]
@@ -393,6 +344,7 @@ function morphinggrid.register_morpher(name, morpherdef)
 
     -- Add default commands to the morpher.
     morpherdef.morpher_commands.help = {
+        short = "h",
         description = "Lists all commands for the morpher.",
         func = function(name)
             minetest.chat_send_player(name, "Commands for: " .. morpherdef.description)
@@ -402,8 +354,11 @@ function morphinggrid.register_morpher(name, morpherdef)
         end
     }
 
+    register_shortcommands(morpherdef.morpher_commands)
+
     if type(morpherdef.morpher_slots) == "table" then
         morpherdef.morpher_commands.slots = {
+            short = "s",
             description = "Gives access to the morpher's slots.",
             func = function(pname)
                 minetest.show_formspec(pname, "morphinggrid:morpher_slots",

@@ -28,7 +28,8 @@ morphinggrid.register_grid_function_type("after_communicator_command", "after-co
 	}
 })
 
-minetest.register_chatcommand("communicator", {
+morphinggrid.register_chatcommand("communicator", {
+  short = "com",
   params = "<command>",
   description = "Execute a communicator command.",
   

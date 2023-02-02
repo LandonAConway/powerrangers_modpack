@@ -1,6 +1,7 @@
 communicator.cmd_presets.basic = {}
 
 communicator.cmd_presets.basic.message = {
+  short = "msg",
   params = "<message>",
   description = "Sends a message to everyone with the 'communicator' priv.",
   
@@ -32,6 +33,7 @@ communicator.cmd_presets.basic.message = {
 
 
 communicator.cmd_presets.basic.message_player = {
+  short = "msgp",
   params = "<player> <message>",
   description = "Sends a message to a specific player.",
   
@@ -70,6 +72,7 @@ communicator.cmd_presets.basic.message_player = {
 
 
 communicator.cmd_presets.basic.message_all = {
+  short = "msga",
   params = "<message>",
   description = "Sends a message to everyone.",
   

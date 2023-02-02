@@ -1,5 +1,6 @@
 morphinggrid.ranger_cmd_presets.default = {
 	toggle_helmet = {
+		short = "tgh",
 		description = "Toggles a ranger's helmet.",
 		func = function(name, text, ranger)
 			local player = minetest.get_player_by_name(name)
@@ -15,6 +16,7 @@ morphinggrid.ranger_cmd_presets.default = {
 	},
 
 	chat = {
+		short = "c",
 		description = "Say something public without revealing your ranger identity.",
 		func = function(name, text, ranger)
 			if text ~= nil and text ~= "" then

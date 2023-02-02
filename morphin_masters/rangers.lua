@@ -39,6 +39,7 @@ for k, v in pairs(rangers) do
 		ranger_command_presets = { default = true, visor = true },
 		ranger_commands = {
 			toggle_enerform = {
+				short = "tgen",
 				description = "Toggles Enerform.",
 				func = function(name)
 					local player = minetest.get_player_by_name(name)
@@ -47,6 +48,7 @@ for k, v in pairs(rangers) do
 				end
 			},
 			toggle_master_mode = {
+				short = "tgmm",
 				description = "Toggles Master Mode.",
 				func = function(name)
 					morphin_masters.toggle_master_mode(name)

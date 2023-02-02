@@ -1,5 +1,6 @@
 morphinggrid.ranger_cmd_presets.visor = {
 	toggle_visor = {
+		short = "tgv",
 		description = "Toggles a ranger's visor.",
 		func = function(name, text, ranger)
 			local player = minetest.get_player_by_name(name)

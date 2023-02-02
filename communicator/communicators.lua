@@ -1,3 +1,11 @@
+local function register_shortcommands(map)
+  for name, def in pairs(map) do
+      if type(def.short) == "string" then
+          map["."..def.short] = def
+      end
+  end
+end
+
 function communicator.register_communicator(name, def)
   if (def.chargable == nil) then
     def.chargable = false
@@ -20,6 +28,7 @@ function communicator.register_communicator(name, def)
   
   --Add default commands to the communicator.
   def.communicator_commands.help = {
+    short = "h",
     description = "Lists all commands for the communicator.",
     func = function(name)
       minetest.chat_send_player(name,"Commands for: "..(def.description or ""))
@@ -28,6 +37,8 @@ function communicator.register_communicator(name, def)
       end
     end
   }
+
+  register_shortcommands(def.communicator_commands)
   
   --register it as a communicator
   communicator.registered_communicators[name] = def

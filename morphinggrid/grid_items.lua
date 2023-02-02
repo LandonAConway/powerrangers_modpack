@@ -277,6 +277,14 @@ local function get_callbacks(exclude)
 	return _callbacks
 end
 
+local function register_shortcommands(map)
+    for name, def in pairs(map) do
+        if type(def.short) == "string" then
+            map["."..def.short] = def
+        end
+    end
+end
+
 function morphinggrid.register_griditem(name, def)
 	if type(def.type) ~= "string" then
 		def.type = "craftitem"
@@ -319,6 +327,7 @@ function morphinggrid.register_griditem(name, def)
 	
 	--Add default commands to the griditem.
 	def.griditem_commands.help = {
+		short = "h",
 		description = "Lists all commands for the griditem.",
 		func = function(name)
 		    minetest.chat_send_player(name,"Commands for: "..def.description or name)
@@ -327,6 +336,8 @@ function morphinggrid.register_griditem(name, def)
 		    end
 		end
 	}
+
+	register_shortcommands(def.griditem_commands)
 	
 	--callbacks
 	for k, v in pairs(get_callbacks(def.exclude_callbacks)) do

@@ -1,4 +1,16 @@
-minetest.register_chatcommand("morph", {
+function morphinggrid.register_chatcommand(name, def)
+    minetest.register_chatcommand(name, def)
+    if def.short then
+        local sname = "." .. def.short
+        if minetest.registered_chatcommands[sname] then
+            error("The chat command \"" .. sname .. "\" already exists.")
+        end
+        minetest.register_chatcommand(sname, def)
+    end
+end
+
+morphinggrid.register_chatcommand("morph", {
+    short = "m",
     params = "<player> <ranger>",
     description = "Morph a player into any ranger.",
 
@@ -69,7 +81,8 @@ minetest.register_chatcommand("morph", {
     end
 })
 
-minetest.register_chatcommand("demorph", {
+morphinggrid.register_chatcommand("demorph", {
+    short = "d",
     params = "<player>",
     description = "Demorph yourself or any player if you have the 'morphinggrid' priv. Leave <player> empty to demorph yourself.",
 
@@ -107,7 +120,8 @@ minetest.register_chatcommand("demorph", {
     end
 })
 
-minetest.register_chatcommand("powerup", {
+morphinggrid.register_chatcommand("powerup", {
+    short = "pu",
     params = "<player> <powerup>",
     description = "Powers up a ranger with the specified powerup.",
     privs = {
@@ -161,7 +175,8 @@ local function reverse_table(t)
     return result
 end
 
-minetest.register_chatcommand("powerdown", {
+morphinggrid.register_chatcommand("powerdown", {
+    short = "pd",
     params = "<player> <powerup>",
     description = "Powers down a ranger from using the specified powerup. Type 'all' for <powerup> to power down all powerups",
     privs = {
@@ -212,7 +227,8 @@ minetest.register_chatcommand("powerdown", {
     end
 })
 
-minetest.register_chatcommand("ranger", {
+morphinggrid.register_chatcommand("ranger", {
+    short = "r",
     params = "<command>",
     description = "Execute a ranger command.",
 
@@ -270,7 +286,8 @@ function morphinggrid.execute_ranger_cmd(name, text, ranger)
     return false, "The command '" .. params[1] .. "' does not exist."
 end
 
-minetest.register_chatcommand("morpher", {
+morphinggrid.register_chatcommand("morpher", {
+    short = "mr",
     params = "<command>",
     description = "Execute a morpher command.",
 
@@ -346,7 +363,8 @@ function morphinggrid.execute_morpher_cmd(name, text, itemstack)
     return false, "The command '" .. params[1] .. "' does not exist.", itemstack
 end
 
-minetest.register_chatcommand("griditem", {
+morphinggrid.register_chatcommand("griditem", {
+    short = "g",
     params = "<command>",
     description = "Execute a grid item command.",
 
@@ -407,7 +425,8 @@ function morphinggrid.execute_griditem_cmd(name, text, itemstack)
     return false, "The command '" .. params[1] .. "' does not exist.", itemstack
 end
 
-minetest.register_chatcommand("summon_weapon", {
+morphinggrid.register_chatcommand("summon_weapon", {
+    short = "sw",
     params = "<weapon_key>",
     description = "Summon a weapon.",
 

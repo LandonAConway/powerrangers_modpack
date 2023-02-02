@@ -3,6 +3,7 @@ communicator.cmd_presets.teleportation = {}
 communicator.teleportation = {}
 
 communicator.cmd_presets.teleportation.teleport_pos = {
+  short = "telp",
   params = "<pos> (x,y,z)",
   description = "Teleports player to specified position.",
   
@@ -52,6 +53,7 @@ communicator.cmd_presets.teleportation.teleport_pos = {
 
 
 communicator.cmd_presets.teleportation.safe_teleport_pos = {
+  short = "telsp",
   params = "<pos> (x,y,z)",
   description = "Safely teleports player near specified position. If the position is in a dangorous spot (i.e. in free fall) you will be teleported to a safe position near it.",
   
@@ -126,6 +128,7 @@ communicator.cmd_presets.teleportation.safe_teleport_pos = {
 
 
 communicator.cmd_presets.teleportation.teleport = {
+  short = "tel",
   params = "<key>",
   description = "Teleports player to position associated with the given key.",
   
@@ -176,6 +179,7 @@ communicator.cmd_presets.teleportation.teleport = {
 
 
 communicator.cmd_presets.teleportation.teleport_to_player = {
+  short = "telpl",
   params = "<player>",
   description = "Teleports player to specified player.",
   
@@ -255,6 +259,7 @@ communicator.cmd_presets.teleportation.teleport_to_player = {
 
 
 communicator.cmd_presets.teleportation.teleport_back = {
+  short = "telb",
   params = "",
   description = "Teleports player back to previous position.",
   
@@ -303,6 +308,7 @@ communicator.cmd_presets.teleportation.teleport_back = {
 
 
 communicator.cmd_presets.teleportation.teleportation_add_pos = {
+  short = "telad",
   params = "<key>",
   description = "Saves players current location with specified key so it can be teleported to.",
   
@@ -342,6 +348,7 @@ communicator.cmd_presets.teleportation.teleportation_add_pos = {
 
 
 communicator.cmd_presets.teleportation.teleportation_remove_pos = {
+  short = "telre",
   params = "<key>",
   description = "Deletes location by specified key.",
   
@@ -381,6 +388,7 @@ communicator.cmd_presets.teleportation.teleportation_remove_pos = {
 
 
 communicator.cmd_presets.teleportation.teleportation_get_keys = {
+  short = "telkeys",
   params = "",
   description = "Lists all of your keys.",
   
@@ -407,7 +415,7 @@ communicator.cmd_presets.teleportation.teleportation_get_keys = {
 
       for k, p in pairs(positions) do
         if keys == nil then keys = "" end
-        keys = keys..k..", ("..p.x..", "..p.y..", "..p.z..") "
+        keys = keys..k..", ("..p.x..", "..p.y..", "..p.z..") \n"
       end
 
       if keys ~= nil then
@@ -421,6 +429,7 @@ communicator.cmd_presets.teleportation.teleportation_get_keys = {
 
 
 communicator.cmd_presets.teleportation.teleportation_get_pos = {
+  short = "telgp",
   params = "<key>",
   description = "Shows location by specified key.",
   
