@@ -6,7 +6,6 @@ local configure_player_name = function(player)
     return player_name
 end
 
-
 -------------------
 --Ranger Settings--
 -------------------
@@ -188,8 +187,10 @@ function _rangerdata.get_ranger_definition(self)
     return morphinggrid.registered_rangers[self.ranger]
 end
 
-function _rangerdata.get_setting_value(self, setting)
-    return ranger_settings:get_value(self.player_name, self.ranger, setting)
+function _rangerdata.get_setting_value(self, setting, default)
+    local value = ranger_settings:get_value(self.player_name, self.ranger, setting)
+    if value == nil then value = default end
+    return value
 end
 
 function _rangerdata.set_setting_value(self, setting, value)

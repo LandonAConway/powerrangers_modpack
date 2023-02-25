@@ -1,3 +1,11 @@
+function morphinggrid.chat_send_admins(msg)
+	for _, p in pairs(minetest.get_connected_players()) do
+		if minetest.check_player_privs(p, {server=true}) then
+			minetest.chat_send_player(p:get_player_name(), msg)
+		end
+	end
+end
+
 function morphinggrid.get_before_pointed_pos(player, max_distance)
   local prevent_nil = nil
   local result = nil

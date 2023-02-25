@@ -148,6 +148,7 @@ function morphinggrid.register_ranger(name, rangerdef)
 
     -- add help command
     rangerdef.ranger_commands.help = {
+        short = "h",
         description = "Lists all commands for the ranger.",
         func = function(name)
             minetest.chat_send_player(name, "Commands for: " .. (rangerdef.description or name))
@@ -354,8 +355,6 @@ function morphinggrid.register_morpher(name, morpherdef)
         end
     }
 
-    register_shortcommands(morpherdef.morpher_commands)
-
     if type(morpherdef.morpher_slots) == "table" then
         morpherdef.morpher_commands.slots = {
             short = "s",
@@ -366,6 +365,8 @@ function morphinggrid.register_morpher(name, morpherdef)
             end
         }
     end
+
+    register_shortcommands(morpherdef.morpher_commands)
 
     -- get register_item
     local register_item

@@ -38,6 +38,21 @@ for k, v in pairs(rangers) do
 		create_rangerdata = false,
 		ranger_command_presets = { default = true, visor = true },
 		ranger_commands = {
+			set_enerform_intensity = {
+				short = "seni",
+				description = "Sets the visual intensity of Enerform.",
+				func = function(name, text)
+					local player = minetest.get_player_by_name(name)
+					local rangerdata = morphinggrid.get_current_rangerdata(player)
+					local n = tonumber(text)
+					if n and n > 0 then
+						local max_particles = n*5
+						rangerdata:set_setting_value("enerform_max_particles", max_particles)
+						return true, "Enerform intensity set to '"..text.."'."
+					end
+					return false, "Enter a valid number that is greater than zero."
+				end
+			},
 			toggle_enerform = {
 				short = "tgen",
 				description = "Toggles Enerform.",
@@ -55,6 +70,7 @@ for k, v in pairs(rangers) do
 				end
 			},
 			generate_master_mode_key = {
+				short = "gmmk",
 				description = "Generates a Master Mode Key.",
 				func = function(name)
 					local player = minetest.get_player_by_name(name)

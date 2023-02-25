@@ -133,8 +133,13 @@ end
 --     end)
 -- end
 
-local max_particles = tonumber(minetest.settings:get("morphin_masters.enerform_max_particles")) or 125
+local max_particles_default = tonumber(minetest.settings:get("morphin_masters.enerform_max_particles")) or 125
 local function effect(player)
+    local rangerdata = morphinggrid.get_current_rangerdata(player)
+    local max_particles = rangerdata:get_setting_value("enerform_max_particles", max_particles_default)
+    if not ((max_particles % 5) == 0 and max_particles > 0) then
+        max_particles = max_particles_default
+    end
     local n_particles = max_particles/5
     particles(player, n_particles, "morphin_masters_enerform1.png")
     particles(player, n_particles, "morphin_masters_enerform2.png")

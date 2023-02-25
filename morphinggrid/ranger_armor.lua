@@ -55,17 +55,22 @@ local handle_3d_armor = function(player, hp_change, reason)
     return hp_change
 end
 
+if morphinggrid.chat_send_admins == nil then error("chat_send_admins is still nil!") end
+
 minetest.register_on_player_hpchange(function(player, hp_change, reason)
+    if morphinggrid.debug then morphinggrid.chat_send_admins("hpchange: "..hp_change) end
     if hp_change < 0 then
         if morphinggrid.get_morph_status(player) then
             morphinggrid.get_current_rangerdata(player):damage_energy_hp(hp_change*-1)
             morphinggrid.hud_update_power_usage(player)
+            if morphinggrid.debug then morphinggrid.chat_send_admins("hpchange_morphed: "..(hp_change*-1)) end
             hp_change = 0
         else
             if morphinggrid.optional_dependencies["3d_armor"] then
                 handle_3d_armor(player, hp_change, reason)
             end
             hp_change = get_multiplied_hp(player, hp_change)
+            if morphinggrid.debug then morphinggrid.chat_send_admins("hpchange_demorphed: "..hp_change) end
         end
     end
     return hp_change

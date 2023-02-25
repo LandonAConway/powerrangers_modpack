@@ -21,35 +21,56 @@ morphinggrid.register_chatcommand("morph", {
 
     func = function(name, text)
         if text ~= nil and text ~= "" then
-            if minetest.check_player_privs(name, {
-                morphinggrid = true
-            }) then
-                local params = morphinggrid.split_string(text)
-                for _, player in ipairs(minetest.get_connected_players()) do
-                    if params[1] == player:get_player_name() then
-                        if params[2] ~= nil then
-                            local ranger = morphinggrid.registered_rangers[params[2]]
-                            if ranger ~= nil then
-                                morphinggrid.morph(player, ranger, {
-                                    priv_bypass = true
-                                })
-                                return true, "'" .. player:get_player_name() .. "' morphed successfully. (Ranger: " ..
-                                    ranger.description .. ")"
-                            end
-                            return false, "'" .. params[2] .. "' is not a registered ranger."
+            if minetest.get_player_privs(name).morphinggrid == true then
+                local p1 = string.split(text, " ")[1]
+                local p2 = string.split(text, " ")[2]
+                if p1 then
+                    if minetest.get_player_by_name(p1) then
+                        local player = minetest.get_player_by_name(p1)
+                        if p2 and morphinggrid.registered_rangers[p2] then
+                            --morph the player
+                            local ranger = morphinggrid.registered_rangers[p2]
+                            morphinggrid.morph(player, ranger, { priv_bypass = true })
+                            return true, "'" .. player:get_player_name() .. "' morphed successfully. (Ranger: " ..
+                                (ranger.description or p2) .. ")"
                         end
-                        return false, "Please enter a ranger name."
+                        return false, "Please enter a valid ranger name."
+                    elseif morphinggrid.registered_rangers[p1] then
+                        --morph the player
+                        local player = minetest.get_player_by_name(name)
+                        morphinggrid.morph(player, p1, { priv_bypass = true })
+                        return true
                     end
-                end
-                local ranger = morphinggrid.registered_rangers[params[1]]
-                if ranger ~= nil then
-                    morphinggrid.morph(minetest.get_player_by_name(name), ranger, {
-                        priv_bypass = true
-                    })
-                    return true
+                    return false, "'"..p1.."' is not a player's name, or a registered ranger."
                 end
                 return false, "Please enter an online player's name, or a ranger name."
             end
+            --     local params = morphinggrid.split_string(text)
+            --     for _, player in ipairs(minetest.get_connected_players()) do
+            --         if params[1] == player:get_player_name() then
+            --             if params[2] ~= nil then
+            --                 local ranger = morphinggrid.registered_rangers[params[2]]
+            --                 if ranger ~= nil then
+            --                     morphinggrid.morph(player, ranger, {
+            --                         priv_bypass = true
+            --                     })
+            --                     return true, "'" .. player:get_player_name() .. "' morphed successfully. (Ranger: " ..
+            --                         ranger.description .. ")"
+            --                 end
+            --                 return false, "'" .. params[2] .. "' is not a registered ranger."
+            --             end
+            --             return false, "Please enter a ranger name."
+            --         end
+            --     end
+            --     local ranger = morphinggrid.registered_rangers[params[1]]
+            --     if ranger ~= nil then
+            --         morphinggrid.morph(minetest.get_player_by_name(name), ranger, {
+            --             priv_bypass = true
+            --         })
+            --         return true
+            --     end
+            --     return false, "Please enter an online player's name, or a ranger name."
+            -- end
             return false, "You don't have permission to run this command (Missing Privileges: morphinggrid)"
         else
             local player = minetest.get_player_by_name(name)
