@@ -34,11 +34,11 @@ for k,v in pairs(rangers) do
 			type = "shapeless",
 			output = "beast_morphers:wristcom_"..k,
 			recipe = {
-				"beast_morphers:ranger_key_"..k, "default:copper_ingot", "default:steel_ingot", 
+				"beast_morphers:morpher_key_"..k, "default:copper_ingot", "default:steel_ingot", 
 				"electronic_materials:small_circuit_board", "electronic_materials:bios_chip"
 		},
 		replacements = {
-				{"beast_morphers:ranger_key_"..k, "beast_morphers:ranger_key_"..k}
+				{"beast_morphers:morpher_key_"..k, "beast_morphers:morpher_key_"..k}
 			}
 		})
 	else
@@ -47,10 +47,10 @@ for k,v in pairs(rangers) do
 		output = "beast_morphers:wristcom_"..k,
 		recipe = {
 			"default:copper_ingot", "default:steel_ingot", "morphinggrid:standard_morpher_motherboard", "dye:white", "dye:black", 
-			"dye:black", "beast_morphers:ranger_key_"..k
+			"dye:black", "beast_morphers:beast_morphers:morpher_key_"..k
 		},
 		replacements = {
-				{"beast_morphers:ranger_key_"..k, "beast_morphers:ranger_key_"..k}
+				{"beast_morphers:beast_morphers:morpher_key_"..k, "beast_morphers:morpher_key_"..k}
 			}
 		})
 	end

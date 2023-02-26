@@ -30,7 +30,7 @@ for _, v in ipairs(in_space.rangers) do
           --},
       },
       
-      armor_textures = {
+      rtextures = {
         boots = { armor="in_space_boots.png", preview="in_space_boots_preview.png", inventory="in_space_boots_inv.png" }
       }
   })
@@ -55,7 +55,7 @@ morphinggrid.register_ranger("in_space:silver", {
           --},
     },
       
-    armor_textures = {
+    rtextures = {
       boots = { armor="in_space_boots_silver.png", preview="in_space_boots_preview_silver.png", inventory="in_space_boots_inv_silver.png" }
     }
 })

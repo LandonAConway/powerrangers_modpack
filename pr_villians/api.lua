@@ -175,9 +175,9 @@ function pr_villians.register_henchman(name, def)
                 end
                 self.kickback = true
                 self.object:add_velocity({
-                    x = look_dir.x * (self.movingspeed * 2),
-                    y = look_dir.y * (self.movingspeed * 2),
-                    z = look_dir.z * (self.movingspeed * 2)
+                    x = look_dir.x * (self.movingspeed * 1.4),
+                    y = look_dir.y * (self.movingspeed * 1.4),
+                    z = look_dir.z * (self.movingspeed * 1.4)
                 })
                 local item = minetest.registered_tools[puncher:get_wielded_item():get_name()]
                 if item and item.tool_capabilities and item.tool_capabilities.damage_groups then
@@ -393,7 +393,7 @@ function pr_villians.register_henchman(name, def)
                                 if (en == nil or en and en.id ~= self.id) and visible(self, obp) and
                                     viewfield(self, obp) then
                                     rnd_target = ob
-                                    if math.random(1, 3) == 1 then -- choosing random targets
+                                    if math.random(0, self.target_chance or 0) == 1 then -- choosing random targets
                                         break
                                     end
                                 end
