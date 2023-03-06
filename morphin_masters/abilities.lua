@@ -4,19 +4,13 @@ end
 
 morphinggrid.register_on_player_control(function(player, pos, ctrl)
     local morph_status = morphinggrid.get_morph_status(player)
-	local morphin_masters = {
-		["morphin_masters:green"] = true,
-		["morphin_masters:white"] = true,
-		["morphin_masters:black"] = true,
-		["morphin_masters:pink"] = true,
-		["morphin_masters:blue"] = true,
-		["morphin_masters:yellow"] = true,
-		["morphin_masters:red"] = true,
-		["morphin_masters:silver"] = true,
-		["morphin_masters:gold"] = true,
-		["morphin_masters:purple"] = true,
-		["morphin_masters:orange"] = true
-	}
+	local morphin_masters = morphin_masters.rangers
+
+	local speed = 3.5
+	if morphin_masters[morph_status] then
+		local rdata = morphinggrid.get_current_rangerdata(player)
+		speed = rdata:get_setting_value("ability_speed", 3.5)
+	end
 	
 	--up, down, left, right, jump, aux1, sneak, dig, place, zoom
 	if morphin_masters[morph_status] or morphinggrid.player_check_powerups(player, {["morphin_masters:master_mode"]=true}) then
@@ -36,16 +30,16 @@ morphinggrid.register_on_player_control(function(player, pos, ctrl)
 		
 		if ctrl.LMB and ctrl.RMB then
 			local look_dir = player:get_look_dir()
-			add_velocity(player, {x = look_dir.x*5, y = look_dir.y*5, z = look_dir.z*5})
+			add_velocity(player, {x = look_dir.x*speed, y = look_dir.y*speed, z = look_dir.z*speed})
 		end
 		
 		if not ctrl.LMB and ctrl.RMB then
 			local oldpos = minetest.string_to_pos(player:get_meta():get_string("pr_jump_pos"))
 			if oldpos ~= nil then
-				if pos.y > oldpos.y + 0.3 then
-					add_velocity(player, {x=0,y=3.5,z=0})
+				if pos.y > oldpos.y + 0.25 then
+					add_velocity(player, {x=0,y=speed,z=0})
 				elseif get_node_name(vector.new(pos.x, pos.y-1, pos.z)) == "air" or is_node_group(vector.new(pos.x, pos.y-1, pos.z), "water") then
-					add_velocity(player, {x=0,y=3.5,z=0})
+					add_velocity(player, {x=0,y=speed,z=0})
 				end
 			end
 		elseif ctrl.right or ctrl.left or ctrl.up or ctrl.down then

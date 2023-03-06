@@ -29,8 +29,7 @@ minetest.register_node("morphinggrid:energy_port", {
 			local meta = minetest.get_meta(pos)
 			local inv = meta:get_inventory()
 			inv:set_size("energy", 1*1)
-			
-			local energy_stack = ItemStack('morphinggrid:energy 1')
+			local energy_stack = ItemStack('morphinggrid:energy '..math.round(math.random(1, 5)))
 			inv:set_stack("energy", 1, energy_stack)
 		else
 			minetest.remove_node(pos)
@@ -64,7 +63,14 @@ minetest.register_node("morphinggrid:energy_port", {
 		return 0
 	end,
 	allow_metadata_inventory_take = function(pos, listname, index, stack, player)
-		return -1
+		return stack:get_count()
+	end,
+	on_metadata_inventory_take = function(pos)
+		local meta = minetest.get_meta(pos)
+		local inv = meta:get_inventory()
+		inv:set_size("energy", 1*1)
+		local energy_stack = ItemStack('morphinggrid:energy '..math.round(math.random(1, 5)))
+		inv:set_stack("energy", 1, energy_stack)
 	end,
 	
 	grid_doc = {

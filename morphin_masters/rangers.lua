@@ -53,6 +53,20 @@ for k, v in pairs(rangers) do
 					return false, "Enter a valid number that is greater than zero."
 				end
 			},
+			set_ability_speed = {
+				short = "sas",
+				description = "Sets the speed at which flying and running occurs.",
+				func = function(name, text)
+					local player = minetest.get_player_by_name(name)
+					local n = tonumber(text)
+					if n then
+						local rdata = morphinggrid.get_current_rangerdata(player)
+						rdata:set_setting_value("ability_speed", n)
+						return true, "Ability speed set to '"..text.."'."
+					end
+					return false, "Enter a valid number."
+				end
+			},
 			toggle_enerform = {
 				short = "tgen",
 				description = "Toggles Enerform.",

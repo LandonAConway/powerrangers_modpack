@@ -6,7 +6,16 @@ morphinggrid.register_griditem("morphinggrid:energy", {
 	grid_doc = {
 		other_item = true,
 		description = "Morphing Grid Energy can be used to craft some items. It gives the power used to attach objects to the Morphing Grid."
-	}
+	},
+	on_use = function(itemstack, user, pointed_thing)
+		if morphinggrid.get_morph_status(user) then
+			local rdata = morphinggrid.get_current_rangerdata(user)
+			rdata:add_energy(25)
+			morphinggrid.hud_update_power_usage(user)
+			itemstack:set_count(itemstack:get_count()-1)
+		end
+		return itemstack
+	end
 })
 
 minetest.register_craftitem("morphinggrid:micro_energy_release_unit", {

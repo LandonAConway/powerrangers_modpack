@@ -1,10 +1,18 @@
 morphinggrid.register_powerup("morphin_masters:master_mode", {
     description = "Master Mode",
     mult_energy = 1.25,
-    rtextures = {
-        leggings = { armor = "morphin_masters_master_mode_leggings.png" },
-        chestplate = { armor = "morphin_masters_master_mode_chestplate.png" }
-    }
+    rtextures = function(player, ranger, powerup)
+        local textures = {
+            leggings = { armor = "morphin_masters_master_mode_leggings.png" },
+            chestplate = { armor = "morphin_masters_master_mode_chestplate.png" },
+            helmet = { armor = "morphin_masters_master_mode_helmet.png" }
+        }
+        if not morphin_masters.rangers[ranger] then
+            textures.chestplate.armor = "morphin_masters_master_mode_chestplate_non.png"
+            textures.helmet = nil
+        end
+        return textures
+    end
 })
 
 function morphin_masters.toggle_master_mode(player)

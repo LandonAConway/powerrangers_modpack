@@ -1,14 +1,5 @@
 morphinggrid.registered_powerups = {}
 
-function morphinggrid.get_powerup_status(player)
-    if type(player) == "string" then player = minetest.get_player_by_name(player) end
-    local mstatus = morphinggrid.get_morph_status(player)
-    local pustatus = player:get_meta():get_string("morphinggrid_powerup_status")
-    if morphinggrid.registered_rangers[mstatus] and morphinggrid.registered_powerups[pustatus] then
-        return pustatus
-    end
-end
-
 local function default_max_enegry(player, ranger, powerup, last_max_energy, last_energy_level)
     local def = morphinggrid.registered_powerups[powerup]
     return last_max_energy + (def.add_energy or (last_max_energy*(def.mult_energy or 0.5)))
@@ -34,10 +25,12 @@ function morphinggrid.register_powerup(name, def)
     def.energy_on_powerup = def.energy_on_powerup or default_energy_on_powerup
     def.energy_on_powerdown = def.energy_on_powerdown or default_energy_on_powerdown
     def.rtextures = def.rtextures or {}
-    def.rtextures.boots = def.rtextures.boots or {}
-    def.rtextures.leggings = def.rtextures.leggings or {}
-    def.rtextures.chestplate = def.rtextures.chestplate or {}
-    def.rtextures.helmet = def.rtextures.helmet or {}
+    if type(def.rtextures) == "table" then
+        def.rtextures.boots = def.rtextures.boots or {}
+        def.rtextures.leggings = def.rtextures.leggings or {}
+        def.rtextures.chestplate = def.rtextures.chestplate or {}
+        def.rtextures.helmet = def.rtextures.helmet or {}
+    end
     morphinggrid.registered_powerups[name] = def
 end
 
@@ -49,6 +42,14 @@ function morphinggrid.get_powerup_textures(player, ranger, powerup)
         local rtextures = def.rtextures
         if type(rtextures) == "function" then
             rtextures = def.rtextures(player, ranger, powerup)
+        end
+        rtextures.boots = rtextures.boots or {}
+        rtextures.leggings = rtextures.leggings or {}
+        rtextures.chestplate = rtextures.chestplate or {}
+        rtextures.helmet = rtextures.helmet or {}
+        local rangerdef = morphinggrid.registered_rangers[ranger]
+        if type(rangerdef.on_get_powerup_textures) == "function" then
+            rtextures = rangerdef.on_get_powerup_textures(player, ranger, powerup, rtextures) or rtextures
         end
         return rtextures
     end
@@ -77,6 +78,16 @@ function morphinggrid.player_check_powerups(player, powerups)
         end
     end
     return true
+end
+
+--returns nil if the player is unmorphed.
+--if the player is morphed and is using the powerup this function returns true,
+--otherwise it returns false
+function morphinggrid.get_powerup_status(player, powerup)
+    if morphinggrid.get_morph_status(player) then
+        local powerups = morphinggrid.player_get_powerups(player)
+        return powerups[powerup] == true
+    end
 end
 
 local function has_value(t, value)

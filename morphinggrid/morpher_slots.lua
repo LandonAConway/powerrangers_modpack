@@ -1,13 +1,26 @@
 morphinggrid.morpher_slots = {}
 morphinggrid.morpher_slots.formspecdata = {}
 
+--stack_inv_location tracks the location of where the morpher is which is being modified
+local stack_inv_location = nil
 local function get_morpher(player)
 	local inv = player:get_inventory()
 	local _inv = morphinggrid.morphers.get_inventory(player)
-	if player:get_wielded_item():get_name() ~= "" then
+	if morphinggrid.registered_morphers[player:get_wielded_item():get_name()] then
+		stack_inv_location = "main"
 		return player:get_wielded_item()
     else
+		stack_inv_location = "morphers"
 		return _inv:get_stack("single", 1)
+	end
+end
+
+local function get_morpher_at(player, location)
+	local inv = morphinggrid.morphers.get_inventory(player)
+	if location == "main" then
+		return player:get_wielded_item()
+	elseif location == "morphers" then
+		return inv:get_stack("single", 1)
 	end
 end
 
@@ -26,11 +39,33 @@ minetest.register_on_joinplayer(function(player)
 	minetest.create_detached_inventory(player:get_player_name().."_morpher_slots", {
 		allow_put = function(inv, listname, index, stack, _player)
 			local plrfs = morphinggrid.morpher_slots.formspecdata[_player:get_player_name()]
-			local slotsdef = morphinggrid.registered_morphers[plrfs.morpher].morpher_slots
-			
-			local allow_put = slotsdef.allow_put or function() return stack:get_count() end
-			return allow_put(get_morpher(_player), stack)
-		end, 
+			local morpher = get_morpher_at(_player, stack_inv_location)
+			if morpher and morpher:get_name() == plrfs.morpher then
+				local slotsdef = morphinggrid.registered_morphers[plrfs.morpher].morpher_slots
+				local allow_put = slotsdef.allow_put or function() return stack:get_count() end
+				return allow_put(get_morpher(_player), stack, _player)
+			end
+			if plrfs.is_open then
+				minetest.chat_send_player(_player:get_player_name(), "The morpher's slots could not be modified because "..
+					"it was moved to a different inventory slot.")
+			end
+			return 0
+		end,
+
+		allow_take = function(inv, listname, index, stack, _player)
+			local plrfs = morphinggrid.morpher_slots.formspecdata[_player:get_player_name()]
+			local morpher = get_morpher_at(_player, stack_inv_location)
+			if morpher and morpher:get_name() == plrfs.morpher then
+				local slotsdef = morphinggrid.registered_morphers[plrfs.morpher].morpher_slots
+				local allow_put = slotsdef.allow_take or function() return stack:get_count() end
+				return allow_put(get_morpher(_player), stack, _player)
+			end
+			if plrfs.is_open then
+				minetest.chat_send_player(_player:get_player_name(), "The morpher's slots could not be modified because "..
+					"it was moved to a different inventory slot.")
+			end
+			return 0
+		end,
 		
 		on_put = function(inv, listname, index, stack, _player)
 			morphinggrid.morpher_slots.do_work(_player)
@@ -62,7 +97,8 @@ function morphinggrid.morpher_slots.formspec(player, morpher, inventory_option)
 	local morpherdef = morphinggrid.registered_morphers[morpher]
 	local slotsdef = morpherdef.morpher_slots
 	local desc = morpherdef.description or morpherdef.name
-	plrfs["morpher"] = morpher
+	plrfs.is_open = true
+	plrfs.morpher = morpher
 	
 	--set morpher inventory before showing it.
 	local result, input = slotsdef.load_input(get_morpher(player))
@@ -122,6 +158,10 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 		elseif fields.inv_morphers then
 			minetest.show_formspec(player:get_player_name(), "morphinggrid:morpher_slots",
 				morphinggrid.morpher_slots.formspec(player, plrfs.morpher, "morphers"))
+		end
+
+		if fields.quit then
+			plrfs.is_open = false
 		end
 	end
 end)

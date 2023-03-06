@@ -13,6 +13,7 @@ dofile(minetest.get_modpath("mighty_morphin") .. "/command_center_materials_craf
 dofile(minetest.get_modpath("mighty_morphin") .. "/teleportation_computer.lua")
 dofile(minetest.get_modpath("mighty_morphin") .. "/abms.lua")
 dofile(minetest.get_modpath("mighty_morphin") .. "/henchmen.lua")
+dofile(minetest.get_modpath("mighty_morphin") .. "/villian_items.lua")
 
 minetest.register_on_dignode(function(digger)
 	

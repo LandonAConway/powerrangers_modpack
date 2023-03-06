@@ -34,9 +34,9 @@ for k, v in pairs(rangers) do
 		griditem_commands = {
 			mode = {
 				description = "Sets the mode of the staff.",
-				params = "<mode [attack, morph]>",
+				params = "<mode [attack, dig, morph]>",
 				func = function(name, text, itemstack)
-					if text == "attack" or text == "drop" or text == "morph" then
+					if text == "attack" or text == "dig" or text == "morph" then
 						local meta = itemstack:get_meta()
 						meta:set_string("mode", text)
 						return true, 'Mode set to "'..text..'".', itemstack
@@ -130,6 +130,11 @@ for k, v in pairs(rangers) do
 						local tool_capabilities = morphinggrid.registered_morphers[itemstack:get_name()].tool_capabilities
 						pointed_thing.ref:punch(player, 0.1, tool_capabilities, nil)
 					end
+				end
+			elseif meta:get_string("mode") == "dig" then
+				if pointed_thing.type == "node" then
+					local pos = pointed_thing.under
+					minetest.node_dig(pos, minetest.get_node(pos), player)
 				end
 			elseif meta:get_string("mode") == "morph" then
 				local ranger = meta:get_string("morph")

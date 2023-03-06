@@ -15,7 +15,7 @@ morphinggrid.register_griditem("morphin_masters:master_staff", {
 		return 0
 	end,
 	tool_capabilities = {
-		damage_groups = { fleshy = 800 }
+		damage_groups = { fleshy = 5700 }
 	},
 	ranger_weapon = {
 		weapon_key = "master_staff",
@@ -36,9 +36,9 @@ morphinggrid.register_griditem("morphin_masters:master_staff", {
 	griditem_commands = {
 		mode = {
 			description = "Sets the mode of the staff.",
-			params = "<mode [attack, drop, morph]>",
+			params = "<mode [attack, dig, drop, morph]>",
 			func = function(name, text, itemstack)
-				if text == "attack" or text == "drop" or text == "morph" then
+				if text == "attack" or text == "dig" or text == "drop" or text == "morph" then
 					local meta = itemstack:get_meta()
 					meta:set_string("mode", text)
 					return true, 'Mode set to "'..text..'".', itemstack
@@ -86,6 +86,11 @@ morphinggrid.register_griditem("morphin_masters:master_staff", {
 		if mode == "attack" then
 			if pointed_thing.ref then
 				pointed_thing.ref:punch(player, 0.1, itemdef.tool_capabilities, nil)
+			end
+		elseif mode == "dig" then
+			if pointed_thing.type == "node" then
+				local pos = pointed_thing.under
+				minetest.node_dig(pos, minetest.get_node(pos), player)
 			end
 		elseif mode == "drop" then
 			local dropitem = meta:get_string("drop")

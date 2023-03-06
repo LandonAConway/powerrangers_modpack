@@ -167,7 +167,7 @@ II. Registrations (Look above for 'ranger' registration.)
 			}
 		}
 	
-	B. Regisering a girditem (formally called 'Grid Item')
+	B. Regisering a griditem (formally called 'Grid Item')
 		--griditems are supposed to be what connects to the morphinggrid.
 		--they usually contain energy that links to the Morphing Grid so a player can morph into a specific ranger.
 		--griditems can be tools, craftitems, or nodes.
@@ -198,6 +198,19 @@ II. Registrations (Look above for 'ranger' registration.)
 				end
 			}
 		}
+
+	C. Registering a powerup
+		--powerups are extra armors that can be applied to any ranger, such as the MMPR Green Ranger's Dragon Shield.
+		morphinggrid.register_powerup("mighty_morphin:dragon_shield", {
+
+			description = "Dragon Shield",
+			--multiplies and adds to the amount of energy that the ranger has.
+			mult_energy = 0.85,
+			--rtextures is the same as 'rtextures' while registering a ranger.
+			rtextures = {
+				chestplate = { armor = "mighty_morphin_dragon_shield.png" }
+			}
+		})
 		
 			
 II. Weapons/Arsenal
